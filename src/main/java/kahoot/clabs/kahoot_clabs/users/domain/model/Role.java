@@ -1,36 +1,54 @@
 package kahoot.clabs.kahoot_clabs.users.domain.model;
 
-import lombok.Getter;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import kahoot.clabs.kahoot_clabs.users.domain.model.Enums.RoleType;
+import kahoot.clabs.kahoot_clabs.shared.domain.AggregateRoot;
+import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
+import kahoot.clabs.kahoot_clabs.users.domain.enums.RoleType;
 
-@Getter
-public class Role {
+public class Role extends AggregateRoot {
 
     private final UUID id;
     private String name;
-    private RoleType type;
+    private final RoleType type;
     private String description;
+    private final List<Permission> permissions = new ArrayList<>();
 
-    private List<Permission> permissions = new ArrayList<>();   // ← Nueva
-
-    private Role(UUID id, String name, RoleType type, String description) {
-        this.id = id != null ? id : UUID.randomUUID();
-        this.name = name;
+    private Role(String name, RoleType type, String description) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException("Role name is required");
+        }
+        if (type == null) {
+            throw new DomainException("Role type is required");
+        }
+        this.id = UUID.randomUUID();
+        this.name = name.trim();
         this.type = type;
         this.description = description;
     }
 
     public static Role create(String name, RoleType type, String description) {
-        return new Role(null, name, type, description);
+        return new Role(name, type, description);
     }
 
-    // Métodos de dominio
+    public void rename(String name) {
+        if (name == null || name.isBlank()) {
+            throw new DomainException("Role name is required");
+        }
+        this.name = name.trim();
+    }
+
+    public void changeDescription(String description) {
+        this.description = description;
+    }
+
     public void addPermission(Permission permission) {
+        if (permission == null) {
+            throw new DomainException("Permission is required");
+        }
         if (!permissions.contains(permission)) {
             permissions.add(permission);
         }
@@ -38,5 +56,29 @@ public class Role {
 
     public void removePermission(Permission permission) {
         permissions.remove(permission);
+    }
+
+    public boolean hasPermission(String permissionName) {
+        return permissions.stream().anyMatch(permission -> permission.getName().equalsIgnoreCase(permissionName));
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public RoleType getType() {
+        return type;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public List<Permission> getPermissions() {
+        return Collections.unmodifiableList(permissions);
     }
 }
