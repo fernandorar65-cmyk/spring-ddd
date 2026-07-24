@@ -30,33 +30,65 @@ public class User extends AggregateRoot {
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private User(UUID organizationId, Email email, FullName fullName, Password password) {
+    private User(UUID id, UUID organizationId, Email email, FullName fullName, Password password,
+                 LocalDateTime createdAt) {
         if (organizationId == null) {
             throw new DomainException("Organization id is required");
         }
-        this.id = UUID.randomUUID();
+        if (password == null) {
+            throw new DomainException("Password is required");
+        }
+        this.id = id != null ? id : UUID.randomUUID();
         this.organizationId = organizationId;
         this.email = email;
         this.fullName = fullName;
         this.password = password;
         this.profile = UserProfile.empty();
         this.status = UserStatus.ACTIVE;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
 
+    /**
+     * Creates a new user with an already-hashed password (Application hashes via PasswordHasher).
+     */
     public static User create(
             UUID organizationId,
             String email,
             String firstName,
             String lastName,
-            String rawPassword) {
+            Password hashedPassword) {
         User user = new User(
+                null,
                 organizationId,
                 Email.of(email),
                 FullName.of(firstName, lastName),
-                Password.fromRawTemporarily(rawPassword));
+                hashedPassword,
+                null);
         user.registerEvent(new UserCreatedEvent(user.id, organizationId, user.email.value()));
+        return user;
+    }
+
+    public static User rehydrate(
+            UUID id,
+            UUID organizationId,
+            UUID roleId,
+            Email email,
+            FullName fullName,
+            Password password,
+            UserProfile profile,
+            UserStatus status,
+            String avatar,
+            LocalDateTime lastLogin,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        User user = new User(id, organizationId, email, fullName, password, createdAt);
+        user.roleId = roleId;
+        user.profile = profile != null ? profile : UserProfile.empty();
+        user.status = status != null ? status : UserStatus.ACTIVE;
+        user.avatar = avatar;
+        user.lastLogin = lastLogin;
+        user.updatedAt = updatedAt != null ? updatedAt : user.createdAt;
         return user;
     }
 

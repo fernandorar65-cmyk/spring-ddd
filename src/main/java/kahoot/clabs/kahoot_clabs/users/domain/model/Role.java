@@ -17,21 +17,29 @@ public class Role extends AggregateRoot {
     private String description;
     private final List<Permission> permissions = new ArrayList<>();
 
-    private Role(String name, RoleType type, String description) {
+    private Role(UUID id, String name, RoleType type, String description) {
         if (name == null || name.isBlank()) {
             throw new DomainException("Role name is required");
         }
         if (type == null) {
             throw new DomainException("Role type is required");
         }
-        this.id = UUID.randomUUID();
+        this.id = id != null ? id : UUID.randomUUID();
         this.name = name.trim();
         this.type = type;
         this.description = description;
     }
 
     public static Role create(String name, RoleType type, String description) {
-        return new Role(name, type, description);
+        return new Role(null, name, type, description);
+    }
+
+    public static Role rehydrate(UUID id, String name, RoleType type, String description, List<Permission> permissions) {
+        Role role = new Role(id, name, type, description);
+        if (permissions != null) {
+            role.permissions.addAll(permissions);
+        }
+        return role;
     }
 
     public void rename(String name) {

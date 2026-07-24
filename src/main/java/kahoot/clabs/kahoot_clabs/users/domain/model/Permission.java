@@ -29,6 +29,10 @@ public class Permission {
         return new Permission(null, name, description, module);
     }
 
+    public static Permission reconstitute(UUID id, String name, String description, String module) {
+        return new Permission(id, name, description, module);
+    }
+
     public UUID getId() {
         return id;
     }

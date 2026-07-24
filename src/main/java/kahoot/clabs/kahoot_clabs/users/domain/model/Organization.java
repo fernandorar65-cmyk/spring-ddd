@@ -21,25 +21,50 @@ public class Organization extends AggregateRoot {
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Organization(String name, String slug) {
+    private Organization(UUID id, String name, String slug, LocalDateTime createdAt) {
         if (name == null || name.isBlank()) {
             throw new DomainException("Organization name is required");
         }
         if (slug == null || slug.isBlank()) {
             throw new DomainException("Organization slug is required");
         }
-        this.id = UUID.randomUUID();
+        this.id = id != null ? id : UUID.randomUUID();
         this.name = name.trim();
         this.slug = slug.trim().toLowerCase();
         this.status = OrganizationStatus.ACTIVE;
         this.timezone = "America/Bogota";
         this.language = "es";
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = createdAt != null ? createdAt : LocalDateTime.now();
         this.updatedAt = this.createdAt;
     }
 
     public static Organization create(String name, String slug) {
-        return new Organization(name, slug);
+        return new Organization(null, name, slug, null);
+    }
+
+    public static Organization rehydrate(
+            UUID id,
+            String name,
+            String slug,
+            String logo,
+            String description,
+            String timezone,
+            String language,
+            OrganizationStatus status,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        Organization organization = new Organization(id, name, slug, createdAt);
+        organization.logo = logo;
+        organization.description = description;
+        if (timezone != null && !timezone.isBlank()) {
+            organization.timezone = timezone;
+        }
+        if (language != null && !language.isBlank()) {
+            organization.language = language;
+        }
+        organization.status = status != null ? status : OrganizationStatus.ACTIVE;
+        organization.updatedAt = updatedAt != null ? updatedAt : organization.createdAt;
+        return organization;
     }
 
     public void updateDetails(String name, String description) {

@@ -22,18 +22,8 @@ spring:
 server:
   port: ${SERVER_PORT:8081}
 
-# JWT — override via env in every non-local environment
-app:
-  jwt:
-    secret: ${JWT_SECRET:change-me-use-a-long-random-secret-key-32chars-min}
-    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
-
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-
-logging:
-  level:
-    org.springframework.security: INFO
