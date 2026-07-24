@@ -1,0 +1,15 @@
+# Profile used by unit/smoke tests without a local PostgreSQL instance.
+spring:
+  datasource:
+    url: jdbc:h2:mem:kahoot_clabs;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    enabled: true
+  h2:
+    console:
+      enabled: false
