@@ -30,7 +30,11 @@ public class Question extends BaseEntity {
     private QuizDifficulty difficulty;
 
     private Question(String title, QuestionType type) {
-        super(null);
+        this(null, title, type);
+    }
+
+    private Question(UUID id, String title, QuestionType type) {
+        super(id);
         if (title == null || title.isBlank()) {
             throw new DomainException("Question title is required");
         }
@@ -46,6 +50,34 @@ public class Question extends BaseEntity {
 
     public static Question create(String title, QuestionType type) {
         return new Question(title, type);
+    }
+
+    public static Question rehydrate(
+            UUID id,
+            UUID quizId,
+            String title,
+            String description,
+            QuestionType type,
+            Points points,
+            TimeLimit timeLimit,
+            int orderIndex,
+            String explanation,
+            QuizDifficulty difficulty,
+            List<AnswerOption> options,
+            QuestionAsset asset) {
+        Question question = new Question(id, title, type);
+        question.quizId = quizId;
+        question.description = description;
+        question.points = points != null ? points : Points.defaultValue();
+        question.timeLimit = timeLimit != null ? timeLimit : TimeLimit.defaultValue();
+        question.assignOrderIndex(orderIndex);
+        question.explanation = explanation;
+        question.difficulty = difficulty != null ? difficulty : QuizDifficulty.EASY;
+        if (options != null) {
+            question.options.addAll(options);
+        }
+        question.asset = asset;
+        return question;
     }
 
     public void assignQuizId(UUID quizId) {

@@ -14,7 +14,11 @@ public class AnswerOption extends BaseEntity {
     private String explanation;
 
     private AnswerOption(String text, boolean correct) {
-        super(null);
+        this(null, text, correct);
+    }
+
+    private AnswerOption(UUID id, String text, boolean correct) {
+        super(id);
         validateText(text);
         this.text = text.trim();
         this.correct = correct;
@@ -22,6 +26,20 @@ public class AnswerOption extends BaseEntity {
 
     public static AnswerOption create(String text, boolean correct) {
         return new AnswerOption(text, correct);
+    }
+
+    public static AnswerOption rehydrate(
+            UUID id,
+            UUID questionId,
+            String text,
+            boolean correct,
+            int orderIndex,
+            String explanation) {
+        AnswerOption option = new AnswerOption(id, text, correct);
+        option.questionId = questionId;
+        option.assignOrderIndex(orderIndex);
+        option.explanation = explanation;
+        return option;
     }
 
     private void validateText(String text) {
@@ -38,8 +56,8 @@ public class AnswerOption extends BaseEntity {
     }
 
     void assignOrderIndex(int orderIndex) {
-        if (orderIndex < 0) {
-            throw new DomainException("Order index cannot be negative");
+        if (orderIndex < 1) {
+            throw new DomainException("Answer option order index must be at least 1");
         }
         this.orderIndex = orderIndex;
     }
@@ -51,6 +69,10 @@ public class AnswerOption extends BaseEntity {
 
     void markAsCorrect(boolean correct) {
         this.correct = correct;
+    }
+
+    public void changeExplanation(String explanation) {
+        this.explanation = explanation;
     }
 
     public UUID getQuestionId() {

@@ -62,6 +62,26 @@ public class SessionQuestion extends BaseEntity {
         return new SessionQuestion(id, gameSessionId, quizQuestionId, orderIndex, points, timeLimitSeconds);
     }
 
+    public static SessionQuestion rehydrate(
+            UUID id,
+            UUID gameSessionId,
+            UUID quizQuestionId,
+            int orderIndex,
+            int points,
+            int timeLimitSeconds,
+            LocalDateTime openedAt,
+            LocalDateTime closedAt,
+            List<PlayerAnswer> answers) {
+        SessionQuestion question = new SessionQuestion(
+                id, gameSessionId, quizQuestionId, orderIndex, points, timeLimitSeconds);
+        question.openedAt = openedAt;
+        question.closedAt = closedAt;
+        if (answers != null) {
+            question.answers.addAll(answers);
+        }
+        return question;
+    }
+
     public void open() {
         if (openedAt != null) {
             throw new DomainException("Question was already opened");

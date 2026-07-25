@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.quiz.domain.aggregate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.AnswerOption;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.QuestionAsset;
+import kahoot.clabs.kahoot_clabs.quiz.domain.entity.QuizCategory;
 import kahoot.clabs.kahoot_clabs.quiz.domain.event.QuizPublishedEvent;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.EstimatedTime;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
@@ -26,8 +28,8 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 public class Quiz extends AggregateRoot {
 
     private final UUID organizationId;
-    private UUID categoryId;
     private final UUID createdById;
+    private final List<QuizCategory> categories = new ArrayList<>();
 
     private QuizTitle title;
     private String description;
@@ -46,7 +48,17 @@ public class Quiz extends AggregateRoot {
     private boolean template;
 
     private Quiz(UUID organizationId, QuizTitle title, UUID createdById) {
-        super(null, null, null);
+        this(null, organizationId, title, createdById, null, null);
+    }
+
+    private Quiz(
+            UUID id,
+            UUID organizationId,
+            QuizTitle title,
+            UUID createdById,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
         if (organizationId == null) {
             throw new DomainException("Organization id is required");
         }
@@ -64,6 +76,46 @@ public class Quiz extends AggregateRoot {
 
     public static Quiz create(UUID organizationId, String title, UUID createdById) {
         return new Quiz(organizationId, QuizTitle.of(title), createdById);
+    }
+
+    public static Quiz rehydrate(
+            UUID id,
+            UUID organizationId,
+            UUID createdById,
+            String title,
+            String description,
+            String thumbnail,
+            QuizVisibility visibility,
+            QuizStatus status,
+            QuizDifficulty difficulty,
+            EstimatedTime estimatedTime,
+            QuizSettings settings,
+            int playCount,
+            double averageRating,
+            boolean template,
+            List<QuizCategory> categories,
+            List<Question> questions,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        Quiz quiz = new Quiz(
+                id, organizationId, QuizTitle.of(title), createdById, createdAt, updatedAt);
+        quiz.description = description;
+        quiz.thumbnail = thumbnail;
+        quiz.visibility = visibility != null ? visibility : QuizVisibility.ORGANIZATION;
+        quiz.status = status != null ? status : QuizStatus.DRAFT;
+        quiz.difficulty = difficulty != null ? difficulty : QuizDifficulty.EASY;
+        quiz.estimatedTime = estimatedTime;
+        quiz.settings = settings != null ? settings : QuizSettings.defaultSettings();
+        quiz.playCount = playCount;
+        quiz.averageRating = averageRating;
+        quiz.template = template;
+        if (categories != null) {
+            quiz.categories.addAll(categories);
+        }
+        if (questions != null) {
+            quiz.questions.addAll(questions);
+        }
+        return quiz;
     }
 
     public Question addQuestion(String questionTitle, QuestionType type) {
@@ -128,10 +180,30 @@ public class Quiz extends AggregateRoot {
         touch();
     }
 
-    public void assignCategory(UUID categoryId) {
+    public void changeThumbnail(String thumbnail) {
         ensureEditable();
-        this.categoryId = categoryId;
+        this.thumbnail = thumbnail;
         touch();
+    }
+
+    public void assignCategory(UUID categoryId) {
+        addCategory(categoryId);
+    }
+
+    public void addCategory(UUID categoryId) {
+        ensureEditable();
+        QuizCategory category = QuizCategory.of(getId(), categoryId);
+        if (!categories.contains(category)) {
+            categories.add(category);
+            touch();
+        }
+    }
+
+    public void removeCategory(UUID categoryId) {
+        ensureEditable();
+        if (categories.removeIf(category -> category.getCategoryId().equals(categoryId))) {
+            touch();
+        }
     }
 
     public void changeVisibility(QuizVisibility visibility) {
@@ -218,7 +290,11 @@ public class Quiz extends AggregateRoot {
     }
 
     public UUID getCategoryId() {
-        return categoryId;
+        return categories.isEmpty() ? null : categories.getFirst().getCategoryId();
+    }
+
+    public List<QuizCategory> getCategories() {
+        return Collections.unmodifiableList(categories);
     }
 
     public UUID getCreatedById() {

@@ -7,7 +7,7 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 public final class QuizTitle {
 
     private static final int MIN_LENGTH = 3;
-    private static final int MAX_LENGTH = 150;
+    private static final int MAX_LENGTH = 200;
 
     private final String value;
 

@@ -17,9 +17,14 @@ public class QuestionAsset extends BaseEntity {
     private final MediaUrl url;
     private MediaUrl thumbnailUrl;
     private String altText;
+    private Integer durationSeconds;
 
     private QuestionAsset(MediaType type, MediaUrl url) {
-        super(null);
+        this(null, type, url);
+    }
+
+    private QuestionAsset(UUID id, MediaType type, MediaUrl url) {
+        super(id);
         if (type == null) {
             throw new DomainException("Media type is required");
         }
@@ -34,16 +39,39 @@ public class QuestionAsset extends BaseEntity {
         return new QuestionAsset(type, url);
     }
 
+    public static QuestionAsset rehydrate(
+            UUID id,
+            UUID questionId,
+            MediaType type,
+            MediaUrl url,
+            MediaUrl thumbnailUrl,
+            String altText,
+            Integer durationSeconds) {
+        QuestionAsset asset = new QuestionAsset(id, type, url);
+        asset.questionId = questionId;
+        asset.thumbnailUrl = thumbnailUrl;
+        asset.altText = altText;
+        asset.changeDurationSeconds(durationSeconds);
+        return asset;
+    }
+
     void assignQuestionId(UUID questionId) {
         this.questionId = questionId;
     }
 
-    void changeThumbnail(MediaUrl thumbnailUrl) {
+    public void changeThumbnail(MediaUrl thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    void changeAltText(String altText) {
+    public void changeAltText(String altText) {
         this.altText = altText;
+    }
+
+    public void changeDurationSeconds(Integer durationSeconds) {
+        if (durationSeconds != null && durationSeconds <= 0) {
+            throw new DomainException("Media duration must be positive");
+        }
+        this.durationSeconds = durationSeconds;
     }
 
     public UUID getQuestionId() {
@@ -64,5 +92,9 @@ public class QuestionAsset extends BaseEntity {
 
     public String getAltText() {
         return altText;
+    }
+
+    public Integer getDurationSeconds() {
+        return durationSeconds;
     }
 }

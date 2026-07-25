@@ -22,8 +22,8 @@ public class OrganizationEntity {
     @Column(nullable = false, length = 100, unique = true)
     private String slug;
 
-    @Column(length = 500)
-    private String logo;
+    @Column(name = "logo_url", length = 500)
+    private String logoUrl;
 
     @Column(columnDefinition = "TEXT")
     private String description;
@@ -68,11 +68,19 @@ public class OrganizationEntity {
     }
 
     public String getLogo() {
-        return logo;
+        return logoUrl;
     }
 
     public void setLogo(String logo) {
-        this.logo = logo;
+        this.logoUrl = logo;
+    }
+
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
     }
 
     public String getDescription() {

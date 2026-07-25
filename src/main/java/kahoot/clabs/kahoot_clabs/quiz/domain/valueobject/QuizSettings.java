@@ -38,6 +38,24 @@ public final class QuizSettings {
         return new QuizSettings(false, false, false, true, false, true, false);
     }
 
+    public static QuizSettings of(
+            boolean randomQuestions,
+            boolean randomAnswers,
+            boolean showCorrectAnswer,
+            boolean showRanking,
+            boolean allowRetry,
+            boolean showTimer,
+            boolean musicEnabled) {
+        return new QuizSettings(
+                randomQuestions,
+                randomAnswers,
+                showCorrectAnswer,
+                showRanking,
+                allowRetry,
+                showTimer,
+                musicEnabled);
+    }
+
     public QuizSettings withRandomQuestions(boolean enabled) {
         return new QuizSettings(enabled, randomAnswers, showCorrectAnswer, showRanking, allowRetry, showTimer, musicEnabled);
     }

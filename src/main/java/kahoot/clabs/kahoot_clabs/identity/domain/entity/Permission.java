@@ -1,25 +1,36 @@
 package kahoot.clabs.kahoot_clabs.identity.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.shared.domain.AuditableEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
-public class Permission {
+public class Permission extends AuditableEntity {
 
-    private final UUID id;
     private final String name;
     private final String description;
     private final String module;
 
     private Permission(UUID id, String name, String description, String module) {
+        this(id, name, description, module, null, null);
+    }
+
+    private Permission(
+            UUID id,
+            String name,
+            String description,
+            String module,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
         if (name == null || name.isBlank()) {
             throw new DomainException("Permission name is required");
         }
         if (module == null || module.isBlank()) {
             throw new DomainException("Permission module is required");
         }
-        this.id = id != null ? id : UUID.randomUUID();
         this.name = name.trim().toUpperCase();
         this.description = description;
         this.module = module.trim().toLowerCase();
@@ -33,8 +44,14 @@ public class Permission {
         return new Permission(id, name, description, module);
     }
 
-    public UUID getId() {
-        return id;
+    public static Permission rehydrate(
+            UUID id,
+            String name,
+            String description,
+            String module,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        return new Permission(id, name, description, module, createdAt, updatedAt);
     }
 
     public String getName() {

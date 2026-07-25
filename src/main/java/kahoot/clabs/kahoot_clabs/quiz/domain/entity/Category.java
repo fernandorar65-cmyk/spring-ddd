@@ -14,6 +14,7 @@ public class Category extends BaseEntity {
     private String name;
     private String description;
     private String color;
+    private String icon;
 
     private Category(UUID id, UUID organizationId, String name, String description, String color) {
         super(id);
@@ -37,6 +38,18 @@ public class Category extends BaseEntity {
         return new Category(id, organizationId, name, description, color);
     }
 
+    public static Category rehydrate(
+            UUID id,
+            UUID organizationId,
+            String name,
+            String description,
+            String color,
+            String icon) {
+        Category category = new Category(id, organizationId, name, description, color);
+        category.icon = icon;
+        return category;
+    }
+
     public void rename(String name) {
         if (name == null || name.isBlank()) {
             throw new DomainException("Category name is required");
@@ -50,6 +63,10 @@ public class Category extends BaseEntity {
 
     public void changeColor(String color) {
         this.color = color;
+    }
+
+    public void changeIcon(String icon) {
+        this.icon = icon;
     }
 
     public UUID getOrganizationId() {
@@ -66,5 +83,9 @@ public class Category extends BaseEntity {
 
     public String getColor() {
         return color;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 }

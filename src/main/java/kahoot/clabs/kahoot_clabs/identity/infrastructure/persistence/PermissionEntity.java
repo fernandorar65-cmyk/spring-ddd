@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -23,6 +24,12 @@ public class PermissionEntity {
 
     @Column(nullable = false, length = 50)
     private String module;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 
     public UUID getId() {
         return id;
@@ -54,5 +61,21 @@ public class PermissionEntity {
 
     public void setModule(String module) {
         this.module = module;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

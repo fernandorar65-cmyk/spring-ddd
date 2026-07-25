@@ -31,7 +31,7 @@ public class GameSession extends AggregateRoot {
     private final UUID organizationId;
     private final UUID quizId;
     private final UUID hostUserId;
-    private final GamePin pin;
+    private GamePin pin;
 
     private GameStatus status;
     private int currentQuestionIndex = NO_QUESTION;
@@ -44,6 +44,18 @@ public class GameSession extends AggregateRoot {
 
     private GameSession(UUID id, UUID organizationId, UUID quizId, UUID hostUserId, GamePin pin,
                         LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this(id, organizationId, quizId, hostUserId, pin, false, createdAt, updatedAt);
+    }
+
+    private GameSession(
+            UUID id,
+            UUID organizationId,
+            UUID quizId,
+            UUID hostUserId,
+            GamePin pin,
+            boolean releasedPinAllowed,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
         super(id, createdAt, updatedAt);
         if (organizationId == null) {
             throw new DomainException("Organization id is required");
@@ -54,7 +66,7 @@ public class GameSession extends AggregateRoot {
         if (hostUserId == null) {
             throw new DomainException("Host user id is required");
         }
-        if (pin == null) {
+        if (pin == null && !releasedPinAllowed) {
             throw new DomainException("Game pin is required");
         }
         this.organizationId = organizationId;
@@ -82,8 +94,19 @@ public class GameSession extends AggregateRoot {
             LocalDateTime finishedAt,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
-        GameSession session = new GameSession(id, organizationId, quizId, hostUserId, pin, createdAt, updatedAt);
-        session.status = status != null ? status : GameStatus.LOBBY;
+        GameStatus restoredStatus = status != null ? status : GameStatus.LOBBY;
+        boolean releasedPinAllowed = restoredStatus == GameStatus.FINISHED
+                || restoredStatus == GameStatus.CANCELLED;
+        GameSession session = new GameSession(
+                id,
+                organizationId,
+                quizId,
+                hostUserId,
+                pin,
+                releasedPinAllowed,
+                createdAt,
+                updatedAt);
+        session.status = restoredStatus;
         session.currentQuestionIndex = currentQuestionIndex;
         if (players != null) {
             session.players.addAll(players);
@@ -184,6 +207,7 @@ public class GameSession extends AggregateRoot {
         }
         this.status = GameStatus.FINISHED;
         this.finishedAt = LocalDateTime.now();
+        this.pin = null;
         touch();
     }
 
@@ -192,6 +216,7 @@ public class GameSession extends AggregateRoot {
             throw new DomainException("A finished session cannot be cancelled");
         }
         this.status = GameStatus.CANCELLED;
+        this.pin = null;
         touch();
     }
 

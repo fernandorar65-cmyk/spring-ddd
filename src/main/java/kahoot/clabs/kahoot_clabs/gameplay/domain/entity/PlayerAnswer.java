@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.gameplay.domain.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.ResponseTime;
@@ -18,9 +19,10 @@ public class PlayerAnswer extends BaseEntity {
     private final boolean correct;
     private final ResponseTime responseTime;
     private final int awardedPoints;
+    private final LocalDateTime answeredAt;
 
     private PlayerAnswer(UUID id, UUID sessionQuestionId, UUID sessionPlayerId, UUID selectedOptionId,
-                         boolean correct, ResponseTime responseTime, int awardedPoints) {
+                         boolean correct, ResponseTime responseTime, int awardedPoints, LocalDateTime answeredAt) {
         super(id);
         if (sessionQuestionId == null) {
             throw new DomainException("Session question id is required");
@@ -40,18 +42,39 @@ public class PlayerAnswer extends BaseEntity {
         this.correct = correct;
         this.responseTime = responseTime;
         this.awardedPoints = awardedPoints;
+        this.answeredAt = answeredAt != null ? answeredAt : LocalDateTime.now();
     }
 
     public static PlayerAnswer of(UUID sessionQuestionId, UUID sessionPlayerId, UUID selectedOptionId,
                                   boolean correct, ResponseTime responseTime, int awardedPoints) {
         return new PlayerAnswer(null, sessionQuestionId, sessionPlayerId, selectedOptionId, correct, responseTime,
-                awardedPoints);
+                awardedPoints, null);
     }
 
     public static PlayerAnswer rehydrate(UUID id, UUID sessionQuestionId, UUID sessionPlayerId, UUID selectedOptionId,
                                          boolean correct, ResponseTime responseTime, int awardedPoints) {
         return new PlayerAnswer(id, sessionQuestionId, sessionPlayerId, selectedOptionId, correct, responseTime,
-                awardedPoints);
+                awardedPoints, null);
+    }
+
+    public static PlayerAnswer rehydrate(
+            UUID id,
+            UUID sessionQuestionId,
+            UUID sessionPlayerId,
+            UUID selectedOptionId,
+            boolean correct,
+            ResponseTime responseTime,
+            int awardedPoints,
+            LocalDateTime answeredAt) {
+        return new PlayerAnswer(
+                id,
+                sessionQuestionId,
+                sessionPlayerId,
+                selectedOptionId,
+                correct,
+                responseTime,
+                awardedPoints,
+                answeredAt);
     }
 
     public UUID getSessionQuestionId() {
@@ -76,5 +99,9 @@ public class PlayerAnswer extends BaseEntity {
 
     public int getAwardedPoints() {
         return awardedPoints;
+    }
+
+    public LocalDateTime getAnsweredAt() {
+        return answeredAt;
     }
 }

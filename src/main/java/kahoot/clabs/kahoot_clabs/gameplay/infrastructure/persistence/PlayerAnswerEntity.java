@@ -1,0 +1,50 @@
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(
+        name = "player_answers",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_player_answers_question_player",
+                columnNames = {"session_question_id", "session_player_id"}))
+@Getter
+@Setter
+@NoArgsConstructor
+public class PlayerAnswerEntity {
+
+    @Id
+    @Column(nullable = false)
+    private UUID id;
+
+    @Column(name = "session_question_id", nullable = false)
+    private UUID sessionQuestionId;
+
+    @Column(name = "session_player_id", nullable = false)
+    private UUID sessionPlayerId;
+
+    @Column(name = "answer_option_id")
+    private UUID answerOptionId;
+
+    @Column(name = "is_correct", nullable = false)
+    private boolean correct;
+
+    @Column(name = "response_time_ms", nullable = false)
+    private long responseTimeMs;
+
+    @Column(name = "awarded_points", nullable = false)
+    private int awardedPoints;
+
+    @Column(name = "answered_at", nullable = false)
+    private LocalDateTime answeredAt;
+}

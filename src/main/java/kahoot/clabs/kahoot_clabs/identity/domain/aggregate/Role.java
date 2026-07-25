@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.identity.domain.aggregate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,17 @@ public class Role extends AggregateRoot {
     private final List<Permission> permissions = new ArrayList<>();
 
     private Role(UUID id, String name, RoleType type, String description) {
-        super(id, null, null);
+        this(id, name, type, description, null, null);
+    }
+
+    private Role(
+            UUID id,
+            String name,
+            RoleType type,
+            String description,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
         if (name == null || name.isBlank()) {
             throw new DomainException("Role name is required");
         }
@@ -36,6 +47,21 @@ public class Role extends AggregateRoot {
 
     public static Role rehydrate(UUID id, String name, RoleType type, String description, List<Permission> permissions) {
         Role role = new Role(id, name, type, description);
+        if (permissions != null) {
+            role.permissions.addAll(permissions);
+        }
+        return role;
+    }
+
+    public static Role rehydrate(
+            UUID id,
+            String name,
+            RoleType type,
+            String description,
+            List<Permission> permissions,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt) {
+        Role role = new Role(id, name, type, description, createdAt, updatedAt);
         if (permissions != null) {
             role.permissions.addAll(permissions);
         }

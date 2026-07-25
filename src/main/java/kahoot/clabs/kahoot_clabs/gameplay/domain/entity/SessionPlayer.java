@@ -21,6 +21,7 @@ public class SessionPlayer extends BaseEntity {
     private PlayerScore score;
     private boolean connected;
     private final LocalDateTime joinedAt;
+    private LocalDateTime leftAt;
 
     private SessionPlayer(UUID id, UUID gameSessionId, UUID userId, String nickname, PlayerScore score,
                           boolean connected, LocalDateTime joinedAt) {
@@ -51,16 +52,33 @@ public class SessionPlayer extends BaseEntity {
         return new SessionPlayer(id, gameSessionId, userId, nickname, score, connected, joinedAt);
     }
 
+    public static SessionPlayer rehydrate(
+            UUID id,
+            UUID gameSessionId,
+            UUID userId,
+            String nickname,
+            PlayerScore score,
+            boolean connected,
+            LocalDateTime joinedAt,
+            LocalDateTime leftAt) {
+        SessionPlayer player = new SessionPlayer(
+                id, gameSessionId, userId, nickname, score, connected, joinedAt);
+        player.leftAt = leftAt;
+        return player;
+    }
+
     public void award(int points) {
         this.score = score.plus(points);
     }
 
     public void disconnect() {
         this.connected = false;
+        this.leftAt = LocalDateTime.now();
     }
 
     public void reconnect() {
         this.connected = true;
+        this.leftAt = null;
     }
 
     public UUID getGameSessionId() {
@@ -85,5 +103,9 @@ public class SessionPlayer extends BaseEntity {
 
     public LocalDateTime getJoinedAt() {
         return joinedAt;
+    }
+
+    public LocalDateTime getLeftAt() {
+        return leftAt;
     }
 }
