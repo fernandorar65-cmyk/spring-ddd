@@ -1,12 +1,18 @@
 package kahoot.clabs.kahoot_clabs.shared.domain;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
-public abstract class AggregateRoot {
+public abstract class AggregateRoot extends AuditableEntity {
 
     private final List<DomainEvent> domainEvents = new ArrayList<>();
+
+    protected AggregateRoot(UUID id, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        super(id, createdAt, updatedAt);
+    }
 
     protected void registerEvent(DomainEvent event) {
         if (event == null) {
