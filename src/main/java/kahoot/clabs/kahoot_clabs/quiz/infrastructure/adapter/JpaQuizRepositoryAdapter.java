@@ -1,6 +1,7 @@
 package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter;
 
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,24 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     }
 
     @Override
+    public List<Quiz> findAll() {
+        return springDataRepository.findAll().stream()
+                .map(QuizMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public boolean existsById(UUID id) {
+        return springDataRepository.existsById(id);
+    }
+
+    @Override
     public void delete(Quiz quiz) {
         springDataRepository.deleteById(quiz.getId());
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        springDataRepository.deleteById(id);
     }
 }

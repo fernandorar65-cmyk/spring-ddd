@@ -13,9 +13,13 @@ public interface GameSessionRepository {
 
     Optional<GameSession> findById(UUID id);
 
+    List<GameSession> findAll();
+
     Optional<GameSession> findByPin(GamePin pin);
 
     List<GameSession> findByQuizId(UUID quizId);
 
     void delete(GameSession session);
+
+    void deleteById(UUID id);
 }

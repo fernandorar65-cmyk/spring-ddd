@@ -31,6 +31,13 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepository {
     }
 
     @Override
+    public List<Category> findAll() {
+        return springDataRepository.findAll().stream()
+                .map(CategoryMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public List<Category> findByOrganizationId(UUID organizationId) {
         return springDataRepository.findByOrganizationId(organizationId).stream()
                 .map(CategoryMapper::toDomain)
@@ -40,5 +47,10 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepository {
     @Override
     public void delete(Category category) {
         springDataRepository.deleteById(category.getId());
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        springDataRepository.deleteById(id);
     }
 }

@@ -32,6 +32,13 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
     }
 
     @Override
+    public List<GameSession> findAll() {
+        return springDataRepository.findAll().stream()
+                .map(GameSessionMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<GameSession> findByPin(GamePin pin) {
         return springDataRepository.findByGamePin(pin.value()).map(GameSessionMapper::toDomain);
     }
@@ -46,5 +53,10 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
     @Override
     public void delete(GameSession session) {
         springDataRepository.deleteById(session.getId());
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        springDataRepository.deleteById(id);
     }
 }

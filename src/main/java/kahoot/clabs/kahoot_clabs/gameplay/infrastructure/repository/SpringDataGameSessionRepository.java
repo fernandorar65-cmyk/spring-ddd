@@ -15,6 +15,10 @@ public interface SpringDataGameSessionRepository extends JpaRepository<GameSessi
     @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
     Optional<GameSessionEntity> findById(UUID id);
 
+    @Override
+    @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
+    List<GameSessionEntity> findAll();
+
     @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
     Optional<GameSessionEntity> findByGamePin(String gamePin);
 
