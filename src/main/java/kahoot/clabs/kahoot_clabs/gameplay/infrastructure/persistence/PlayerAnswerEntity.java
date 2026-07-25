@@ -5,7 +5,10 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -47,4 +50,12 @@ public class PlayerAnswerEntity {
 
     @Column(name = "answered_at", nullable = false)
     private LocalDateTime answeredAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_question_id", insertable = false, updatable = false)
+    private SessionQuestionEntity sessionQuestion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_player_id", insertable = false, updatable = false)
+    private SessionPlayerEntity sessionPlayer;
 }
