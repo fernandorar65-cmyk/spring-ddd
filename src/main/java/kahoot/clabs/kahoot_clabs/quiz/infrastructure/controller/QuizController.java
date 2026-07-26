@@ -5,19 +5,25 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.CreateQuizCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.AnswerOptionCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.QuestionAssetCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.ReorderAnswerOptionsCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.CreateQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.GetQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListQuizzesUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.EditQuizContentUseCase;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
@@ -27,14 +33,17 @@ public class QuizController {
     private final CreateQuizUseCase createQuizUseCase;
     private final GetQuizUseCase getQuizUseCase;
     private final ListQuizzesUseCase listQuizzesUseCase;
+    private final EditQuizContentUseCase editQuizContentUseCase;
 
     public QuizController(
             CreateQuizUseCase createQuizUseCase,
             GetQuizUseCase getQuizUseCase,
-            ListQuizzesUseCase listQuizzesUseCase) {
+            ListQuizzesUseCase listQuizzesUseCase,
+            EditQuizContentUseCase editQuizContentUseCase) {
         this.createQuizUseCase = createQuizUseCase;
         this.getQuizUseCase = getQuizUseCase;
         this.listQuizzesUseCase = listQuizzesUseCase;
+        this.editQuizContentUseCase = editQuizContentUseCase;
     }
 
     @PostMapping
@@ -58,5 +67,87 @@ public class QuizController {
     public ResponseEntity<ApiResponse<List<QuizResponse>>> list(@PathVariable UUID organizationId) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK, "Quizzes retrieved", listQuizzesUseCase.execute(organizationId)));
+    }
+
+    @PostMapping("/{quizId}/questions/{questionId}/options")
+    public ResponseEntity<ApiResponse<QuizResponse>> addAnswerOption(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @Valid @RequestBody AnswerOptionCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                HttpStatus.CREATED,
+                "Answer option added",
+                editQuizContentUseCase.addAnswerOption(organizationId, quizId, questionId, command)));
+    }
+
+    @PutMapping("/{quizId}/questions/{questionId}/options/{optionId}")
+    public ResponseEntity<ApiResponse<QuizResponse>> updateAnswerOption(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @PathVariable UUID optionId,
+            @Valid @RequestBody AnswerOptionCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Answer option updated",
+                editQuizContentUseCase.updateAnswerOption(organizationId, quizId, questionId, optionId, command)));
+    }
+
+    @PutMapping("/{quizId}/questions/{questionId}/options/order")
+    public ResponseEntity<ApiResponse<QuizResponse>> reorderAnswerOptions(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @Valid @RequestBody ReorderAnswerOptionsCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Answer options reordered",
+                editQuizContentUseCase.reorderAnswerOptions(organizationId, quizId, questionId, command)));
+    }
+
+    @DeleteMapping("/{quizId}/questions/{questionId}/options/{optionId}")
+    public ResponseEntity<Void> removeAnswerOption(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @PathVariable UUID optionId) {
+        editQuizContentUseCase.removeAnswerOption(organizationId, quizId, questionId, optionId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{quizId}/questions/{questionId}/assets")
+    public ResponseEntity<ApiResponse<QuizResponse>> addAsset(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @Valid @RequestBody QuestionAssetCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                HttpStatus.CREATED,
+                "Question asset added",
+                editQuizContentUseCase.addAsset(organizationId, quizId, questionId, command)));
+    }
+
+    @PutMapping("/{quizId}/questions/{questionId}/assets/{assetId}")
+    public ResponseEntity<ApiResponse<QuizResponse>> updateAsset(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @PathVariable UUID assetId,
+            @Valid @RequestBody QuestionAssetCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Question asset updated",
+                editQuizContentUseCase.updateAsset(organizationId, quizId, questionId, assetId, command)));
+    }
+
+    @DeleteMapping("/{quizId}/questions/{questionId}/assets/{assetId}")
+    public ResponseEntity<Void> removeAsset(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @PathVariable UUID assetId) {
+        editQuizContentUseCase.removeAsset(organizationId, quizId, questionId, assetId);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -143,10 +143,71 @@ public class Quiz extends AggregateRoot {
         touch();
     }
 
+    public void updateAnswerOption(UUID questionId, UUID optionId, String text, boolean correct) {
+        ensureEditable();
+        requireQuestion(questionId).updateAnswerOption(optionId, text, correct);
+        touch();
+    }
+
+    public void removeAnswerOption(UUID questionId, UUID optionId) {
+        ensureEditable();
+        requireQuestion(questionId).removeAnswerOption(optionId);
+        touch();
+    }
+
+    public void reorderAnswerOptions(UUID questionId, List<UUID> orderedOptionIds) {
+        ensureEditable();
+        requireQuestion(questionId).reorderAnswerOptions(orderedOptionIds);
+        touch();
+    }
+
     public void attachAsset(UUID questionId, MediaType type, String url) {
         ensureEditable();
         Question question = requireQuestion(questionId);
         question.attachAsset(QuestionAsset.create(type, MediaUrl.of(url)));
+        touch();
+    }
+
+    public void attachAsset(
+            UUID questionId,
+            MediaType type,
+            String url,
+            String thumbnailUrl,
+            String altText,
+            Integer durationSeconds) {
+        attachAsset(questionId, type, url);
+        Question question = requireQuestion(questionId);
+        question.updateAsset(
+                question.getAsset().getId(),
+                type,
+                MediaUrl.of(url),
+                thumbnailUrl == null || thumbnailUrl.isBlank() ? null : MediaUrl.of(thumbnailUrl),
+                altText,
+                durationSeconds);
+    }
+
+    public void updateQuestionAsset(
+            UUID questionId,
+            UUID assetId,
+            MediaType type,
+            String url,
+            String thumbnailUrl,
+            String altText,
+            Integer durationSeconds) {
+        ensureEditable();
+        requireQuestion(questionId).updateAsset(
+                assetId,
+                type,
+                MediaUrl.of(url),
+                thumbnailUrl == null || thumbnailUrl.isBlank() ? null : MediaUrl.of(thumbnailUrl),
+                altText,
+                durationSeconds);
+        touch();
+    }
+
+    public void removeQuestionAsset(UUID questionId, UUID assetId) {
+        ensureEditable();
+        requireQuestion(questionId).removeAsset(assetId);
         touch();
     }
 

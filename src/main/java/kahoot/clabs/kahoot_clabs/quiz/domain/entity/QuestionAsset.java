@@ -13,8 +13,8 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 public class QuestionAsset extends BaseEntity {
 
     private UUID questionId;
-    private final MediaType type;
-    private final MediaUrl url;
+    private MediaType type;
+    private MediaUrl url;
     private MediaUrl thumbnailUrl;
     private String altText;
     private Integer durationSeconds;
@@ -57,6 +57,17 @@ public class QuestionAsset extends BaseEntity {
 
     void assignQuestionId(UUID questionId) {
         this.questionId = questionId;
+    }
+
+    void update(MediaType type, MediaUrl url, MediaUrl thumbnailUrl, String altText, Integer durationSeconds) {
+        if (type == null || url == null) {
+            throw new DomainException("Media type and URL are required");
+        }
+        this.type = type;
+        this.url = url;
+        this.thumbnailUrl = thumbnailUrl;
+        this.altText = altText;
+        changeDurationSeconds(durationSeconds);
     }
 
     public void changeThumbnail(MediaUrl thumbnailUrl) {

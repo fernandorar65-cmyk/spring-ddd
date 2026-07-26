@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.Points;
+import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
+import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaUrl;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuestionType;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.TimeLimit;
@@ -112,9 +114,53 @@ public class Question extends BaseEntity {
         options.add(option);
     }
 
+    public void updateAnswerOption(UUID optionId, String text, boolean correct) {
+        AnswerOption option = requireOption(optionId);
+        option.updateText(text);
+        option.markAsCorrect(correct);
+    }
+
+    public void removeAnswerOption(UUID optionId) {
+        options.remove(requireOption(optionId));
+        reindexOptions();
+    }
+
+    public void reorderAnswerOptions(List<UUID> orderedOptionIds) {
+        if (orderedOptionIds == null || orderedOptionIds.size() != options.size()) {
+            throw new DomainException("The option order must contain every answer option exactly once");
+        }
+        List<AnswerOption> reordered = new ArrayList<>();
+        for (UUID optionId : orderedOptionIds) {
+            AnswerOption option = requireOption(optionId);
+            if (reordered.contains(option)) {
+                throw new DomainException("An answer option cannot be repeated in the order");
+            }
+            reordered.add(option);
+        }
+        options.clear();
+        options.addAll(reordered);
+        reindexOptions();
+    }
+
     public void attachAsset(QuestionAsset asset) {
         asset.assignQuestionId(getId());
         this.asset = asset;
+    }
+
+    public void updateAsset(
+            UUID assetId,
+            MediaType type,
+            MediaUrl url,
+            MediaUrl thumbnailUrl,
+            String altText,
+            Integer durationSeconds) {
+        QuestionAsset currentAsset = requireAsset(assetId);
+        currentAsset.update(type, url, thumbnailUrl, altText, durationSeconds);
+    }
+
+    public void removeAsset(UUID assetId) {
+        requireAsset(assetId);
+        this.asset = null;
     }
 
     public void changeDifficulty(QuizDifficulty difficulty) {
@@ -175,6 +221,26 @@ public class Question extends BaseEntity {
         boolean hasCorrect = options.stream().anyMatch(AnswerOption::isCorrect);
         if (!hasCorrect) {
             throw new DomainException("Question '" + title + "' must have at least one correct option");
+        }
+    }
+
+    private AnswerOption requireOption(UUID optionId) {
+        return options.stream()
+                .filter(option -> option.getId().equals(optionId))
+                .findFirst()
+                .orElseThrow(() -> new DomainException("Answer option not found: " + optionId));
+    }
+
+    private QuestionAsset requireAsset(UUID assetId) {
+        if (asset == null || !asset.getId().equals(assetId)) {
+            throw new DomainException("Question asset not found: " + assetId);
+        }
+        return asset;
+    }
+
+    private void reindexOptions() {
+        for (int index = 0; index < options.size(); index++) {
+            options.get(index).assignOrderIndex(index + 1);
         }
     }
 
