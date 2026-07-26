@@ -13,6 +13,7 @@ import kahoot.clabs.kahoot_clabs.identity.application.command.RegisterUserComman
 import kahoot.clabs.kahoot_clabs.identity.application.dto.AuthUserResponse;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.LoginUserUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.RegisterUserUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -29,12 +30,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthUserResponse> register(@Valid @RequestBody RegisterUserCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(registerUserUseCase.execute(command));
+    public ResponseEntity<ApiResponse<AuthUserResponse>> register(@Valid @RequestBody RegisterUserCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED, "User registered", registerUserUseCase.execute(command)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthUserResponse> login(@Valid @RequestBody LoginCommand command) {
-        return ResponseEntity.ok(loginUserUseCase.execute(command));
+    public ResponseEntity<ApiResponse<AuthUserResponse>> login(@Valid @RequestBody LoginCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, "Login successful", loginUserUseCase.execute(command)));
     }
 }

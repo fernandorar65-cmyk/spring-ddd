@@ -22,6 +22,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetGameSessionUseC
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.JoinGameSessionByPinUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.JoinGameSessionUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ListGameSessionsByQuizUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/game-sessions")
@@ -47,31 +48,40 @@ public class GameSessionController {
     }
 
     @PostMapping
-    public ResponseEntity<GameSessionResponse> create(@Valid @RequestBody CreateGameSessionCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(createGameSessionUseCase.execute(command));
+    public ResponseEntity<ApiResponse<GameSessionResponse>> create(@Valid @RequestBody CreateGameSessionCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(HttpStatus.CREATED, "Game session created", createGameSessionUseCase.execute(command)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameSessionResponse> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(getGameSessionUseCase.execute(id));
+    public ResponseEntity<ApiResponse<GameSessionResponse>> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Game session retrieved", getGameSessionUseCase.execute(id)));
     }
 
     @GetMapping
-    public ResponseEntity<List<GameSessionResponse>> listByQuiz(@RequestParam UUID quizId) {
-        return ResponseEntity.ok(listGameSessionsByQuizUseCase.execute(quizId));
+    public ResponseEntity<ApiResponse<List<GameSessionResponse>>> listByQuiz(@RequestParam UUID quizId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Game sessions retrieved", listGameSessionsByQuizUseCase.execute(quizId)));
     }
 
     @PostMapping("/{id}/players")
-    public ResponseEntity<GameSessionResponse> join(
+    public ResponseEntity<ApiResponse<GameSessionResponse>> join(
             @PathVariable UUID id,
             @Valid @RequestBody JoinGameSessionCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(joinGameSessionUseCase.execute(id, command));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(
+                        HttpStatus.CREATED, "Player joined game session", joinGameSessionUseCase.execute(id, command)));
     }
 
     @PostMapping("/by-pin/{pin}/players")
-    public ResponseEntity<GameSessionResponse> joinByPin(
+    public ResponseEntity<ApiResponse<GameSessionResponse>> joinByPin(
             @PathVariable String pin,
             @Valid @RequestBody JoinGameSessionCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(joinGameSessionByPinUseCase.execute(pin, command));
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(
+                        HttpStatus.CREATED,
+                        "Player joined game session",
+                        joinGameSessionByPinUseCase.execute(pin, command)));
     }
 }

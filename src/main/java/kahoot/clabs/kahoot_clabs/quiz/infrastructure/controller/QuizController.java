@@ -18,6 +18,7 @@ import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.CreateQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.GetQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListQuizzesUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/organizations/{organizationId}/quizzes")
@@ -37,21 +38,25 @@ public class QuizController {
     }
 
     @PostMapping
-    public ResponseEntity<QuizResponse> create(
+    public ResponseEntity<ApiResponse<QuizResponse>> create(
             @PathVariable UUID organizationId,
             @Valid @RequestBody CreateQuizCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(createQuizUseCase.execute(organizationId, command));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(
+                        HttpStatus.CREATED, "Quiz created", createQuizUseCase.execute(organizationId, command)));
     }
 
     @GetMapping("/{quizId}")
-    public ResponseEntity<QuizResponse> getById(
+    public ResponseEntity<ApiResponse<QuizResponse>> getById(
             @PathVariable UUID organizationId,
             @PathVariable UUID quizId) {
-        return ResponseEntity.ok(getQuizUseCase.execute(organizationId, quizId));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Quiz retrieved", getQuizUseCase.execute(organizationId, quizId)));
     }
 
     @GetMapping
-    public ResponseEntity<List<QuizResponse>> list(@PathVariable UUID organizationId) {
-        return ResponseEntity.ok(listQuizzesUseCase.execute(organizationId));
+    public ResponseEntity<ApiResponse<List<QuizResponse>>> list(@PathVariable UUID organizationId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Quizzes retrieved", listQuizzesUseCase.execute(organizationId)));
     }
 }

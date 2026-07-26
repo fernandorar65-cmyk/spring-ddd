@@ -24,6 +24,7 @@ import kahoot.clabs.kahoot_clabs.quiz.application.usecase.DeleteCategoryUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.GetCategoryUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListCategoriesUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.UpdateCategoryUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/categories")
@@ -49,25 +50,28 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CreateCategoryCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(createCategoryUseCase.execute(command));
+    public ResponseEntity<ApiResponse<CategoryResponse>> create(@Valid @RequestBody CreateCategoryCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED, "Category created", createCategoryUseCase.execute(command)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(getCategoryUseCase.execute(id));
+    public ResponseEntity<ApiResponse<CategoryResponse>> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, "Category retrieved", getCategoryUseCase.execute(id)));
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponse>> listByOrganization(@RequestParam UUID organizationId) {
-        return ResponseEntity.ok(listCategoriesUseCase.execute(organizationId));
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> listByOrganization(@RequestParam UUID organizationId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Categories retrieved", listCategoriesUseCase.execute(organizationId)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponse> update(
+    public ResponseEntity<ApiResponse<CategoryResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateCategoryCommand command) {
-        return ResponseEntity.ok(updateCategoryUseCase.execute(id, command));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Category updated", updateCategoryUseCase.execute(id, command)));
     }
 
     @DeleteMapping("/{id}")

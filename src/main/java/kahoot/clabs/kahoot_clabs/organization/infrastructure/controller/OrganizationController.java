@@ -29,6 +29,7 @@ import kahoot.clabs.kahoot_clabs.organization.application.usecase.InviteMemberUs
 import kahoot.clabs.kahoot_clabs.organization.application.usecase.RemoveMemberUseCase;
 import kahoot.clabs.kahoot_clabs.organization.application.usecase.SignUpUseCase;
 import kahoot.clabs.kahoot_clabs.organization.application.usecase.UpdateOrganizationUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/organizations")
@@ -60,45 +61,52 @@ public class OrganizationController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignUpResponse> signUp(@Valid @RequestBody SignUpCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(signUpUseCase.execute(command));
+    public ResponseEntity<ApiResponse<SignUpResponse>> signUp(@Valid @RequestBody SignUpCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED, "Organization signed up", signUpUseCase.execute(command)));
     }
 
     @PostMapping
-    public ResponseEntity<OrganizationResponse> create(@Valid @RequestBody CreateOrganizationCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(createOrganizationUseCase.execute(command));
+    public ResponseEntity<ApiResponse<OrganizationResponse>> create(@Valid @RequestBody CreateOrganizationCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(HttpStatus.CREATED, "Organization created", createOrganizationUseCase.execute(command)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrganizationResponse> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(getOrganizationUseCase.execute(new GetOrganizationQuery(id)));
+    public ResponseEntity<ApiResponse<OrganizationResponse>> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Organization retrieved", getOrganizationUseCase.execute(new GetOrganizationQuery(id))));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrganizationResponse> update(
+    public ResponseEntity<ApiResponse<OrganizationResponse>> update(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateOrganizationCommand command) {
-        return ResponseEntity.ok(updateOrganizationUseCase.execute(id, command));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Organization updated", updateOrganizationUseCase.execute(id, command)));
     }
 
     @PostMapping("/{id}/members")
-    public ResponseEntity<OrganizationResponse> addMember(
+    public ResponseEntity<ApiResponse<OrganizationResponse>> addMember(
             @PathVariable UUID id,
             @Valid @RequestBody AddMemberCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(addMemberUseCase.execute(id, command));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED, "Member added", addMemberUseCase.execute(id, command)));
     }
 
     @PostMapping("/{id}/invitations")
-    public ResponseEntity<OrganizationResponse> inviteMember(
+    public ResponseEntity<ApiResponse<OrganizationResponse>> inviteMember(
             @PathVariable UUID id,
             @Valid @RequestBody InviteMemberCommand command) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(inviteMemberUseCase.execute(id, command));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(HttpStatus.CREATED, "Member invited", inviteMemberUseCase.execute(id, command)));
     }
 
     @DeleteMapping("/{id}/members/{userId}")
-    public ResponseEntity<OrganizationResponse> removeMember(
+    public ResponseEntity<ApiResponse<OrganizationResponse>> removeMember(
             @PathVariable UUID id,
             @PathVariable UUID userId) {
-        return ResponseEntity.ok(removeMemberUseCase.execute(id, userId));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "Member removed", removeMemberUseCase.execute(id, userId)));
     }
 }

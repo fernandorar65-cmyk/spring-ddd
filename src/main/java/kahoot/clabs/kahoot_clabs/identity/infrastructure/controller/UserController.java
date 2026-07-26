@@ -2,6 +2,7 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.controller;
 
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import kahoot.clabs.kahoot_clabs.identity.application.usecase.AssignRoleUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.ChangePasswordUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.GetUserProfileUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.UpdateProfileUseCase;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -42,15 +44,19 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserProfileResponse> getById(@PathVariable UUID id) {
-        return ResponseEntity.ok(getUserProfileUseCase.execute(new GetUserProfileQuery(id)));
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "User retrieved",
+                getUserProfileUseCase.execute(new GetUserProfileQuery(id))));
     }
 
     @PutMapping("/{id}/profile")
-    public ResponseEntity<UserProfileResponse> updateProfile(
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateProfileCommand command) {
-        return ResponseEntity.ok(updateProfileUseCase.execute(id, command));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "User profile updated", updateProfileUseCase.execute(id, command)));
     }
 
     @PutMapping("/{id}/password")
@@ -62,9 +68,10 @@ public class UserController {
     }
 
     @PutMapping("/{id}/role")
-    public ResponseEntity<UserProfileResponse> assignRole(
+    public ResponseEntity<ApiResponse<UserProfileResponse>> assignRole(
             @PathVariable UUID id,
             @Valid @RequestBody AssignRoleCommand command) {
-        return ResponseEntity.ok(assignRoleUseCase.execute(id, command));
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK, "User role assigned", assignRoleUseCase.execute(id, command)));
     }
 }
