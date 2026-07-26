@@ -5,17 +5,17 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.QuizSnapshotProvider;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.QuizSnapshotPort;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
 
 @Component
-public class QuizSnapshotProviderAdapter implements QuizSnapshotProvider {
+public class QuizSnapshotAdapter implements QuizSnapshotPort {
 
     private final QuizRepository quizRepository;
 
-    public QuizSnapshotProviderAdapter(QuizRepository quizRepository) {
+    public QuizSnapshotAdapter(QuizRepository quizRepository) {
         this.quizRepository = quizRepository;
     }
 

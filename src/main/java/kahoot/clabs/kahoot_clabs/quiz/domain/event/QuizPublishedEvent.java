@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
+/**
+ * Reserved domain event: raised conceptually when a quiz is published.
+ * Not published or consumed yet (no event bus / outbox / listeners).
+ */
 public class QuizPublishedEvent extends DomainEvent {
 
     private final UUID quizId;

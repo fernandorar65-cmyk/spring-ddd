@@ -11,7 +11,7 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.PlayerAnswer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionPlayer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.event.GameStartedEvent;
+// import kahoot.clabs.kahoot_clabs.gameplay.domain.event.GameStartedEvent; // reserved: no publisher/consumers yet
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GamePin;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GameStatus;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
@@ -168,7 +168,8 @@ public class GameSession extends AggregateRoot {
         this.currentQuestionIndex = 0;
         questions.get(currentQuestionIndex).open();
         touch();
-        registerEvent(new GameStartedEvent(getId(), organizationId, quizId, hostUserId, pin.value()));
+        // Domain event prepared but not wired (no pullDomainEvents / publisher / listeners yet).
+        // registerEvent(new GameStartedEvent(getId(), organizationId, quizId, hostUserId, pin.value()));
     }
 
     public PlayerAnswer submitAnswer(UUID playerId, UUID sessionQuestionId, UUID selectedOptionId) {

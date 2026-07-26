@@ -10,7 +10,7 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.entity.AnswerOption;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.QuestionAsset;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.QuizCategory;
-import kahoot.clabs.kahoot_clabs.quiz.domain.event.QuizPublishedEvent;
+// import kahoot.clabs.kahoot_clabs.quiz.domain.event.QuizPublishedEvent; // reserved: no publisher/consumers yet
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.EstimatedTime;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaUrl;
@@ -348,7 +348,8 @@ public class Quiz extends AggregateRoot {
         }
         this.status = QuizStatus.PUBLISHED;
         touch();
-        registerEvent(new QuizPublishedEvent(getId(), organizationId, createdById));
+        // Domain event prepared but not wired (no pullDomainEvents / publisher / listeners yet).
+        // registerEvent(new QuizPublishedEvent(getId(), organizationId, createdById));
     }
 
     public void archive() {

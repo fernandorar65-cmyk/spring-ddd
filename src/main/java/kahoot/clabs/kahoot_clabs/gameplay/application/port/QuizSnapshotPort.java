@@ -10,7 +10,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapsho
  * Anti-corruption port used by Gameplay to obtain an immutable view of a quiz
  * without coupling its application use cases to the Quiz domain model.
  */
-public interface QuizSnapshotProvider {
+public interface QuizSnapshotPort {
 
     Optional<PublishedQuizSnapshot> findPublishedById(UUID quizId);
 
