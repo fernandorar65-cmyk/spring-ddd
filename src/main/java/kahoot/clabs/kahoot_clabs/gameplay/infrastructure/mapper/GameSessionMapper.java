@@ -5,6 +5,7 @@ import java.util.List;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.PlayerAnswer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionPlayer;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionAnswerOption;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GamePin;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GameStatus;
@@ -13,6 +14,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.ResponseTime;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionPlayerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionAnswerOptionEntity;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionQuestionEntity;
 
 public final class GameSessionMapper {
@@ -95,6 +97,9 @@ public final class GameSessionMapper {
         entity.setId(question.getId());
         entity.setSessionId(question.getGameSessionId());
         entity.setQuizQuestionId(question.getQuizQuestionId());
+        entity.setTitle(question.getTitle());
+        entity.setDescription(question.getDescription());
+        entity.setQuestionType(question.getQuestionType());
         entity.setOrderIndex(question.getOrderIndex());
         entity.setPoints(question.getPoints());
         entity.setTimeLimitSeconds(question.getTimeLimitSeconds());
@@ -103,23 +108,54 @@ public final class GameSessionMapper {
         entity.setAnswers(question.getAnswers().stream()
                 .map(GameSessionMapper::toEntity)
                 .toList());
+        entity.setOptions(question.getOptions().stream()
+                .map(GameSessionMapper::toEntity)
+                .toList());
         return entity;
     }
 
     private static SessionQuestion toDomain(SessionQuestionEntity entity) {
+        List<SessionAnswerOption> options = entity.getOptions().stream()
+                .map(GameSessionMapper::toDomain)
+                .toList();
         List<PlayerAnswer> answers = entity.getAnswers().stream()
                 .map(GameSessionMapper::toDomain)
                 .toList();
-        return SessionQuestion.rehydrate(
+        return SessionQuestion.rehydrateSnapshot(
                 entity.getId(),
                 entity.getSessionId(),
                 entity.getQuizQuestionId(),
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getQuestionType(),
                 entity.getOrderIndex(),
                 entity.getPoints(),
                 entity.getTimeLimitSeconds(),
                 entity.getOpenedAt(),
                 entity.getClosedAt(),
+                options,
                 answers);
+    }
+
+    private static SessionAnswerOptionEntity toEntity(SessionAnswerOption option) {
+        SessionAnswerOptionEntity entity = new SessionAnswerOptionEntity();
+        entity.setId(option.getId());
+        entity.setSessionQuestionId(option.getSessionQuestionId());
+        entity.setOriginalAnswerOptionId(option.getOriginalAnswerOptionId());
+        entity.setText(option.getText());
+        entity.setCorrect(option.isCorrect());
+        entity.setOrderIndex(option.getOrderIndex());
+        return entity;
+    }
+
+    private static SessionAnswerOption toDomain(SessionAnswerOptionEntity entity) {
+        return SessionAnswerOption.rehydrate(
+                entity.getId(),
+                entity.getSessionQuestionId(),
+                entity.getOriginalAnswerOptionId(),
+                entity.getText(),
+                entity.isCorrect(),
+                entity.getOrderIndex());
     }
 
     private static PlayerAnswerEntity toEntity(PlayerAnswer answer) {
@@ -127,7 +163,7 @@ public final class GameSessionMapper {
         entity.setId(answer.getId());
         entity.setSessionQuestionId(answer.getSessionQuestionId());
         entity.setSessionPlayerId(answer.getSessionPlayerId());
-        entity.setAnswerOptionId(answer.getSelectedOptionId());
+        entity.setSessionAnswerOptionId(answer.getSelectedOptionId());
         entity.setCorrect(answer.isCorrect());
         entity.setResponseTimeMs(answer.getResponseTime().toMillis());
         entity.setAwardedPoints(answer.getAwardedPoints());
@@ -140,7 +176,9 @@ public final class GameSessionMapper {
                 entity.getId(),
                 entity.getSessionQuestionId(),
                 entity.getSessionPlayerId(),
-                entity.getAnswerOptionId(),
+                entity.getSessionAnswerOptionId() != null
+                        ? entity.getSessionAnswerOptionId()
+                        : entity.getAnswerOptionId(),
                 entity.isCorrect(),
                 ResponseTime.ofMillis(entity.getResponseTimeMs()),
                 entity.getAwardedPoints(),

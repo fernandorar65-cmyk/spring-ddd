@@ -40,6 +40,15 @@ public class SessionQuestionEntity {
     @Column(name = "quiz_question_id", nullable = false)
     private UUID quizQuestionId;
 
+    @Column(length = 500)
+    private String title;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    @Column(name = "question_type", length = 20)
+    private String questionType;
+
     @Column(name = "order_index", nullable = false)
     private int orderIndex;
 
@@ -61,4 +70,7 @@ public class SessionQuestionEntity {
 
     @OneToMany(mappedBy = "sessionQuestion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PlayerAnswerEntity> answers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "sessionQuestion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SessionAnswerOptionEntity> options = new ArrayList<>();
 }

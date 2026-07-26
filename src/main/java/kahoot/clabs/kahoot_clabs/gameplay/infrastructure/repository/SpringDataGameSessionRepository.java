@@ -12,16 +12,16 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSession
 public interface SpringDataGameSessionRepository extends JpaRepository<GameSessionEntity, UUID> {
 
     @Override
-    @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
+    @EntityGraph(attributePaths = {"players", "questions", "questions.options", "questions.answers"})
     Optional<GameSessionEntity> findById(UUID id);
 
     @Override
-    @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
+    @EntityGraph(attributePaths = {"players", "questions", "questions.options", "questions.answers"})
     List<GameSessionEntity> findAll();
 
-    @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
+    @EntityGraph(attributePaths = {"players", "questions", "questions.options", "questions.answers"})
     Optional<GameSessionEntity> findByGamePin(String gamePin);
 
-    @EntityGraph(attributePaths = {"players", "questions", "questions.answers"})
+    @EntityGraph(attributePaths = {"players", "questions", "questions.options", "questions.answers"})
     List<GameSessionEntity> findByQuizId(UUID quizId);
 }

@@ -14,6 +14,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.event.GameStartedEvent;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GamePin;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GameStatus;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.PlayerRank;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.ResponseTime;
 import kahoot.clabs.kahoot_clabs.shared.domain.AggregateRoot;
@@ -119,10 +120,25 @@ public class GameSession extends AggregateRoot {
         return session;
     }
 
-    public SessionQuestion addQuestion(UUID quizQuestionId, int points, int timeLimitSeconds) {
+    public SessionQuestion addQuestionSnapshot(
+            UUID quizQuestionId,
+            String title,
+            String description,
+            String questionType,
+            int points,
+            int timeLimitSeconds,
+            List<AnswerOptionSnapshot> options) {
         ensureStatus(GameStatus.LOBBY, "Questions can only be added while the session is in the lobby");
-        SessionQuestion question = SessionQuestion.of(
-                getId(), quizQuestionId, questions.size() + 1, points, timeLimitSeconds);
+        SessionQuestion question = SessionQuestion.snapshot(
+                getId(),
+                quizQuestionId,
+                title,
+                description,
+                questionType,
+                questions.size() + 1,
+                points,
+                timeLimitSeconds,
+                options);
         questions.add(question);
         touch();
         return question;

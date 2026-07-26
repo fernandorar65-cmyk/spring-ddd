@@ -6,18 +6,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
 import kahoot.clabs.kahoot_clabs.shared.domain.BaseEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
- * Snapshot of a quiz question inside a session. quizQuestionId references the quiz
- * bounded context; points and time limit are copied so a later quiz edit cannot
- * change a session already played.
+ * Immutable snapshot of a quiz question inside a session. The original question
+ * id is retained only for traceability; title, type, timing, points and options
+ * are copied so later Quiz edits cannot rewrite historical gameplay.
  */
 public class SessionQuestion extends BaseEntity {
 
     private final UUID gameSessionId;
     private final UUID quizQuestionId;
+    private final String title;
+    private final String description;
+    private final String questionType;
     private final int orderIndex;
     private final int points;
     private final int timeLimitSeconds;
@@ -25,10 +29,19 @@ public class SessionQuestion extends BaseEntity {
     private LocalDateTime openedAt;
     private LocalDateTime closedAt;
 
+    private final List<SessionAnswerOption> options = new ArrayList<>();
     private final List<PlayerAnswer> answers = new ArrayList<>();
 
-    private SessionQuestion(UUID id, UUID gameSessionId, UUID quizQuestionId, int orderIndex, int points,
-                            int timeLimitSeconds) {
+    private SessionQuestion(
+            UUID id,
+            UUID gameSessionId,
+            UUID quizQuestionId,
+            String title,
+            String description,
+            String questionType,
+            int orderIndex,
+            int points,
+            int timeLimitSeconds) {
         super(id);
         if (gameSessionId == null) {
             throw new DomainException("Game session id is required");
@@ -47,35 +60,72 @@ public class SessionQuestion extends BaseEntity {
         }
         this.gameSessionId = gameSessionId;
         this.quizQuestionId = quizQuestionId;
+        this.title = title;
+        this.description = description;
+        this.questionType = questionType;
         this.orderIndex = orderIndex;
         this.points = points;
         this.timeLimitSeconds = timeLimitSeconds;
     }
 
-    public static SessionQuestion of(UUID gameSessionId, UUID quizQuestionId, int orderIndex, int points,
-                                     int timeLimitSeconds) {
-        return new SessionQuestion(null, gameSessionId, quizQuestionId, orderIndex, points, timeLimitSeconds);
+    public static SessionQuestion snapshot(
+            UUID gameSessionId,
+            UUID quizQuestionId,
+            String title,
+            String description,
+            String questionType,
+            int orderIndex,
+            int points,
+            int timeLimitSeconds,
+            List<AnswerOptionSnapshot> optionSnapshots) {
+        if (title == null || title.isBlank() || questionType == null || questionType.isBlank()) {
+            throw new DomainException("Question snapshot title and type are required");
+        }
+        SessionQuestion question = new SessionQuestion(
+                null,
+                gameSessionId,
+                quizQuestionId,
+                title,
+                description,
+                questionType,
+                orderIndex,
+                points,
+                timeLimitSeconds);
+        if (optionSnapshots != null) {
+            optionSnapshots.forEach(snapshot -> question.options.add(SessionAnswerOption.snapshot(question.getId(), snapshot)));
+        }
+        return question;
     }
 
-    public static SessionQuestion rehydrate(UUID id, UUID gameSessionId, UUID quizQuestionId, int orderIndex,
-                                            int points, int timeLimitSeconds) {
-        return new SessionQuestion(id, gameSessionId, quizQuestionId, orderIndex, points, timeLimitSeconds);
-    }
-
-    public static SessionQuestion rehydrate(
+    public static SessionQuestion rehydrateSnapshot(
             UUID id,
             UUID gameSessionId,
             UUID quizQuestionId,
+            String title,
+            String description,
+            String questionType,
             int orderIndex,
             int points,
             int timeLimitSeconds,
             LocalDateTime openedAt,
             LocalDateTime closedAt,
+            List<SessionAnswerOption> options,
             List<PlayerAnswer> answers) {
         SessionQuestion question = new SessionQuestion(
-                id, gameSessionId, quizQuestionId, orderIndex, points, timeLimitSeconds);
+                id,
+                gameSessionId,
+                quizQuestionId,
+                title,
+                description,
+                questionType,
+                orderIndex,
+                points,
+                timeLimitSeconds);
         question.openedAt = openedAt;
         question.closedAt = closedAt;
+        if (options != null) {
+            question.options.addAll(options);
+        }
         if (answers != null) {
             question.answers.addAll(answers);
         }
@@ -122,6 +172,18 @@ public class SessionQuestion extends BaseEntity {
         return quizQuestionId;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getQuestionType() {
+        return questionType;
+    }
+
     public int getOrderIndex() {
         return orderIndex;
     }
@@ -144,5 +206,9 @@ public class SessionQuestion extends BaseEntity {
 
     public List<PlayerAnswer> getAnswers() {
         return Collections.unmodifiableList(answers);
+    }
+
+    public List<SessionAnswerOption> getOptions() {
+        return Collections.unmodifiableList(options);
     }
 }

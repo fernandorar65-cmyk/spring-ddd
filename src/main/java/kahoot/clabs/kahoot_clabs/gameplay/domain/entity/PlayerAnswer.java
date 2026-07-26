@@ -8,8 +8,8 @@ import kahoot.clabs.kahoot_clabs.shared.domain.BaseEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
- * Answer submitted by a player. selectedOptionId references an AnswerOption of the
- * quiz bounded context; correctness is resolved before reaching this entity.
+ * Answer submitted by a player. selectedOptionId references the option snapshot
+ * owned by the session, never the mutable Quiz aggregate.
  */
 public class PlayerAnswer extends BaseEntity {
 
