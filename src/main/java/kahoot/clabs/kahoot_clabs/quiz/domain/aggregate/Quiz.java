@@ -136,6 +136,42 @@ public class Quiz extends AggregateRoot {
         touch();
     }
 
+    public void updateQuestion(
+            UUID questionId,
+            String title,
+            String description,
+            QuizDifficulty difficulty,
+            int points,
+            int timeLimitSeconds) {
+        ensureEditable();
+        Question question = requireQuestion(questionId);
+        question.rename(title);
+        question.changeDescription(description);
+        question.changeDifficulty(difficulty);
+        question.changePoints(Points.of(points));
+        question.changeTimeLimit(TimeLimit.ofSeconds(timeLimitSeconds));
+        touch();
+    }
+
+    public void reorderQuestions(List<UUID> orderedQuestionIds) {
+        ensureEditable();
+        if (orderedQuestionIds == null || orderedQuestionIds.size() != questions.size()) {
+            throw new DomainException("The question order must contain every question exactly once");
+        }
+        List<Question> reordered = new ArrayList<>();
+        for (UUID questionId : orderedQuestionIds) {
+            Question question = requireQuestion(questionId);
+            if (reordered.contains(question)) {
+                throw new DomainException("A question cannot be repeated in the order");
+            }
+            reordered.add(question);
+        }
+        questions.clear();
+        questions.addAll(reordered);
+        reindexQuestions();
+        touch();
+    }
+
     public void addAnswerOption(UUID questionId, String text, boolean correct) {
         ensureEditable();
         Question question = requireQuestion(questionId);
@@ -268,6 +304,7 @@ public class Quiz extends AggregateRoot {
     }
 
     public void changeVisibility(QuizVisibility visibility) {
+        ensureEditable();
         if (visibility == null) {
             throw new DomainException("Visibility is required");
         }
@@ -317,6 +354,41 @@ public class Quiz extends AggregateRoot {
     public void archive() {
         this.status = QuizStatus.ARCHIVED;
         touch();
+    }
+
+    public Quiz duplicate(UUID newCreatedById) {
+        Quiz copy = Quiz.create(organizationId, title.value() + " (copy)", newCreatedById);
+        copy.changeDescription(description);
+        copy.changeThumbnail(thumbnail);
+        copy.changeVisibility(visibility);
+        copy.changeDifficulty(difficulty);
+        copy.changeEstimatedTime(estimatedTime);
+        copy.changeSettings(settings);
+        categories.forEach(category -> copy.assignCategory(category.getCategoryId()));
+
+        for (Question originalQuestion : questions) {
+            Question copiedQuestion = copy.addQuestion(originalQuestion.getTitle(), originalQuestion.getType());
+            copy.updateQuestion(
+                    copiedQuestion.getId(),
+                    originalQuestion.getTitle(),
+                    originalQuestion.getDescription(),
+                    originalQuestion.getDifficulty(),
+                    originalQuestion.getPoints().value(),
+                    originalQuestion.getTimeLimit().seconds());
+            originalQuestion.getOptions().forEach(option ->
+                    copy.addAnswerOption(copiedQuestion.getId(), option.getText(), option.isCorrect()));
+            if (originalQuestion.getAsset() != null) {
+                QuestionAsset asset = originalQuestion.getAsset();
+                copy.attachAsset(
+                        copiedQuestion.getId(),
+                        asset.getType(),
+                        asset.getUrl().value(),
+                        asset.getThumbnailUrl() == null ? null : asset.getThumbnailUrl().value(),
+                        asset.getAltText(),
+                        asset.getDurationSeconds());
+            }
+        }
+        return copy;
     }
 
     public void incrementPlayCount() {

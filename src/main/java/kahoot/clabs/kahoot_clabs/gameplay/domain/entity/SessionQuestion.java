@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.ResponseTime;
 import kahoot.clabs.kahoot_clabs.shared.domain.BaseEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
@@ -143,6 +144,9 @@ public class SessionQuestion extends BaseEntity {
         if (openedAt == null) {
             throw new DomainException("Cannot close a question that was never opened");
         }
+        if (closedAt != null) {
+            throw new DomainException("Question was already closed");
+        }
         this.closedAt = LocalDateTime.now();
     }
 
@@ -158,6 +162,24 @@ public class SessionQuestion extends BaseEntity {
 
     public boolean hasAnswerFrom(UUID sessionPlayerId) {
         return answers.stream().anyMatch(answer -> answer.getSessionPlayerId().equals(sessionPlayerId));
+    }
+
+    public boolean isCorrectOption(UUID sessionAnswerOptionId) {
+        if (sessionAnswerOptionId == null) {
+            throw new DomainException("Session answer option id is required");
+        }
+        return options.stream()
+                .filter(option -> option.getId().equals(sessionAnswerOptionId))
+                .findFirst()
+                .map(SessionAnswerOption::isCorrect)
+                .orElseThrow(() -> new DomainException("Answer option does not belong to the current question"));
+    }
+
+    public ResponseTime responseTimeAt(LocalDateTime answeredAt) {
+        if (openedAt == null || answeredAt == null) {
+            throw new DomainException("Question must be open to calculate response time");
+        }
+        return ResponseTime.ofMillis(java.time.Duration.between(openedAt, answeredAt).toMillis());
     }
 
     public boolean isOpen() {

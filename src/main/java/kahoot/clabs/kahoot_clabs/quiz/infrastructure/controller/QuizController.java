@@ -19,11 +19,20 @@ import kahoot.clabs.kahoot_clabs.quiz.application.command.CreateQuizCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.AnswerOptionCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.QuestionAssetCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.ReorderAnswerOptionsCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.UpdateQuizCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.QuestionCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.UpdateQuestionCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.ReorderQuestionsCommand;
+import kahoot.clabs.kahoot_clabs.quiz.application.command.DuplicateQuizCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.CreateQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.GetQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListQuizzesUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.EditQuizContentUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.UpdateQuizUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizCategoriesUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizQuestionsUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizLifecycleUseCase;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
@@ -34,16 +43,28 @@ public class QuizController {
     private final GetQuizUseCase getQuizUseCase;
     private final ListQuizzesUseCase listQuizzesUseCase;
     private final EditQuizContentUseCase editQuizContentUseCase;
+    private final UpdateQuizUseCase updateQuizUseCase;
+    private final ManageQuizCategoriesUseCase manageQuizCategoriesUseCase;
+    private final ManageQuizQuestionsUseCase manageQuizQuestionsUseCase;
+    private final ManageQuizLifecycleUseCase manageQuizLifecycleUseCase;
 
     public QuizController(
             CreateQuizUseCase createQuizUseCase,
             GetQuizUseCase getQuizUseCase,
             ListQuizzesUseCase listQuizzesUseCase,
-            EditQuizContentUseCase editQuizContentUseCase) {
+            EditQuizContentUseCase editQuizContentUseCase,
+            UpdateQuizUseCase updateQuizUseCase,
+            ManageQuizCategoriesUseCase manageQuizCategoriesUseCase,
+            ManageQuizQuestionsUseCase manageQuizQuestionsUseCase,
+            ManageQuizLifecycleUseCase manageQuizLifecycleUseCase) {
         this.createQuizUseCase = createQuizUseCase;
         this.getQuizUseCase = getQuizUseCase;
         this.listQuizzesUseCase = listQuizzesUseCase;
         this.editQuizContentUseCase = editQuizContentUseCase;
+        this.updateQuizUseCase = updateQuizUseCase;
+        this.manageQuizCategoriesUseCase = manageQuizCategoriesUseCase;
+        this.manageQuizQuestionsUseCase = manageQuizQuestionsUseCase;
+        this.manageQuizLifecycleUseCase = manageQuizLifecycleUseCase;
     }
 
     @PostMapping
@@ -63,10 +84,115 @@ public class QuizController {
                 HttpStatus.OK, "Quiz retrieved", getQuizUseCase.execute(organizationId, quizId)));
     }
 
+    @PutMapping("/{quizId}")
+    public ResponseEntity<ApiResponse<QuizResponse>> update(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @Valid @RequestBody UpdateQuizCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Quiz updated",
+                updateQuizUseCase.execute(organizationId, quizId, command)));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<QuizResponse>>> list(@PathVariable UUID organizationId) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK, "Quizzes retrieved", listQuizzesUseCase.execute(organizationId)));
+    }
+
+    @PostMapping("/{quizId}/categories/{categoryId}")
+    public ResponseEntity<ApiResponse<QuizResponse>> assignCategory(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID categoryId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Category assigned to quiz",
+                manageQuizCategoriesUseCase.assign(organizationId, quizId, categoryId)));
+    }
+
+    @DeleteMapping("/{quizId}/categories/{categoryId}")
+    public ResponseEntity<Void> removeCategory(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID categoryId) {
+        manageQuizCategoriesUseCase.remove(organizationId, quizId, categoryId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{quizId}/questions")
+    public ResponseEntity<ApiResponse<QuizResponse>> addQuestion(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @Valid @RequestBody QuestionCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                HttpStatus.CREATED,
+                "Question added",
+                manageQuizQuestionsUseCase.add(organizationId, quizId, command)));
+    }
+
+    @PutMapping("/{quizId}/questions/{questionId}")
+    public ResponseEntity<ApiResponse<QuizResponse>> updateQuestion(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @Valid @RequestBody UpdateQuestionCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Question updated",
+                manageQuizQuestionsUseCase.update(organizationId, quizId, questionId, command)));
+    }
+
+    @PutMapping("/{quizId}/questions/order")
+    public ResponseEntity<ApiResponse<QuizResponse>> reorderQuestions(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @Valid @RequestBody ReorderQuestionsCommand command) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Questions reordered",
+                manageQuizQuestionsUseCase.reorder(organizationId, quizId, command)));
+    }
+
+    @DeleteMapping("/{quizId}/questions/{questionId}")
+    public ResponseEntity<Void> removeQuestion(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId) {
+        manageQuizQuestionsUseCase.remove(organizationId, quizId, questionId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{quizId}/publish")
+    public ResponseEntity<ApiResponse<QuizResponse>> publish(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Quiz published",
+                manageQuizLifecycleUseCase.publish(organizationId, quizId)));
+    }
+
+    @PostMapping("/{quizId}/archive")
+    public ResponseEntity<ApiResponse<QuizResponse>> archive(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "Quiz archived",
+                manageQuizLifecycleUseCase.archive(organizationId, quizId)));
+    }
+
+    @PostMapping("/{quizId}/duplicate")
+    public ResponseEntity<ApiResponse<QuizResponse>> duplicate(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @Valid @RequestBody DuplicateQuizCommand command) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                HttpStatus.CREATED,
+                "Quiz duplicated",
+                manageQuizLifecycleUseCase.duplicate(organizationId, quizId, command)));
     }
 
     @PostMapping("/{quizId}/questions/{questionId}/options")
