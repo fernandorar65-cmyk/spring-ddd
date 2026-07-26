@@ -14,6 +14,8 @@ public interface QuizRepository {
 
     List<Quiz> findAll();
 
+    List<Quiz> findByOrganizationId(UUID organizationId);
+
     boolean existsById(UUID id);
 
     void delete(Quiz quiz);

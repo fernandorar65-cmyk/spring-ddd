@@ -38,6 +38,13 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     }
 
     @Override
+    public List<Quiz> findByOrganizationId(UUID organizationId) {
+        return springDataRepository.findByOrganizationId(organizationId).stream()
+                .map(QuizMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public boolean existsById(UUID id) {
         return springDataRepository.existsById(id);
     }
