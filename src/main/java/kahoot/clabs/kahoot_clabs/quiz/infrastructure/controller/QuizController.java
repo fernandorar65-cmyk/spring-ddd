@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.CreateQuizCommand;
@@ -33,6 +35,7 @@ import kahoot.clabs.kahoot_clabs.quiz.application.usecase.UpdateQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizCategoriesUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizQuestionsUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ManageQuizLifecycleUseCase;
+import kahoot.clabs.kahoot_clabs.quiz.application.usecase.UploadQuizImageUseCase;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
@@ -47,6 +50,7 @@ public class QuizController {
     private final ManageQuizCategoriesUseCase manageQuizCategoriesUseCase;
     private final ManageQuizQuestionsUseCase manageQuizQuestionsUseCase;
     private final ManageQuizLifecycleUseCase manageQuizLifecycleUseCase;
+    private final UploadQuizImageUseCase uploadQuizImageUseCase;
 
     public QuizController(
             CreateQuizUseCase createQuizUseCase,
@@ -56,7 +60,8 @@ public class QuizController {
             UpdateQuizUseCase updateQuizUseCase,
             ManageQuizCategoriesUseCase manageQuizCategoriesUseCase,
             ManageQuizQuestionsUseCase manageQuizQuestionsUseCase,
-            ManageQuizLifecycleUseCase manageQuizLifecycleUseCase) {
+            ManageQuizLifecycleUseCase manageQuizLifecycleUseCase,
+            UploadQuizImageUseCase uploadQuizImageUseCase) {
         this.createQuizUseCase = createQuizUseCase;
         this.getQuizUseCase = getQuizUseCase;
         this.listQuizzesUseCase = listQuizzesUseCase;
@@ -65,6 +70,7 @@ public class QuizController {
         this.manageQuizCategoriesUseCase = manageQuizCategoriesUseCase;
         this.manageQuizQuestionsUseCase = manageQuizQuestionsUseCase;
         this.manageQuizLifecycleUseCase = manageQuizLifecycleUseCase;
+        this.uploadQuizImageUseCase = uploadQuizImageUseCase;
     }
 
     @PostMapping
@@ -275,5 +281,25 @@ public class QuizController {
             @PathVariable UUID assetId) {
         editQuizContentUseCase.removeAsset(organizationId, quizId, questionId, assetId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(path = "/{quizId}/questions/{questionId}/assets/images", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse<QuizResponse>> uploadImage(
+            @PathVariable UUID organizationId,
+            @PathVariable UUID quizId,
+            @PathVariable UUID questionId,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String altText) throws java.io.IOException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
+                HttpStatus.CREATED,
+                "Image uploaded",
+                uploadQuizImageUseCase.execute(
+                        organizationId,
+                        quizId,
+                        questionId,
+                        file.getBytes(),
+                        file.getContentType(),
+                        file.getOriginalFilename(),
+                        altText)));
     }
 }

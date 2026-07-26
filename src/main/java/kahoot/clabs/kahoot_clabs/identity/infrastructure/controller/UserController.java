@@ -1,15 +1,22 @@
 package kahoot.clabs.kahoot_clabs.identity.infrastructure.controller;
 
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
 import kahoot.clabs.kahoot_clabs.identity.application.command.AssignRoleCommand;
@@ -51,12 +58,26 @@ public class UserController {
                 getUserProfileUseCase.execute(new GetUserProfileQuery(id))));
     }
 
-    @PutMapping("/{id}/profile")
+    @PutMapping(path = "/{id}/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             @PathVariable UUID id,
-            @Valid @RequestBody UpdateProfileCommand command) {
+            @RequestParam(required = false) String department,
+            @RequestParam(required = false) String jobTitle,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
+            @RequestParam(required = false) String bio,
+            @RequestParam(required = false) String location,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar) throws IOException {
+        UpdateProfileCommand command = new UpdateProfileCommand(
+                department, jobTitle, phoneNumber, birthDate, bio, location);
+        byte[] content = avatar == null || avatar.isEmpty() ? null : avatar.getBytes();
+        String contentType = avatar == null || avatar.isEmpty() ? null : avatar.getContentType();
+        String filename = avatar == null || avatar.isEmpty() ? null : avatar.getOriginalFilename();
+
         return ResponseEntity.ok(ApiResponse.success(
-                HttpStatus.OK, "User profile updated", updateProfileUseCase.execute(id, command)));
+                HttpStatus.OK,
+                "User profile updated",
+                updateProfileUseCase.execute(id, command, content, contentType, filename)));
     }
 
     @PutMapping("/{id}/password")

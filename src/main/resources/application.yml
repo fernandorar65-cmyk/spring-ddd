@@ -19,11 +19,29 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 server:
   port: ${SERVER_PORT:8081}
+
+storage:
+  s3:
+    bucket: ${AWS_S3_BUCKET:demo-clabs-kahoot}
+    region: ${AWS_REGION:us-east-1}
+    public-base-url: ${AWS_S3_PUBLIC_BASE_URL:}
 
 springdoc:
   api-docs:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO
+    kahoot.clabs.kahoot_clabs: DEBUG
+    org.springframework.web: INFO
+    software.amazon.awssdk: INFO
