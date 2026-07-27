@@ -5,7 +5,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.command.CreateGameSessionCommand;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.QuizSnapshotProvider;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.QuizSnapshotPort;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
@@ -14,18 +14,18 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 public class CreateGameSessionUseCase {
 
     private final GameSessionRepository gameSessionRepository;
-    private final QuizSnapshotProvider quizSnapshotProvider;
+    private final QuizSnapshotPort quizSnapshotProvider;
 
     public CreateGameSessionUseCase(
             GameSessionRepository gameSessionRepository,
-            QuizSnapshotProvider quizSnapshotProvider) {
+            QuizSnapshotPort quizSnapshotProvider) {
         this.gameSessionRepository = gameSessionRepository;
         this.quizSnapshotProvider = quizSnapshotProvider;
     }
 
     @Transactional
     public GameSessionResponse execute(CreateGameSessionCommand command) {
-        QuizSnapshotProvider.PublishedQuizSnapshot quiz = quizSnapshotProvider.findPublishedById(command.quizId())
+        QuizSnapshotPort.PublishedQuizSnapshot quiz = quizSnapshotProvider.findPublishedById(command.quizId())
                 .orElseThrow(() -> new DomainException("Published quiz not found: " + command.quizId()));
         if (!quiz.organizationId().equals(command.organizationId())) {
             throw new DomainException("Quiz does not belong to the organization");
