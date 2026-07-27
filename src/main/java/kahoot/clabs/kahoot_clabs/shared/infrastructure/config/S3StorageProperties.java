@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.config;
+package kahoot.clabs.kahoot_clabs.shared.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

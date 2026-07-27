@@ -11,7 +11,7 @@ import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.UserProfile;
-import kahoot.clabs.kahoot_clabs.shared.application.port.ImageStorage;
+import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
@@ -20,11 +20,11 @@ public class UpdateProfileUseCase {
     private static final int MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
     private final UserRepository userRepository;
-    private final ImageStorage imageStorage;
+    private final AvatarStoragePort avatarStoragePort;
 
-    public UpdateProfileUseCase(UserRepository userRepository, ImageStorage imageStorage) {
+    public UpdateProfileUseCase(UserRepository userRepository, AvatarStoragePort avatarStoragePort) {
         this.userRepository = userRepository;
-        this.imageStorage = imageStorage;
+        this.avatarStoragePort = avatarStoragePort;
     }
 
     @Transactional
@@ -70,7 +70,7 @@ public class UpdateProfileUseCase {
                 user.getId(),
                 UUID.randomUUID(),
                 extension(avatarOriginalFilename, avatarContentType));
-        return imageStorage.upload(key, avatarContent, avatarContentType);
+        return avatarStoragePort.upload(key, avatarContent, avatarContentType);
     }
 
     private void validateImage(byte[] content, String contentType) {

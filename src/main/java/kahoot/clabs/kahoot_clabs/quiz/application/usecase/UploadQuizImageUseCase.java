@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.kahoot_clabs.shared.application.port.ImageStorage;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizAssetPort;
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
@@ -18,11 +18,11 @@ public class UploadQuizImageUseCase {
     private static final int MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
 
     private final QuizRepository quizRepository;
-    private final ImageStorage imageStorage;
+    private final QuizAssetPort quizAssetPort;
 
-    public UploadQuizImageUseCase(QuizRepository quizRepository, ImageStorage imageStorage) {
+    public UploadQuizImageUseCase(QuizRepository quizRepository, QuizAssetPort quizAssetPort) {
         this.quizRepository = quizRepository;
-        this.imageStorage = imageStorage;
+        this.quizAssetPort = quizAssetPort;
     }
 
     @Transactional
@@ -38,7 +38,7 @@ public class UploadQuizImageUseCase {
         validateImage(content, contentType);
         String key = "quizzes/%s/questions/%s/%s%s".formatted(
                 quizId, questionId, UUID.randomUUID(), extension(originalFilename, contentType));
-        String url = imageStorage.upload(key, content, contentType);
+        String url = quizAssetPort.upload(key, content, contentType);
         quiz.attachAsset(questionId, MediaType.IMAGE, url, null, altText, null);
         return QuizResponse.from(quizRepository.save(quiz));
     }

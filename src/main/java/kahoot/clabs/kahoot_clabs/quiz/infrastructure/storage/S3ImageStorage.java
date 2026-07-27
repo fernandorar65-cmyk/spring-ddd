@@ -4,15 +4,16 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.shared.application.port.ImageStorage;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.config.S3StorageProperties;
+import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizAssetPort;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.config.S3StorageProperties;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
-public class S3ImageStorage implements ImageStorage {
+public class S3ImageStorage implements QuizAssetPort, AvatarStoragePort {
 
     private final S3Client s3Client;
     private final S3StorageProperties properties;
