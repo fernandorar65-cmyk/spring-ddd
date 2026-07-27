@@ -3,7 +3,7 @@ package kahoot.clabs.kahoot_clabs.identity.domain.aggregate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import kahoot.clabs.kahoot_clabs.identity.domain.event.UserCreatedEvent;
+// import kahoot.clabs.kahoot_clabs.identity.domain.event.UserCreatedEvent; // reserved: no publisher/consumers yet
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Email;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.FullName;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
@@ -58,7 +58,8 @@ public class User extends AggregateRoot {
                 hashedPassword,
                 null,
                 null);
-        user.registerEvent(new UserCreatedEvent(user.getId(), user.email.value()));
+        // Domain event prepared but not wired (no pullDomainEvents / publisher / listeners yet).
+        // user.registerEvent(new UserCreatedEvent(user.getId(), user.email.value()));
         return user;
     }
 

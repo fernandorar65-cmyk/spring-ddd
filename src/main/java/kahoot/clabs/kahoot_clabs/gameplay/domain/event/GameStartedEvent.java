@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
+/**
+ * Reserved domain event: raised conceptually when a game session starts.
+ * Not published or consumed yet (no event bus / outbox / listeners).
+ */
 public class GameStartedEvent extends DomainEvent {
 
     private final UUID gameSessionId;

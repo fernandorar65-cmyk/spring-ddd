@@ -14,7 +14,12 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("kahoot-clabs API")
-                        .description("API multi-tenant estilo Kahoot (DDD). Auth por JWT pendiente.")
+                        .description("""
+                                API multi-tenant estilo Kahoot construida con DDD y Clean Architecture.
+
+                                Contextos: Auth/Users, Organizations, Categories, Quizzes y Game Sessions.
+                                Seguridad: BCrypt activo; JWT y autorización por ruta pendientes (hoy permitAll).
+                                """)
                         .version("v1"));
     }
 }

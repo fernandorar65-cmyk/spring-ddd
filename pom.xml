@@ -18,6 +18,8 @@
 		<java.version>21</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<testcontainers.version>1.20.6</testcontainers.version>
+		<aws.sdk.version>2.46.19</aws.sdk.version>
+		<azure.storage.blob.version>12.29.0</azure.storage.blob.version>
 	</properties>
 
 	<dependencies>
@@ -69,6 +71,16 @@
 		</dependency>
 
 		<!-- Utilities -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<version>${aws.sdk.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.azure</groupId>
+			<artifactId>azure-storage-blob</artifactId>
+			<version>${azure.storage.blob.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>

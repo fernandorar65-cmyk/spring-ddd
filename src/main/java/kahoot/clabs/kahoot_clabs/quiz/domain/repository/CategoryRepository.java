@@ -12,7 +12,11 @@ public interface CategoryRepository {
 
     Optional<Category> findById(UUID id);
 
+    List<Category> findAll();
+
     List<Category> findByOrganizationId(UUID organizationId);
 
     void delete(Category category);
+
+    void deleteById(UUID id);
 }

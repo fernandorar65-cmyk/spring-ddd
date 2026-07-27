@@ -10,7 +10,6 @@ public record UpdateProfileCommand(
         @Size(max = 30) String phoneNumber,
         LocalDate birthDate,
         String bio,
-        @Size(max = 150) String location,
-        @Size(max = 500) String avatarUrl
+        @Size(max = 150) String location
 ) {
 }

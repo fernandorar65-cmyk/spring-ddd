@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
+/**
+ * Reserved domain event: raised conceptually when a user is created.
+ * Not published or consumed yet (no event bus / outbox / listeners).
+ */
 public class UserCreatedEvent extends DomainEvent {
 
     private final UUID userId;

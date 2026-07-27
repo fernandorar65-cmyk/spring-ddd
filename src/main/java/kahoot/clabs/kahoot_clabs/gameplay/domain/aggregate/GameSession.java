@@ -11,9 +11,10 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.PlayerAnswer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionPlayer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.event.GameStartedEvent;
+// import kahoot.clabs.kahoot_clabs.gameplay.domain.event.GameStartedEvent; // reserved: no publisher/consumers yet
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GamePin;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.GameStatus;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.AnswerOptionSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.PlayerRank;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.ResponseTime;
 import kahoot.clabs.kahoot_clabs.shared.domain.AggregateRoot;
@@ -119,10 +120,25 @@ public class GameSession extends AggregateRoot {
         return session;
     }
 
-    public SessionQuestion addQuestion(UUID quizQuestionId, int points, int timeLimitSeconds) {
+    public SessionQuestion addQuestionSnapshot(
+            UUID quizQuestionId,
+            String title,
+            String description,
+            String questionType,
+            int points,
+            int timeLimitSeconds,
+            List<AnswerOptionSnapshot> options) {
         ensureStatus(GameStatus.LOBBY, "Questions can only be added while the session is in the lobby");
-        SessionQuestion question = SessionQuestion.of(
-                getId(), quizQuestionId, questions.size() + 1, points, timeLimitSeconds);
+        SessionQuestion question = SessionQuestion.snapshot(
+                getId(),
+                quizQuestionId,
+                title,
+                description,
+                questionType,
+                questions.size() + 1,
+                points,
+                timeLimitSeconds,
+                options);
         questions.add(question);
         touch();
         return question;
@@ -152,21 +168,30 @@ public class GameSession extends AggregateRoot {
         this.currentQuestionIndex = 0;
         questions.get(currentQuestionIndex).open();
         touch();
-        registerEvent(new GameStartedEvent(getId(), organizationId, quizId, hostUserId, pin.value()));
+        // Domain event prepared but not wired (no pullDomainEvents / publisher / listeners yet).
+        // registerEvent(new GameStartedEvent(getId(), organizationId, quizId, hostUserId, pin.value()));
     }
 
-    public PlayerAnswer submitAnswer(UUID playerId, UUID selectedOptionId, boolean correct, long responseTimeMillis) {
+    public PlayerAnswer submitAnswer(UUID playerId, UUID sessionQuestionId, UUID selectedOptionId) {
         ensureStatus(GameStatus.RUNNING, "Answers are only accepted while the session is running");
         SessionQuestion question = requireOpenQuestion();
+        if (!question.getId().equals(sessionQuestionId)) {
+            throw new DomainException("Answers can only be submitted for the current question");
+        }
         SessionPlayer player = requirePlayer(playerId);
+        if (!player.isConnected()) {
+            throw new DomainException("Disconnected players cannot submit answers");
+        }
 
+        boolean correct = question.isCorrectOption(selectedOptionId);
+        ResponseTime responseTime = question.responseTimeAt(LocalDateTime.now());
         int awardedPoints = correct ? question.getPoints() : 0;
         PlayerAnswer answer = PlayerAnswer.of(
                 question.getId(),
                 player.getId(),
                 selectedOptionId,
                 correct,
-                ResponseTime.ofMillis(responseTimeMillis),
+                responseTime,
                 awardedPoints);
         question.register(answer);
         player.award(awardedPoints);
@@ -181,18 +206,16 @@ public class GameSession extends AggregateRoot {
     }
 
     /**
-     * Closes the current question and opens the next one. Finishes the session
-     * when there are no questions left.
+     * Opens the next question after the current one was explicitly closed.
      */
     public Optional<SessionQuestion> nextQuestion() {
         ensureStatus(GameStatus.RUNNING, "Only a running session can advance to the next question");
         SessionQuestion current = questions.get(currentQuestionIndex);
         if (current.isOpen()) {
-            current.close();
+            throw new DomainException("Current question must be closed before advancing");
         }
         if (currentQuestionIndex + 1 >= questions.size()) {
-            finish();
-            return Optional.empty();
+            throw new DomainException("There is no next question; finish the session instead");
         }
         currentQuestionIndex++;
         SessionQuestion next = questions.get(currentQuestionIndex);
@@ -205,6 +228,9 @@ public class GameSession extends AggregateRoot {
         if (status != GameStatus.RUNNING) {
             throw new DomainException("Only a running session can finish");
         }
+        if (currentQuestion().map(SessionQuestion::isOpen).orElse(false)) {
+            throw new DomainException("Current question must be closed before finishing");
+        }
         this.status = GameStatus.FINISHED;
         this.finishedAt = LocalDateTime.now();
         this.pin = null;
@@ -212,8 +238,8 @@ public class GameSession extends AggregateRoot {
     }
 
     public void cancel() {
-        if (status == GameStatus.FINISHED) {
-            throw new DomainException("A finished session cannot be cancelled");
+        if (status != GameStatus.LOBBY && status != GameStatus.RUNNING) {
+            throw new DomainException("Only a lobby or running session can be cancelled");
         }
         this.status = GameStatus.CANCELLED;
         this.pin = null;
@@ -223,6 +249,8 @@ public class GameSession extends AggregateRoot {
     public List<PlayerRank> leaderboard() {
         List<SessionPlayer> ordered = new ArrayList<>(players);
         ordered.sort(Comparator.comparingInt((SessionPlayer player) -> player.getScore().value()).reversed()
+                .thenComparing(Comparator.comparingInt(this::correctAnswersFor).reversed())
+                .thenComparingLong(this::totalResponseTimeMillisFor)
                 .thenComparing(SessionPlayer::getJoinedAt));
 
         List<PlayerRank> ranks = new ArrayList<>(ordered.size());
@@ -251,6 +279,21 @@ public class GameSession extends AggregateRoot {
                 .filter(player -> player.getId().equals(playerId))
                 .findFirst()
                 .orElseThrow(() -> new DomainException("Player is not part of this session: " + playerId));
+    }
+
+    private int correctAnswersFor(SessionPlayer player) {
+        return (int) questions.stream()
+                .flatMap(question -> question.getAnswers().stream())
+                .filter(answer -> answer.getSessionPlayerId().equals(player.getId()) && answer.isCorrect())
+                .count();
+    }
+
+    private long totalResponseTimeMillisFor(SessionPlayer player) {
+        return questions.stream()
+                .flatMap(question -> question.getAnswers().stream())
+                .filter(answer -> answer.getSessionPlayerId().equals(player.getId()))
+                .mapToLong(answer -> answer.getResponseTime().toMillis())
+                .sum();
     }
 
     private Optional<SessionPlayer> findPlayerByNickname(String nickname) {
