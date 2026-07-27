@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kahoot.clabs.kahoot_clabs.identity.application.command.AssignRoleCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.command.ChangePasswordCommand;
@@ -32,6 +35,7 @@ import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "Users", description = "Consulta y administración de perfiles de usuario")
 public class UserController {
 
     private final GetUserProfileUseCase getUserProfileUseCase;
@@ -51,7 +55,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserProfileResponse>> getById(@PathVariable UUID id) {
+    @Operation(
+            summary = "Obtener perfil de usuario",
+            description = "Devuelve los datos de perfil y estado del usuario identificado por su UUID.")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getById(
+            @Parameter(description = "Identificador del usuario") @PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "User retrieved",
@@ -59,8 +67,11 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Actualizar perfil",
+            description = "Actualiza datos de perfil (departamento, cargo, teléfono, etc.) y opcionalmente sube un avatar a S3.")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
-            @PathVariable UUID id,
+            @Parameter(description = "Identificador del usuario") @PathVariable UUID id,
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String jobTitle,
             @RequestParam(required = false) String phoneNumber,
@@ -81,16 +92,22 @@ public class UserController {
     }
 
     @PutMapping("/{id}/password")
+    @Operation(
+            summary = "Cambiar contraseña",
+            description = "Cambia la contraseña del usuario validando la contraseña actual y aplicando BCrypt a la nueva.")
     public ResponseEntity<Void> changePassword(
-            @PathVariable UUID id,
+            @Parameter(description = "Identificador del usuario") @PathVariable UUID id,
             @Valid @RequestBody ChangePasswordCommand command) {
         changePasswordUseCase.execute(id, command);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/role")
+    @Operation(
+            summary = "Asignar rol",
+            description = "Asigna un rol de identidad (por tipo o id) al usuario indicado.")
     public ResponseEntity<ApiResponse<UserProfileResponse>> assignRole(
-            @PathVariable UUID id,
+            @Parameter(description = "Identificador del usuario") @PathVariable UUID id,
             @Valid @RequestBody AssignRoleCommand command) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK, "User role assigned", assignRoleUseCase.execute(id, command)));

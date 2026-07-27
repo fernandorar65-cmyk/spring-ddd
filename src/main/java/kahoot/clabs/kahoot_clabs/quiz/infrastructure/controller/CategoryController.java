@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.CreateCategoryCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.UpdateCategoryCommand;
@@ -28,6 +31,7 @@ import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/categories")
+@Tag(name = "Categories", description = "Categorías de quizzes por organización")
 public class CategoryController {
 
     private final CreateCategoryUseCase createCategoryUseCase;
@@ -50,32 +54,40 @@ public class CategoryController {
     }
 
     @PostMapping
+    @Operation(summary = "Crear categoría", description = "Crea una categoría asociada a una organización para clasificar quizzes.")
     public ResponseEntity<ApiResponse<CategoryResponse>> create(@Valid @RequestBody CreateCategoryCommand command) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(HttpStatus.CREATED, "Category created", createCategoryUseCase.execute(command)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<CategoryResponse>> getById(@PathVariable UUID id) {
+    @Operation(summary = "Obtener categoría", description = "Devuelve una categoría por su identificador.")
+    public ResponseEntity<ApiResponse<CategoryResponse>> getById(
+            @Parameter(description = "Identificador de la categoría") @PathVariable UUID id) {
         return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK, "Category retrieved", getCategoryUseCase.execute(id)));
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> listByOrganization(@RequestParam UUID organizationId) {
+    @Operation(summary = "Listar categorías", description = "Lista todas las categorías de una organización.")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> listByOrganization(
+            @Parameter(description = "Identificador de la organización") @RequestParam UUID organizationId) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK, "Categories retrieved", listCategoriesUseCase.execute(organizationId)));
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Actualizar categoría", description = "Actualiza el nombre o descripción de una categoría.")
     public ResponseEntity<ApiResponse<CategoryResponse>> update(
-            @PathVariable UUID id,
+            @Parameter(description = "Identificador de la categoría") @PathVariable UUID id,
             @Valid @RequestBody UpdateCategoryCommand command) {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK, "Category updated", updateCategoryUseCase.execute(id, command)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    @Operation(summary = "Eliminar categoría", description = "Elimina una categoría. Debe validarse que no rompa reglas de negocio asociadas.")
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "Identificador de la categoría") @PathVariable UUID id) {
         deleteCategoryUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
