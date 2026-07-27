@@ -11,12 +11,12 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
-public class S3ImageStorage{
+public class S3Storage{
 
     private final S3Client s3Client;
     private final S3StorageProperties properties;
 
-    public S3ImageStorage(S3Client s3Client, S3StorageProperties properties) {
+    public S3Storage(S3Client s3Client, S3StorageProperties properties) {
         this.s3Client = s3Client;
         this.properties = properties;
     }
