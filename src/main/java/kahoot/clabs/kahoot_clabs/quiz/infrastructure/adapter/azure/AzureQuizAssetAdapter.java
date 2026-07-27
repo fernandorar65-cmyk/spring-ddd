@@ -1,18 +1,18 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter.aws;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter.azure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizAssetPort;
-import kahoot.clabs.kahoot_clabs.shared.infrastructure.storage.S3Storage;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.storage.AzureBlobStorage;
 
 @Component
-@ConditionalOnProperty(prefix = "app", name = "storage", havingValue = "aws", matchIfMissing = true)
-public class S3QuizAssetAdapter implements QuizAssetPort {
+@ConditionalOnProperty(prefix = "app", name = "storage", havingValue = "azure")
+public class AzureQuizAssetAdapter implements QuizAssetPort {
 
-    private final S3Storage storage;
+    private final AzureBlobStorage storage;
 
-    public S3QuizAssetAdapter(S3Storage storage) {
+    public AzureQuizAssetAdapter(AzureBlobStorage storage) {
         this.storage = storage;
     }
 

@@ -2,6 +2,7 @@ package kahoot.clabs.kahoot_clabs.shared.infrastructure.storage;
 
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
@@ -11,7 +12,8 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
-public class S3Storage{
+@ConditionalOnProperty(prefix = "app", name = "storage", havingValue = "aws", matchIfMissing = true)
+public class S3Storage {
 
     private final S3Client s3Client;
     private final S3StorageProperties properties;
