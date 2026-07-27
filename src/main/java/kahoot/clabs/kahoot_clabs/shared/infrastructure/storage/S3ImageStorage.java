@@ -1,11 +1,9 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.storage;
+package kahoot.clabs.kahoot_clabs.shared.infrastructure.storage;
 
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizAssetPort;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.config.S3StorageProperties;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -13,7 +11,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Component
-public class S3ImageStorage implements QuizAssetPort, AvatarStoragePort {
+public class S3ImageStorage{
 
     private final S3Client s3Client;
     private final S3StorageProperties properties;
@@ -23,7 +21,6 @@ public class S3ImageStorage implements QuizAssetPort, AvatarStoragePort {
         this.properties = properties;
     }
 
-    @Override
     public String upload(String objectKey, byte[] content, String contentType) {
         if (properties.bucket() == null || properties.bucket().isBlank()) {
             throw new DomainException("S3 bucket is not configured");

@@ -7,11 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.identity.application.command.UpdateProfileCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserProfileResponse;
+import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.UserProfile;
-import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
