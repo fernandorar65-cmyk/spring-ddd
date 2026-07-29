@@ -7,10 +7,6 @@ import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.MemberStatus;
 import kahoot.clabs.kahoot_clabs.shared.domain.AuditableEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
-/**
- * Membership of a user (identity context) inside an organization.
- * Only the Organization aggregate root creates or modifies members.
- */
 public class OrganizationMember extends AuditableEntity {
 
     private final UUID organizationId;
