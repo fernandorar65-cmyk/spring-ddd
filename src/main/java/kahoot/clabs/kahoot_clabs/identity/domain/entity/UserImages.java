@@ -7,12 +7,14 @@ import kahoot.clabs.kahoot_clabs.shared.domain.AuditableEntity;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
- * Image attached to a user (avatar, profile gallery, etc.).
+ * Image attached to a user (profile, cover, banner, etc.).
  * Child entity of the {@code User} aggregate — mutate via the root.
  */
 public class UserImages extends AuditableEntity {
 
-    private static final int URL_MAX = 150;
+    public static final String TYPE_PROFILE = "profile";
+
+    private static final int URL_MAX = 500;
     private static final int TYPE_MAX = 100;
     private static final int ALT_MAX = 100;
     private static final int SLUG_MAX = 100;
@@ -53,51 +55,16 @@ public class UserImages extends AuditableEntity {
             String url,
             String type,
             String alt,
-            String slug) {
-        return rehydrate(id, userId, url, type, alt, slug, null, null);
-    }
-
-    public static UserImages rehydrate(
-            UUID id,
-            UUID userId,
-            String url,
-            String type,
-            String alt,
             String slug,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
+        if (id == null) {
+            throw new DomainException("Image id is required");
+        }
         if (userId == null) {
             throw new DomainException("User id is required");
         }
         return new UserImages(id, userId, url, type, alt, slug, createdAt, updatedAt);
-    }
-
-    void assignUserId(UUID userId) {
-        if (userId == null) {
-            throw new DomainException("User id is required");
-        }
-        this.userId = userId;
-        touch();
-    }
-
-    public void changeUrl(String url) {
-        this.url = requireUrl(url);
-        touch();
-    }
-
-    public void changeType(String type) {
-        this.type = requireType(type);
-        touch();
-    }
-
-    public void changeAlt(String alt) {
-        this.alt = requireAlt(alt);
-        touch();
-    }
-
-    public void changeSlug(String slug) {
-        this.slug = requireSlug(slug);
-        touch();
     }
 
     public void update(String url, String type, String alt, String slug) {
@@ -133,7 +100,7 @@ public class UserImages extends AuditableEntity {
     }
 
     private static String requireType(String type) {
-        return requireText(type, "Image type", TYPE_MAX);
+        return requireText(type, "Image type", TYPE_MAX).toLowerCase();
     }
 
     private static String requireAlt(String alt) {
@@ -141,7 +108,7 @@ public class UserImages extends AuditableEntity {
     }
 
     private static String requireSlug(String slug) {
-        return requireText(slug, "Image slug", SLUG_MAX);
+        return requireText(slug, "Image slug", SLUG_MAX).toLowerCase();
     }
 
     private static String requireText(String value, String label, int maxLength) {

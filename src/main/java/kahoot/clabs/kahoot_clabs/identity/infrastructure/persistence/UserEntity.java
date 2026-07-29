@@ -2,11 +2,16 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -32,6 +37,9 @@ public class UserEntity {
     @Column(name = "last_name", nullable = false, length = 80)
     private String lastName;
 
+    @Column(nullable = false, length = 20)
+    private String status;
+
     @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
@@ -52,6 +60,9 @@ public class UserEntity {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<UserImagesEntity> images = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -101,6 +112,14 @@ public class UserEntity {
         this.lastName = lastName;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -132,7 +151,7 @@ public class UserEntity {
     public void setLocation(String location) {
         this.location = location;
     }
-    
+
     public LocalDateTime getLastLogin() {
         return lastLogin;
     }
@@ -155,5 +174,13 @@ public class UserEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<UserImagesEntity> getImages() {
+        return images;
+    }
+
+    public void setImages(List<UserImagesEntity> images) {
+        this.images = images;
     }
 }

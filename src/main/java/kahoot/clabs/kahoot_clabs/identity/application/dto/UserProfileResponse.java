@@ -13,13 +13,11 @@ public record UserProfileResponse(
         String firstName,
         String lastName,
         String status,
-        String department,
-        String jobTitle,
         String phoneNumber,
         LocalDate birthDate,
         String bio,
         String location,
-        String avatarUrl
+        String profileImageUrl
 ) {
 
     public static UserProfileResponse from(User user) {
@@ -31,12 +29,10 @@ public record UserProfileResponse(
                 user.getFullName().firstName(),
                 user.getFullName().lastName(),
                 user.getStatus().name(),
-                profile.department(),
-                profile.jobTitle(),
                 profile.phoneNumber(),
                 profile.birthDate(),
                 profile.bio(),
                 profile.location(),
-                profile.avatarUrl());
+                user.profileImageUrl().orElse(null));
     }
 }

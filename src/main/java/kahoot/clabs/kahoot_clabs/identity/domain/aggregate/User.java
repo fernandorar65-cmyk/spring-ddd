@@ -1,9 +1,14 @@
 package kahoot.clabs.kahoot_clabs.identity.domain.aggregate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 // import kahoot.clabs.kahoot_clabs.identity.domain.event.UserCreatedEvent; // reserved: no publisher/consumers yet
+import kahoot.clabs.kahoot_clabs.identity.domain.entity.UserImages;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Email;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.FullName;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
@@ -26,7 +31,7 @@ public class User extends AggregateRoot {
     private UserProfile profile;
 
     private UserStatus status;
-    private String avatar;
+    private final List<UserImages> images = new ArrayList<>();
 
     private LocalDateTime lastLogin;
 
@@ -71,7 +76,7 @@ public class User extends AggregateRoot {
             Password password,
             UserProfile profile,
             UserStatus status,
-            String avatar,
+            List<UserImages> images,
             LocalDateTime lastLogin,
             LocalDateTime createdAt,
             LocalDateTime updatedAt) {
@@ -79,7 +84,9 @@ public class User extends AggregateRoot {
         user.roleId = roleId;
         user.profile = profile != null ? profile : UserProfile.empty();
         user.status = status != null ? status : UserStatus.ACTIVE;
-        user.avatar = avatar;
+        if (images != null) {
+            user.images.addAll(images);
+        }
         user.lastLogin = lastLogin;
         return user;
     }
@@ -110,9 +117,45 @@ public class User extends AggregateRoot {
         touch();
     }
 
-    public void changeAvatar(String avatar) {
-        this.avatar = avatar;
+    /**
+     * Adds or replaces an image of the given type (e.g. profile, cover, banner).
+     */
+    public UserImages upsertImage(String url, String type, String alt, String slug) {
+        Optional<UserImages> existing = findImageByType(type);
+        if (existing.isPresent()) {
+            existing.get().update(url, type, alt, slug);
+            touch();
+            return existing.get();
+        }
+        UserImages image = UserImages.create(getId(), url, type, alt, slug);
+        images.add(image);
         touch();
+        return image;
+    }
+
+    public void removeImage(UUID imageId) {
+        if (imageId == null) {
+            throw new DomainException("Image id is required");
+        }
+        boolean removed = images.removeIf(image -> imageId.equals(image.getId()));
+        if (!removed) {
+            throw new DomainException("Image not found for user");
+        }
+        touch();
+    }
+
+    public Optional<UserImages> findImageByType(String type) {
+        if (type == null || type.isBlank()) {
+            return Optional.empty();
+        }
+        String normalized = type.trim().toLowerCase();
+        return images.stream()
+                .filter(image -> image.getType().equalsIgnoreCase(normalized))
+                .findFirst();
+    }
+
+    public Optional<String> profileImageUrl() {
+        return findImageByType(UserImages.TYPE_PROFILE).map(UserImages::getUrl);
     }
 
     public void changeRole(UUID roleId) {
@@ -170,8 +213,8 @@ public class User extends AggregateRoot {
         return status;
     }
 
-    public String getAvatar() {
-        return avatar;
+    public List<UserImages> getImages() {
+        return Collections.unmodifiableList(images);
     }
 
     public LocalDateTime getLastLogin() {
