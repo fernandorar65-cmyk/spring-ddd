@@ -7,7 +7,7 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
  * Catalog entry for departments within the organization context.
- * Aligned with persistence table {@code OrganizationDepartments}.
+ * Aligned with persistence table {@code organization_departments}.
  */
 public class OrganizationDepartment extends BaseEntity {
 

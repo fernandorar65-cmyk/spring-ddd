@@ -7,7 +7,7 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
  * Catalog entry for job titles within the organization context.
- * Aligned with persistence table {@code OrganizationJobs}.
+ * Aligned with persistence table {@code organization_jobs}.
  */
 public class OrganizationJob extends BaseEntity {
 

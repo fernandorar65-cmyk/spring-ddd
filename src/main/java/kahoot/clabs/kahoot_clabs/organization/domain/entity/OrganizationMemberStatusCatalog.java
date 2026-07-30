@@ -7,7 +7,7 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 /**
  * Catalog entry for organization member statuses (reference data).
- * Aligned with persistence table {@code OrganizationMenberStatus} (typo preserved in table name).
+ * Aligned with persistence table {@code organization_member_statuses}.
  *
  * <p>Distinct from the enum value object
  * {@link kahoot.clabs.kahoot_clabs.organization.domain.valueobject.MemberStatus}.
