@@ -1,19 +1,109 @@
--- Align the existing identity and organization schema with its JPA mappings.
-ALTER TABLE organizations RENAME COLUMN logo TO logo_url;
+-- Baseline schema (DDL only). Reflects the current application model.
+-- Reference data is loaded by Java seeders (app.seed), not by Flyway.
 
-ALTER TABLE permissions
-    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+-- ---------------------------------------------------------------------------
+-- Identity
+-- ---------------------------------------------------------------------------
 
-ALTER TABLE roles
-    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+CREATE TABLE permissions (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    module VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_permissions_name_module UNIQUE (name, module)
+);
 
-ALTER TABLE organization_members
-    ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+CREATE TABLE roles (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    type VARCHAR(30) NOT NULL,
+    description VARCHAR(255),
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_roles_type UNIQUE (type)
+);
 
--- Quiz bounded context.
+CREATE TABLE role_permissions (
+    role_id UUID NOT NULL,
+    permission_id UUID NOT NULL,
+    PRIMARY KEY (role_id, permission_id),
+    CONSTRAINT fk_role_permissions_role FOREIGN KEY (role_id) REFERENCES roles (id),
+    CONSTRAINT fk_role_permissions_permission FOREIGN KEY (permission_id) REFERENCES permissions (id)
+);
+
+CREATE TABLE users (
+    id UUID NOT NULL PRIMARY KEY,
+    role_id UUID,
+    email VARCHAR(255) NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(80) NOT NULL,
+    last_name VARCHAR(80) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(30),
+    birth_date DATE,
+    bio TEXT,
+    location VARCHAR(150),
+    last_login TIMESTAMP,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_users_email UNIQUE (email),
+    CONSTRAINT fk_users_role FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
+CREATE TABLE user_images (
+    id UUID NOT NULL PRIMARY KEY,
+    user_id UUID NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    alt VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT fk_user_images_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE INDEX idx_user_images_user_id ON user_images (user_id);
+CREATE INDEX idx_user_images_user_type ON user_images (user_id, type);
+
+-- ---------------------------------------------------------------------------
+-- Organization
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE organizations (
+    id UUID NOT NULL PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    slug VARCHAR(100) NOT NULL,
+    logo_url VARCHAR(500),
+    description TEXT,
+    timezone VARCHAR(64) NOT NULL,
+    language VARCHAR(10) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_organizations_slug UNIQUE (slug)
+);
+
+CREATE TABLE organization_members (
+    id UUID NOT NULL PRIMARY KEY,
+    organization_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    role_id UUID,
+    status VARCHAR(20) NOT NULL,
+    joined_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    CONSTRAINT uq_organization_members_org_user UNIQUE (organization_id, user_id),
+    CONSTRAINT fk_organization_members_organization FOREIGN KEY (organization_id) REFERENCES organizations (id)
+);
+
+CREATE INDEX idx_organization_members_user_id ON organization_members (user_id);
+
+-- ---------------------------------------------------------------------------
+-- Quiz
+-- ---------------------------------------------------------------------------
+
 CREATE TABLE quizzes (
     id UUID NOT NULL PRIMARY KEY,
     organization_id UUID NOT NULL,
@@ -102,7 +192,13 @@ CREATE TABLE question_assets (
     CONSTRAINT fk_question_assets_question FOREIGN KEY (question_id) REFERENCES questions (id)
 );
 
--- Gameplay bounded context.
+CREATE INDEX idx_quizzes_organization_id ON quizzes (organization_id);
+CREATE INDEX idx_quizzes_created_by ON quizzes (created_by);
+
+-- ---------------------------------------------------------------------------
+-- Gameplay
+-- ---------------------------------------------------------------------------
+
 CREATE TABLE game_sessions (
     id UUID NOT NULL PRIMARY KEY,
     organization_id UUID NOT NULL,
@@ -137,10 +233,26 @@ CREATE TABLE session_questions (
     order_index INTEGER NOT NULL,
     points INTEGER NOT NULL,
     time_limit_seconds INTEGER NOT NULL,
+    title VARCHAR(500),
+    description TEXT,
+    question_type VARCHAR(20),
     opened_at TIMESTAMP,
     closed_at TIMESTAMP,
     CONSTRAINT uq_session_questions_session_order UNIQUE (session_id, order_index),
     CONSTRAINT fk_session_questions_session FOREIGN KEY (session_id) REFERENCES game_sessions (id)
+);
+
+CREATE TABLE session_answer_options (
+    id UUID NOT NULL PRIMARY KEY,
+    session_question_id UUID NOT NULL,
+    original_answer_option_id UUID NOT NULL,
+    text VARCHAR(500) NOT NULL,
+    is_correct BOOLEAN NOT NULL,
+    order_index INTEGER NOT NULL,
+    CONSTRAINT uq_session_answer_options_question_order
+        UNIQUE (session_question_id, order_index),
+    CONSTRAINT fk_session_answer_options_session_question
+        FOREIGN KEY (session_question_id) REFERENCES session_questions (id)
 );
 
 CREATE TABLE player_answers (
@@ -148,6 +260,7 @@ CREATE TABLE player_answers (
     session_question_id UUID NOT NULL,
     session_player_id UUID NOT NULL,
     answer_option_id UUID,
+    session_answer_option_id UUID,
     is_correct BOOLEAN NOT NULL,
     response_time_ms BIGINT NOT NULL,
     awarded_points INTEGER NOT NULL,
@@ -158,7 +271,9 @@ CREATE TABLE player_answers (
     CONSTRAINT fk_player_answers_session_player
         FOREIGN KEY (session_player_id) REFERENCES session_players (id),
     CONSTRAINT fk_player_answers_answer_option
-        FOREIGN KEY (answer_option_id) REFERENCES answer_options (id)
+        FOREIGN KEY (answer_option_id) REFERENCES answer_options (id),
+    CONSTRAINT fk_player_answers_session_answer_option
+        FOREIGN KEY (session_answer_option_id) REFERENCES session_answer_options (id)
 );
 
 CREATE TABLE session_leaderboard (
@@ -175,3 +290,11 @@ CREATE TABLE session_leaderboard (
     CONSTRAINT fk_session_leaderboard_session FOREIGN KEY (session_id) REFERENCES game_sessions (id),
     CONSTRAINT fk_session_leaderboard_player FOREIGN KEY (session_player_id) REFERENCES session_players (id)
 );
+
+CREATE INDEX idx_game_sessions_organization_id ON game_sessions (organization_id);
+CREATE INDEX idx_game_sessions_quiz_id ON game_sessions (quiz_id);
+CREATE INDEX idx_game_sessions_host_user_id ON game_sessions (host_user_id);
+CREATE INDEX idx_session_players_user_id ON session_players (user_id);
+CREATE INDEX idx_session_answer_options_session_question_id ON session_answer_options (session_question_id);
+CREATE INDEX idx_player_answers_session_player_id ON player_answers (session_player_id);
+CREATE INDEX idx_session_leaderboard_player_id ON session_leaderboard (session_player_id);
