@@ -14,14 +14,18 @@ public final class PermissionPersistenceMapper {
         entity.setName(permission.getName());
         entity.setDescription(permission.getDescription());
         entity.setModule(permission.getModule());
+        entity.setCreatedAt(permission.getCreatedAt());
+        entity.setUpdatedAt(permission.getUpdatedAt());
         return entity;
     }
 
     public static Permission toDomain(PermissionEntity entity) {
-        return Permission.reconstitute(
+        return Permission.rehydrate(
                 entity.getId(),
                 entity.getName(),
                 entity.getDescription(),
-                entity.getModule());
+                entity.getModule(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt());
     }
 }
