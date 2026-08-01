@@ -42,7 +42,6 @@ public class IdentityReferenceDataSeeder implements DataSeeder {
         List<Permission> permissions = new ArrayList<>();
         permissions.add(ensurePermission("QUIZ_CREATE", "Crear quizzes", "quiz"));
         permissions.add(ensurePermission("QUIZ_PUBLISH", "Publicar quizzes", "quiz"));
-        permissions.add(ensurePermission("GAME_HOST", "Iniciar sesiones de juego", "gameplay"));
         permissions.add(ensurePermission("USER_MANAGE", "Gestionar usuarios", "user"));
         return permissions;
     }

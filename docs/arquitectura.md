@@ -13,8 +13,7 @@ src/main/java/kahoot/clabs/kahoot_clabs
 ├── shared
 ├── identity
 ├── organization
-├── quiz
-└── gameplay
+└── quiz
 ```
 
 | Contexto | Responsabilidad | Estado |
@@ -22,8 +21,9 @@ src/main/java/kahoot/clabs/kahoot_clabs
 | `shared` | Abstracciones reutilizables y configuración transversal | Completo |
 | `identity` | Usuarios, roles, permisos y autenticación | Dominio + aplicación + infraestructura |
 | `organization` | Organizaciones (tenants) y membresías | Dominio + aplicación + infraestructura |
-| `quiz` | Contenido de los kahoots | Solo dominio |
-| `gameplay` | Ejecución de la partida (core domain) | Solo dominio |
+| `quiz` | Contenido de los kahoots | Dominio + aplicación + infraestructura |
+
+> `gameplay` (partidas en vivo) fue retirado del código hasta definir el flujo. Las tablas se eliminan con `V3__drop_gameplay.sql`.
 
 Cada contexto usa la misma estructura interna:
 

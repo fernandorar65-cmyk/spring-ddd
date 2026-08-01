@@ -23,7 +23,7 @@ public class OrganizationMemberEntity {
     private UUID userId;
 
     @Column(name = "role_id", length = 36)
-    private UUID roleId;
+    private UUID roleId; // eliminar
 
     @Column(nullable = false, length = 20)
     private String status;

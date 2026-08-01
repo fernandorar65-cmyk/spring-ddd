@@ -196,7 +196,7 @@ CREATE INDEX idx_quizzes_organization_id ON quizzes (organization_id);
 CREATE INDEX idx_quizzes_created_by ON quizzes (created_by);
 
 -- ---------------------------------------------------------------------------
--- Gameplay
+-- Gameplay (removed by V3__drop_gameplay.sql — kept here because V1 was already applied)
 -- ---------------------------------------------------------------------------
 
 CREATE TABLE game_sessions (
