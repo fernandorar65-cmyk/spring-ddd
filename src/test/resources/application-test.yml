@@ -1,4 +1,8 @@
 # Profile used by unit/smoke tests without a local PostgreSQL instance.
+app:
+  seed:
+    enabled: false
+
 spring:
   datasource:
     url: jdbc:h2:mem:kahoot_clabs;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE

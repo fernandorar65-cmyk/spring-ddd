@@ -19,6 +19,8 @@ public final class RolePersistenceMapper {
         entity.setName(role.getName());
         entity.setType(role.getType().name());
         entity.setDescription(role.getDescription());
+        entity.setCreatedAt(role.getCreatedAt());
+        entity.setUpdatedAt(role.getUpdatedAt());
         entity.setPermissions(role.getPermissions().stream()
                 .map(PermissionPersistenceMapper::toEntity)
                 .collect(Collectors.toSet()));
@@ -34,6 +36,8 @@ public final class RolePersistenceMapper {
                 entity.getName(),
                 RoleType.valueOf(entity.getType()),
                 entity.getDescription(),
-                permissions);
+                permissions,
+                entity.getCreatedAt(),
+                entity.getUpdatedAt());
     }
 }

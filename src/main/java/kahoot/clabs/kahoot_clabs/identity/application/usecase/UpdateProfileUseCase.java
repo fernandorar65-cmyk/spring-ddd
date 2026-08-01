@@ -9,6 +9,7 @@ import kahoot.clabs.kahoot_clabs.identity.application.command.UpdateProfileComma
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserProfileResponse;
 import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
+import kahoot.clabs.kahoot_clabs.identity.domain.entity.UserImages;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.UserProfile;
@@ -31,46 +32,30 @@ public class UpdateProfileUseCase {
     public UserProfileResponse execute(
             UUID userId,
             UpdateProfileCommand command,
-            byte[] avatarContent,
-            String avatarContentType,
-            String avatarOriginalFilename) {
+            byte[] imageContent,
+            String imageContentType,
+            String imageOriginalFilename) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        String avatarUrl = resolveAvatarUrl(user, avatarContent, avatarContentType, avatarOriginalFilename);
-
         user.updateProfile(UserProfile.builder()
-                .department(blankToNull(command.department()))
-                .jobTitle(blankToNull(command.jobTitle()))
                 .phoneNumber(blankToNull(command.phoneNumber()))
                 .birthDate(command.birthDate())
                 .bio(blankToNull(command.bio()))
                 .location(blankToNull(command.location()))
-                .avatarUrl(avatarUrl)
                 .build());
-        user.changeAvatar(avatarUrl);
+
+        if (imageContent != null && imageContent.length > 0) {
+            validateImage(imageContent, imageContentType);
+            String key = "users/%s/avatar/%s%s".formatted(
+                    user.getId(),
+                    UUID.randomUUID(),
+                    extension(imageOriginalFilename, imageContentType));
+            String url = avatarStoragePort.upload(key, imageContent, imageContentType);
+            user.upsertImage(url, UserImages.TYPE_PROFILE, "Profile avatar", UserImages.TYPE_PROFILE);
+        }
 
         return UserProfileResponse.from(userRepository.save(user));
-    }
-
-    private String resolveAvatarUrl(
-            User user,
-            byte[] avatarContent,
-            String avatarContentType,
-            String avatarOriginalFilename) {
-        if (avatarContent == null || avatarContent.length == 0) {
-            String current = user.getProfile() == null ? null : user.getProfile().avatarUrl();
-            if (current != null && !current.isBlank()) {
-                return current;
-            }
-            return user.getAvatar();
-        }
-        validateImage(avatarContent, avatarContentType);
-        String key = "users/%s/avatar/%s%s".formatted(
-                user.getId(),
-                UUID.randomUUID(),
-                extension(avatarOriginalFilename, avatarContentType));
-        return avatarStoragePort.upload(key, avatarContent, avatarContentType);
     }
 
     private void validateImage(byte[] content, String contentType) {

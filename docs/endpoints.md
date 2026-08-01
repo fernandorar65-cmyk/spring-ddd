@@ -120,30 +120,6 @@ Base: `/api/v1/organizations/{organizationId}/quizzes`
 
 ---
 
-## Gameplay — Game Sessions
-
-## revisar como funciona luego
-Base: `/api/v1/game-sessions`
-
-| Método | Ruta | Descripción | Query / Body |
-| --- | --- | --- | --- |
-| `POST` | `/api/v1/game-sessions` | Crear sesión de juego | body: `CreateGameSessionCommand` |
-| `GET` | `/api/v1/game-sessions` | Listar sesiones por quiz | query: `quizId` |
-| `GET` | `/api/v1/game-sessions/{id}` | Obtener sesión | — |
-| `POST` | `/api/v1/game-sessions/{id}/players` | Unirse a sesión por id | body: `JoinGameSessionCommand` |
-| `POST` | `/api/v1/game-sessions/by-pin/{pin}/players` | Unirse a sesión por PIN | body: `JoinGameSessionCommand` |
-| `POST` | `/api/v1/game-sessions/{id}/start` | Iniciar partida | — |
-| `GET` | `/api/v1/game-sessions/{id}/current-question` | Pregunta actual | — |
-| `POST` | `/api/v1/game-sessions/{id}/answers` | Enviar respuesta | body: `SubmitAnswerCommand` |
-| `POST` | `/api/v1/game-sessions/{id}/current-question/close` | Cerrar pregunta actual | — |
-| `POST` | `/api/v1/game-sessions/{id}/next-question` | Avanzar a siguiente pregunta | — |
-| `GET` | `/api/v1/game-sessions/{id}/leaderboard` | Leaderboard | — |
-| `POST` | `/api/v1/game-sessions/{id}/finish` | Finalizar partida | — |
-| `POST` | `/api/v1/game-sessions/{id}/cancel` | Cancelar partida | — |
-| `GET` | `/api/v1/game-sessions/{id}/results` | Resultados finales | — |
-
----
-
 ## Resumen por contexto
 
 | Contexto | Controller | Endpoints |
@@ -153,5 +129,6 @@ Base: `/api/v1/game-sessions`
 | Organization | `OrganizationController` | 7 |
 | Quiz | `CategoryController` | 5 |
 | Quiz | `QuizController` | 22 |
-| Gameplay | `GameSessionController` | 14 |
-| **Total** | | **54** |
+| **Total** | | **40** |
+
+> El contexto `gameplay` fue retirado temporalmente hasta definir el flujo de partida en vivo.

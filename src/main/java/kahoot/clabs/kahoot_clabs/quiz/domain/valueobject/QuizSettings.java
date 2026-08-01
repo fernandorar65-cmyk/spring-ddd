@@ -1,7 +1,7 @@
 package kahoot.clabs.kahoot_clabs.quiz.domain.valueobject;
 
 /**
- * Immutable value object describing gameplay settings for a quiz.
+ * Immutable value object describing quiz playback settings.
  */
 public final class QuizSettings {
 

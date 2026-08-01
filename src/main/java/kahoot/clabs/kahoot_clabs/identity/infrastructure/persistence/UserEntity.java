@@ -2,11 +2,16 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -35,15 +40,6 @@ public class UserEntity {
     @Column(nullable = false, length = 20)
     private String status;
 
-    @Column(length = 500)
-    private String avatar;
-
-    @Column(length = 100)
-    private String department;
-
-    @Column(name = "job_title", length = 100)
-    private String jobTitle;
-
     @Column(name = "phone_number", length = 30)
     private String phoneNumber;
 
@@ -56,9 +52,6 @@ public class UserEntity {
     @Column(length = 150)
     private String location;
 
-    @Column(name = "profile_avatar_url", length = 500)
-    private String profileAvatarUrl;
-
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
@@ -67,6 +60,9 @@ public class UserEntity {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<UserImagesEntity> images = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -124,30 +120,6 @@ public class UserEntity {
         this.status = status;
     }
 
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -180,14 +152,6 @@ public class UserEntity {
         this.location = location;
     }
 
-    public String getProfileAvatarUrl() {
-        return profileAvatarUrl;
-    }
-
-    public void setProfileAvatarUrl(String profileAvatarUrl) {
-        this.profileAvatarUrl = profileAvatarUrl;
-    }
-
     public LocalDateTime getLastLogin() {
         return lastLogin;
     }
@@ -210,5 +174,13 @@ public class UserEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public List<UserImagesEntity> getImages() {
+        return images;
+    }
+
+    public void setImages(List<UserImagesEntity> images) {
+        this.images = images;
     }
 }

@@ -69,18 +69,15 @@ public class UserController {
     @PutMapping(path = "/{id}/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Actualizar perfil",
-            description = "Actualiza datos de perfil (departamento, cargo, teléfono, etc.) y opcionalmente sube un avatar a S3.")
+            description = "Actualiza datos de perfil (teléfono, bio, ubicación) y opcionalmente sube una imagen de perfil.")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             @Parameter(description = "Identificador del usuario") @PathVariable UUID id,
-            @RequestParam(required = false) String department,
-            @RequestParam(required = false) String jobTitle,
             @RequestParam(required = false) String phoneNumber,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
             @RequestParam(required = false) String bio,
             @RequestParam(required = false) String location,
             @RequestPart(value = "avatar", required = false) MultipartFile avatar) throws IOException {
-        UpdateProfileCommand command = new UpdateProfileCommand(
-                department, jobTitle, phoneNumber, birthDate, bio, location);
+        UpdateProfileCommand command = new UpdateProfileCommand(phoneNumber, birthDate, bio, location);
         byte[] content = avatar == null || avatar.isEmpty() ? null : avatar.getBytes();
         String contentType = avatar == null || avatar.isEmpty() ? null : avatar.getContentType();
         String filename = avatar == null || avatar.isEmpty() ? null : avatar.getOriginalFilename();

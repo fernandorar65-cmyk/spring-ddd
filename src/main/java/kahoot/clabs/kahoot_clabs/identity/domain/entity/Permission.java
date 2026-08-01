@@ -85,7 +85,6 @@ public class Permission extends AuditableEntity {
     public static final class Common {
         public static final Permission QUIZ_CREATE = Permission.create("QUIZ_CREATE", "Crear quizzes", "quiz");
         public static final Permission QUIZ_PUBLISH = Permission.create("QUIZ_PUBLISH", "Publicar quizzes", "quiz");
-        public static final Permission GAME_HOST = Permission.create("GAME_HOST", "Iniciar sesiones de juego", "gameplay");
         public static final Permission USER_MANAGE = Permission.create("USER_MANAGE", "Gestionar usuarios", "user");
 
         private Common() {

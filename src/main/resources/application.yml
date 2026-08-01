@@ -29,7 +29,9 @@ server:
 
 app:
   # aws (default) | azure — selects file storage adapters
-  storage: ${FILE_STORAGE}
+  storage: ${FILE_STORAGE:aws}
+  seed:
+    enabled: ${APP_SEED_ENABLED:true}
 
 storage:
   s3:
