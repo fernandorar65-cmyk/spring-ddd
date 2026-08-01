@@ -17,6 +17,8 @@ public final class OrganizationMemberPersistenceMapper {
         entity.setRoleId(member.getRoleId());
         entity.setStatus(member.getStatus().name());
         entity.setJoinedAt(member.getJoinedAt());
+        entity.setCreatedAt(member.getCreatedAt());
+        entity.setUpdatedAt(member.getUpdatedAt());
         return entity;
     }
 
@@ -27,6 +29,8 @@ public final class OrganizationMemberPersistenceMapper {
                 entity.getUserId(),
                 entity.getRoleId(),
                 MemberStatus.valueOf(entity.getStatus()),
-                entity.getJoinedAt());
+                entity.getJoinedAt(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt());
     }
 }
