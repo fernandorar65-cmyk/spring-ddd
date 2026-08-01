@@ -2,6 +2,7 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.controller;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,10 +27,13 @@ import kahoot.clabs.kahoot_clabs.identity.application.command.AssignRoleCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.command.ChangePasswordCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.command.UpdateProfileCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserProfileResponse;
+import kahoot.clabs.kahoot_clabs.identity.application.dto.UserRoleResponse;
 import kahoot.clabs.kahoot_clabs.identity.application.query.GetUserProfileQuery;
+import kahoot.clabs.kahoot_clabs.identity.application.query.GetUserRolesQuery;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.AssignRoleUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.ChangePasswordUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.GetUserProfileUseCase;
+import kahoot.clabs.kahoot_clabs.identity.application.usecase.GetUserRolesUseCase;
 import kahoot.clabs.kahoot_clabs.identity.application.usecase.UpdateProfileUseCase;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
@@ -39,16 +43,19 @@ import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 public class UserController {
 
     private final GetUserProfileUseCase getUserProfileUseCase;
+    private final GetUserRolesUseCase getUserRolesUseCase;
     private final UpdateProfileUseCase updateProfileUseCase;
     private final ChangePasswordUseCase changePasswordUseCase;
     private final AssignRoleUseCase assignRoleUseCase;
 
     public UserController(
             GetUserProfileUseCase getUserProfileUseCase,
+            GetUserRolesUseCase getUserRolesUseCase,
             UpdateProfileUseCase updateProfileUseCase,
             ChangePasswordUseCase changePasswordUseCase,
             AssignRoleUseCase assignRoleUseCase) {
         this.getUserProfileUseCase = getUserProfileUseCase;
+        this.getUserRolesUseCase = getUserRolesUseCase;
         this.updateProfileUseCase = updateProfileUseCase;
         this.changePasswordUseCase = changePasswordUseCase;
         this.assignRoleUseCase = assignRoleUseCase;
@@ -97,6 +104,18 @@ public class UserController {
             @Valid @RequestBody ChangePasswordCommand command) {
         changePasswordUseCase.execute(id, command);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/roles")
+    @Operation(
+            summary = "Obtener roles de usuario",
+            description = "Devuelve los roles de identidad del usuario. Hoy el modelo soporta un solo rol por usuario (lista de 0 o 1).")
+    public ResponseEntity<ApiResponse<List<UserRoleResponse>>> getRoles(
+            @Parameter(description = "Identificador del usuario") @PathVariable UUID id) {
+        return ResponseEntity.ok(ApiResponse.success(
+                HttpStatus.OK,
+                "User roles retrieved",
+                getUserRolesUseCase.execute(new GetUserRolesQuery(id))));
     }
 
     @PutMapping("/{id}/role")

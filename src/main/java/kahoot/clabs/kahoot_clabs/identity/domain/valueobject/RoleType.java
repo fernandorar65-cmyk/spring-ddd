@@ -1,11 +1,10 @@
 package kahoot.clabs.kahoot_clabs.identity.domain.valueobject;
 
 public enum RoleType {
-    ADMIN("Administrador"),
-    MANAGER("Gestor"),
-    INSTRUCTOR("Instructor"),
-    EMPLOYEE("Empleado"),
-    STUDENT("Estudiante");
+    ADMIN("Acceso total a la plataforma"),
+    OWNER_ORGANIZATION("Dueño de organización"),
+    RH_ORGANIZATION("Recursos humanos de organización"),
+    COMMON_MEMBER("Miembro común");
 
     private final String description;
 

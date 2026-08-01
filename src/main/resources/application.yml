@@ -32,6 +32,11 @@ app:
   storage: ${FILE_STORAGE:aws}
   seed:
     enabled: ${APP_SEED_ENABLED:true}
+    admin:
+      email: ${APP_SEED_ADMIN_EMAIL:admin@kahoot-clabs.local}
+      password: ${APP_SEED_ADMIN_PASSWORD:Admin123!}
+      first-name: ${APP_SEED_ADMIN_FIRST_NAME:System}
+      last-name: ${APP_SEED_ADMIN_LAST_NAME:Admin}
 
 storage:
   s3:

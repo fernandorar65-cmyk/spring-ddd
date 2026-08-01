@@ -15,4 +15,6 @@ public interface PermissionRepository {
     Optional<Permission> findByNameAndModule(String name, String module);
 
     List<Permission> findAll();
+
+    List<Permission> findAllByRoleId(UUID roleId);
 }

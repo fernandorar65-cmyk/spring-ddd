@@ -43,4 +43,11 @@ public class PermissionRepositoryAdapter implements PermissionRepository {
                 .map(PermissionPersistenceMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Permission> findAllByRoleId(UUID roleId) {
+        return jpaRepository.findByRolesId(roleId).stream()
+                .map(PermissionPersistenceMapper::toDomain)
+                .toList();
+    }
 }

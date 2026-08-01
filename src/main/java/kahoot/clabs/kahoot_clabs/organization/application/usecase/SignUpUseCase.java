@@ -49,18 +49,18 @@ public class SignUpUseCase {
             throw new OrganizationSlugAlreadyTakenException(slug);
         }
 
-        Role adminRole = roleRepository.findByType(RoleType.ADMIN)
-                .orElseThrow(() -> new RoleNotFoundException(RoleType.ADMIN));
+        Role ownerRole = roleRepository.findByType(RoleType.OWNER_ORGANIZATION)
+                .orElseThrow(() -> new RoleNotFoundException(RoleType.OWNER_ORGANIZATION));
 
         AuthUserResponse owner = registerUserUseCase.execute(new RegisterUserCommand(
                 command.email(),
                 command.firstName(),
                 command.lastName(),
                 command.password()));
-        assignRoleUseCase.execute(owner.userId(), new AssignRoleCommand(RoleType.ADMIN));
+        assignRoleUseCase.execute(owner.userId(), new AssignRoleCommand(RoleType.OWNER_ORGANIZATION));
 
         Organization organization = Organization.create(command.organizationName(), slug);
-        organization.addMember(owner.userId(), adminRole.getId());
+        organization.addMember(owner.userId(), ownerRole.getId());
         organization = organizationRepository.save(organization);
 
         return new SignUpResponse(

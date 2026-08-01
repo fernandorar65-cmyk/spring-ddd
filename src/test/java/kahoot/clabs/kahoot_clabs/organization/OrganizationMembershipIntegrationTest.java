@@ -107,7 +107,7 @@ class OrganizationMembershipIntegrationTest {
         String inviteBody = """
                 {
                   "email": "member@globex.test",
-                  "roleType": "ADMIN"
+                  "roleType": "COMMON_MEMBER"
                 }
                 """;
         mockMvc.perform(post("/api/v1/organizations/" + organizationId + "/invitations")

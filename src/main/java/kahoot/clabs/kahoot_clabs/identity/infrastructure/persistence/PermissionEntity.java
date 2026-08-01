@@ -1,11 +1,15 @@
 package kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -30,6 +34,12 @@ public class PermissionEntity {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    /**
+     * Inverse side of {@link RoleEntity#permissions}. Owned by Role via {@code role_permissions}.
+     */
+    @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    private Set<RoleEntity> roles = new HashSet<>();
 
     public UUID getId() {
         return id;
@@ -77,5 +87,13 @@ public class PermissionEntity {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<RoleEntity> roles) {
+        this.roles = roles;
     }
 }
