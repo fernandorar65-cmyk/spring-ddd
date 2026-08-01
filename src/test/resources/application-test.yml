@@ -1,7 +1,7 @@
 # Profile used by unit/smoke tests without a local PostgreSQL instance.
 app:
   seed:
-    enabled: false
+    enabled: true
 
 spring:
   datasource:
