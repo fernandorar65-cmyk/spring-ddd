@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.identity.application.command.UpdateProfileCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserProfileResponse;
-import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
+import kahoot.clabs.kahoot_clabs.identity.application.port.AssetsStoragePort;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.UserImages;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
@@ -21,9 +21,9 @@ public class UpdateProfileUseCase {
     private static final int MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
     private final UserRepository userRepository;
-    private final AvatarStoragePort avatarStoragePort;
+    private final AssetsStoragePort avatarStoragePort;
 
-    public UpdateProfileUseCase(UserRepository userRepository, AvatarStoragePort avatarStoragePort) {
+    public UpdateProfileUseCase(UserRepository userRepository, AssetsStoragePort avatarStoragePort) {
         this.userRepository = userRepository;
         this.avatarStoragePort = avatarStoragePort;
     }
