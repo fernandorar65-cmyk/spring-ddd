@@ -3,16 +3,16 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.adapter.azure;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.AvatarStoragePort;
+import kahoot.clabs.kahoot_clabs.identity.application.port.AssetsStoragePort;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.storage.AzureBlobStorage;
 
 @Component
 @ConditionalOnProperty(prefix = "app", name = "storage", havingValue = "azure")
-public class AzureAvatarStorageAdapter implements AvatarStoragePort {
+public class AzureStorageAdapter implements AssetsStoragePort {
 
     private final AzureBlobStorage storage;
 
-    public AzureAvatarStorageAdapter(AzureBlobStorage storage) {
+    public AzureStorageAdapter(AzureBlobStorage storage) {
         this.storage = storage;
     }
 
