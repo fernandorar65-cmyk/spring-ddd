@@ -33,7 +33,6 @@ public class UpdateQuizUseCase {
 
         quiz.rename(command.title());
         quiz.changeDescription(command.description());
-        quiz.changeVisibility(command.visibility());
         quiz.changeDifficulty(command.difficulty());
         quiz.changeEstimatedTime(EstimatedTime.ofMinutes(command.estimatedTimeMinutes()));
         quiz.changeSettings(toDomain(command.settings()));

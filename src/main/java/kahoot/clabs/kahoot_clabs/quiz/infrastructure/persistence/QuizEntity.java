@@ -44,9 +44,6 @@ public class QuizEntity {
     private String thumbnailUrl;
 
     @Column(nullable = false, length = 20)
-    private String visibility;
-
-    @Column(nullable = false, length = 20)
     private String status;
 
     @Column(nullable = false, length = 20)

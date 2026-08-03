@@ -29,6 +29,7 @@ import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListCategoriesUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.UpdateCategoryUseCase;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.web.ApiResponse;
 
+// cateogiras tanto para quizes como para preguntas     para las organizaciones tendremos sectores
 @RestController
 @RequestMapping("/api/v1/categories")
 @Tag(name = "Categories", description = "Categorías de quizzes por organización")

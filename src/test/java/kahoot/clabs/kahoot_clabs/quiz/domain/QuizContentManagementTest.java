@@ -12,7 +12,7 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuestionType;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizVisibility;
+import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 class QuizContentManagementTest {
@@ -79,11 +79,11 @@ class QuizContentManagementTest {
     }
 
     @Test
-    void does_not_allow_archived_quizzes_to_change_visibility() {
+    void does_not_allow_archived_quizzes_to_be_modified() {
         Quiz quiz = Quiz.create(UUID.randomUUID(), "Geografía", UUID.randomUUID());
         quiz.archive();
 
-        assertThatThrownBy(() -> quiz.changeVisibility(QuizVisibility.PRIVATE))
+        assertThatThrownBy(() -> quiz.changeDifficulty(QuizDifficulty.HARD))
                 .isInstanceOf(DomainException.class);
     }
 }

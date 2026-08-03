@@ -8,12 +8,10 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizVisibility;
 
 public record UpdateQuizCommand(
         @NotBlank @Size(min = 3, max = 200) String title,
         String description,
-        @NotNull QuizVisibility visibility,
         @NotNull QuizDifficulty difficulty,
         @NotNull @Positive @Max(180) Long estimatedTimeMinutes,
         @NotNull @Valid QuizSettingsCommand settings) {
