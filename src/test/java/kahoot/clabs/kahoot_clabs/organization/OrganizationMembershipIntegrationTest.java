@@ -1,6 +1,7 @@
 package kahoot.clabs.kahoot_clabs.organization;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,16 +30,11 @@ class OrganizationMembershipIntegrationTest {
 
     @Test
     void createsOrganizationAndInvitesExistingUser() throws Exception {
-        String createBody = """
-                {
-                  "name": "Globex",
-                  "slug": "globex"
-                }
-                """;
-
-        MvcResult createResult = mockMvc.perform(post("/api/v1/organizations")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(createBody))
+        MvcResult createResult = mockMvc.perform(multipart("/api/v1/organizations")
+                        .param("name", "Globex")
+                        .param("slug", "globex")
+                        .param("description", "Demo organization")
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.data.id").isNotEmpty())
                 .andExpect(jsonPath("$.data.slug").value("globex"))

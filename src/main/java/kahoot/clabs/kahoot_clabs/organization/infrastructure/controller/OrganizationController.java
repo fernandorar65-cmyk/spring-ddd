@@ -1,8 +1,10 @@
 package kahoot.clabs.kahoot_clabs.organization.infrastructure.controller;
 
+import java.io.IOException;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,14 +53,26 @@ public class OrganizationController {
         this.inviteMemberUseCase = inviteMemberUseCase;
     }
 
-    // **** mejorar aca cuando se crea la organización deberia asignarse el usuairo o crear se el owner junto con su rol admin **** //
-    @PostMapping
+    // TODO: crear oganizacion nada más
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(
             summary = "Crear organización",
-            description = "Crea una organización (tenant) con nombre y slug únicos, asociada a un usuario creador.")
-    public ResponseEntity<ApiResponse<OrganizationResponse>> create(@Valid @RequestBody CreateOrganizationCommand command) {
+            description = "Crea una organización (tenant) con nombre, slug y opcionalmente un logo.")
+    public ResponseEntity<ApiResponse<OrganizationResponse>> create(
+            @RequestParam String name,
+            @RequestParam String slug,
+            @RequestParam(required = false) String description,
+            @RequestPart(value = "logo", required = false) MultipartFile logo) throws IOException {
+        CreateOrganizationCommand command = new CreateOrganizationCommand(name, slug, description);
+        byte[] content = logo == null || logo.isEmpty() ? null : logo.getBytes();
+        String contentType = logo == null || logo.isEmpty() ? null : logo.getContentType();
+        String filename = logo == null || logo.isEmpty() ? null : logo.getOriginalFilename();
+
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponse.success(HttpStatus.CREATED, "Organization created", createOrganizationUseCase.execute(command)));
+                ApiResponse.success(
+                        HttpStatus.CREATED,
+                        "Organization created",
+                        createOrganizationUseCase.execute(command, content, contentType, filename)));
     }
 
     @GetMapping("/{id}")

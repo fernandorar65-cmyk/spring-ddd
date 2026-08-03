@@ -12,22 +12,18 @@ import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.Permission;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.PermissionRepository;
-import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 
 @Service
 public class GetUserRolesUseCase {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
 
     public GetUserRolesUseCase(
             UserRepository userRepository,
-            RoleRepository roleRepository,
             PermissionRepository permissionRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.permissionRepository = permissionRepository;
     }
 
