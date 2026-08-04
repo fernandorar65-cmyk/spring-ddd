@@ -20,7 +20,6 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizSettings;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizTitle;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizVisibility;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.TimeLimit;
 import kahoot.clabs.kahoot_clabs.shared.domain.AggregateRoot;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
@@ -35,7 +34,6 @@ public class Quiz extends AggregateRoot {
     private String description;
     private String thumbnail;
 
-    private QuizVisibility visibility;
     private QuizStatus status;
     private QuizDifficulty difficulty;
     private EstimatedTime estimatedTime;
@@ -68,7 +66,6 @@ public class Quiz extends AggregateRoot {
         this.organizationId = organizationId;
         this.title = title;
         this.createdById = createdById;
-        this.visibility = QuizVisibility.ORGANIZATION;
         this.status = QuizStatus.DRAFT;
         this.difficulty = QuizDifficulty.EASY;
         this.settings = QuizSettings.defaultSettings();
@@ -85,7 +82,6 @@ public class Quiz extends AggregateRoot {
             String title,
             String description,
             String thumbnail,
-            QuizVisibility visibility,
             QuizStatus status,
             QuizDifficulty difficulty,
             EstimatedTime estimatedTime,
@@ -101,7 +97,6 @@ public class Quiz extends AggregateRoot {
                 id, organizationId, QuizTitle.of(title), createdById, createdAt, updatedAt);
         quiz.description = description;
         quiz.thumbnail = thumbnail;
-        quiz.visibility = visibility != null ? visibility : QuizVisibility.ORGANIZATION;
         quiz.status = status != null ? status : QuizStatus.DRAFT;
         quiz.difficulty = difficulty != null ? difficulty : QuizDifficulty.EASY;
         quiz.estimatedTime = estimatedTime;
@@ -303,15 +298,6 @@ public class Quiz extends AggregateRoot {
         }
     }
 
-    public void changeVisibility(QuizVisibility visibility) {
-        ensureEditable();
-        if (visibility == null) {
-            throw new DomainException("Visibility is required");
-        }
-        this.visibility = visibility;
-        touch();
-    }
-
     public void changeDifficulty(QuizDifficulty difficulty) {
         ensureEditable();
         if (difficulty == null) {
@@ -361,7 +347,6 @@ public class Quiz extends AggregateRoot {
         Quiz copy = Quiz.create(organizationId, title.value() + " (copy)", newCreatedById);
         copy.changeDescription(description);
         copy.changeThumbnail(thumbnail);
-        copy.changeVisibility(visibility);
         copy.changeDifficulty(difficulty);
         copy.changeEstimatedTime(estimatedTime);
         copy.changeSettings(settings);
@@ -445,10 +430,6 @@ public class Quiz extends AggregateRoot {
 
     public String getThumbnail() {
         return thumbnail;
-    }
-
-    public QuizVisibility getVisibility() {
-        return visibility;
     }
 
     public QuizStatus getStatus() {

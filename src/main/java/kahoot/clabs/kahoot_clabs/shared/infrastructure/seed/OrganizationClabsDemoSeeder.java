@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.organization.infrastructure.seed;
+package kahoot.clabs.kahoot_clabs.shared.infrastructure.seed;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,8 +20,6 @@ import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.Organiz
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationJobEntity;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationDepartmentJpaRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationJobJpaRepository;
-import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
-import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.SeedProperties;
 
 /**
  * Demo tenant "Clabs" with IT catalogs and mixed male/female members.

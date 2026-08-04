@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.organization.infrastructure.seed;
+package kahoot.clabs.kahoot_clabs.shared.infrastructure.seed;
 
 import java.util.UUID;
 
@@ -10,7 +10,6 @@ import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.Organiz
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationStatusCatalogEntity;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationMemberStatusCatalogJpaRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationStatusCatalogJpaRepository;
-import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
 
 @Component
 public class OrganizationReferenceDataSeeder implements DataSeeder {

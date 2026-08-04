@@ -10,7 +10,6 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.EstimatedTime;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizSettings;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizVisibility;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizCategoryEntity;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizEntity;
 
@@ -27,7 +26,6 @@ public final class QuizMapper {
         entity.setTitle(quiz.getTitle().value());
         entity.setDescription(quiz.getDescription());
         entity.setThumbnailUrl(quiz.getThumbnail());
-        entity.setVisibility(quiz.getVisibility().name());
         entity.setStatus(quiz.getStatus().name());
         entity.setDifficulty(quiz.getDifficulty().name());
         entity.setEstimatedTimeMinutes(quiz.getEstimatedTime() == null
@@ -62,7 +60,6 @@ public final class QuizMapper {
                 entity.getTitle(),
                 entity.getDescription(),
                 entity.getThumbnailUrl(),
-                QuizVisibility.valueOf(entity.getVisibility()),
                 QuizStatus.valueOf(entity.getStatus()),
                 QuizDifficulty.valueOf(entity.getDifficulty()),
                 entity.getEstimatedTimeMinutes() == null
