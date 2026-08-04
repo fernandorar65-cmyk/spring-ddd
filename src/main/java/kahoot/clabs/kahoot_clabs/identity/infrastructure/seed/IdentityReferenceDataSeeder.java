@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.shared.infrastructure.seed;
+package kahoot.clabs.kahoot_clabs.identity.infrastructure.seed;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,8 @@ import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.RoleType;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
+import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.SeedProperties;
 
 @Component
 public class IdentityReferenceDataSeeder implements DataSeeder {
