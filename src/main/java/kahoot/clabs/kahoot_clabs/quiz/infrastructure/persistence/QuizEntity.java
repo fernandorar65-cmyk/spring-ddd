@@ -43,6 +43,7 @@ public class QuizEntity {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
+    // estado de draft - published - archived - off entre otros considerar volverlo una tabla
     @Column(nullable = false, length = 20)
     private String status;
 
