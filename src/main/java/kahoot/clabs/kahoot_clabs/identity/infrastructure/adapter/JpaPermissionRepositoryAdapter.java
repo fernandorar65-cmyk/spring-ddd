@@ -12,11 +12,11 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.mapper.PermissionPersis
 import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.PermissionJpaRepository;
 
 @Repository
-public class PermissionRepositoryAdapter implements PermissionRepository {
+public class JpaPermissionRepositoryAdapter implements PermissionRepository {
 
     private final PermissionJpaRepository jpaRepository;
 
-    public PermissionRepositoryAdapter(PermissionJpaRepository jpaRepository) {
+    public JpaPermissionRepositoryAdapter(PermissionJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

@@ -11,11 +11,11 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.UserJpaRepos
 import kahoot.clabs.kahoot_clabs.identity.infrastructure.mapper.UserPersistenceMapper;
 
 @Repository
-public class UserRepositoryAdapter implements UserRepository {
+public class JpaUserRepositoryAdapter implements UserRepository {
 
     private final UserJpaRepository jpaRepository;
 
-    public UserRepositoryAdapter(UserJpaRepository jpaRepository) {
+    public JpaUserRepositoryAdapter(UserJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

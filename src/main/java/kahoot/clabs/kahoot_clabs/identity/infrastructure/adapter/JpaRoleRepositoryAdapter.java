@@ -12,11 +12,11 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.RoleJpaRepos
 import kahoot.clabs.kahoot_clabs.identity.infrastructure.mapper.RolePersistenceMapper;
 
 @Repository
-public class RoleRepositoryAdapter implements RoleRepository {
+public class JpaRoleRepositoryAdapter implements RoleRepository {
 
     private final RoleJpaRepository jpaRepository;
 
-    public RoleRepositoryAdapter(RoleJpaRepository jpaRepository) {
+    public JpaRoleRepositoryAdapter(RoleJpaRepository jpaRepository) {
         this.jpaRepository = jpaRepository;
     }
 

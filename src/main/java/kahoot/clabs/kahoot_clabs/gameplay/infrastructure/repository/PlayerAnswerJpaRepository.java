@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
 
-public interface SpringDataPlayerAnswerRepository extends JpaRepository<PlayerAnswerEntity, UUID> {
+public interface PlayerAnswerJpaRepository extends JpaRepository<PlayerAnswerEntity, UUID> {
 
     @Query("""
             select a from PlayerAnswerEntity a

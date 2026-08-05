@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
 
-public interface SpringDataGameSessionRepository extends JpaRepository<GameSessionEntity, UUID> {
+public interface GameSessionJpaRepository extends JpaRepository<GameSessionEntity, UUID> {
 
     @Override
     @EntityGraph(attributePaths = {

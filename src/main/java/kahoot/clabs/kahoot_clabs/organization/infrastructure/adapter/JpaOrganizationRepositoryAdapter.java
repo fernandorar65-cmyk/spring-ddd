@@ -16,12 +16,12 @@ import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.Organiza
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationMemberJpaRepository;
 
 @Repository
-public class OrganizationRepositoryAdapter implements OrganizationRepository {
+public class JpaOrganizationRepositoryAdapter implements OrganizationRepository {
 
     private final OrganizationJpaRepository jpaRepository;
     private final OrganizationMemberJpaRepository memberJpaRepository;
 
-    public OrganizationRepositoryAdapter(
+    public JpaOrganizationRepositoryAdapter(
             OrganizationJpaRepository jpaRepository,
             OrganizationMemberJpaRepository memberJpaRepository) {
         this.jpaRepository = jpaRepository;

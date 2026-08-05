@@ -13,18 +13,18 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mapper.GameSessionMapper;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.SpringDataGameSessionRepository;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.SpringDataPlayerAnswerRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.GameSessionJpaRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.PlayerAnswerJpaRepository;
 
 @Repository
 public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
 
-    private final SpringDataGameSessionRepository sessionRepository;
-    private final SpringDataPlayerAnswerRepository answerRepository;
+    private final GameSessionJpaRepository sessionRepository;
+    private final PlayerAnswerJpaRepository answerRepository;
 
     public JpaGameSessionRepositoryAdapter(
-            SpringDataGameSessionRepository sessionRepository,
-            SpringDataPlayerAnswerRepository answerRepository) {
+            GameSessionJpaRepository sessionRepository,
+            PlayerAnswerJpaRepository answerRepository) {
         this.sessionRepository = sessionRepository;
         this.answerRepository = answerRepository;
     }
