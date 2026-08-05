@@ -3,7 +3,9 @@ package kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
@@ -93,5 +95,5 @@ public class QuizEntity {
     private List<QuestionEntity> questions = new ArrayList<>();
 
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<QuizCategoryEntity> categories = new ArrayList<>();
+    private Set<QuizCategoryEntity> categories = new HashSet<>();
 }

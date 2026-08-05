@@ -10,17 +10,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(
-        name = "player_answers",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uq_player_answers_question_player",
-                columnNames = {"session_question_id", "session_player_id"}))
+@Table(name = "player_answers")
 @Getter
 @Setter
 @NoArgsConstructor

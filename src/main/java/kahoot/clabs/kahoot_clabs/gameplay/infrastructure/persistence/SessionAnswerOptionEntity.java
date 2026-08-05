@@ -15,11 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(
-        name = "session_answer_options",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uq_session_answer_options_question_order",
-                columnNames = {"session_question_id", "order_index"}))
+@Table(name = "session_answer_options")
 @Getter
 @Setter
 @NoArgsConstructor
