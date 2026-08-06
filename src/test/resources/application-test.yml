@@ -1,9 +1,15 @@
-# Profile used by unit/smoke tests without a local PostgreSQL instance.
+# Profile used by unit/smoke tests without a local PostgreSQL/Mongo instance.
 app:
   seed:
     enabled: true
 
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoReactiveAutoConfiguration
   datasource:
     url: jdbc:h2:mem:kahoot_clabs;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
     username: sa
