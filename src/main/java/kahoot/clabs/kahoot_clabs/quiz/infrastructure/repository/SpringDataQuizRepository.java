@@ -21,4 +21,6 @@ public interface SpringDataQuizRepository extends JpaRepository<QuizEntity, UUID
 
     @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})
     List<QuizEntity> findByOrganizationId(UUID organizationId);
+
+    boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
 }

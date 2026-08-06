@@ -1,7 +1,9 @@
 package kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
@@ -39,7 +41,7 @@ public final class QuizMapper {
         entity.setUpdatedAt(quiz.getUpdatedAt());
         entity.setCategories(quiz.getCategories().stream()
                 .map(QuizMapper::toEntity)
-                .toList());
+                .collect(Collectors.toCollection(HashSet::new)));
         entity.setQuestions(quiz.getQuestions().stream()
                 .map(QuestionMapper::toEntity)
                 .toList());

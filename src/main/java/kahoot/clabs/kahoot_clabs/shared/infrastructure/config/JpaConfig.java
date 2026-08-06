@@ -12,12 +12,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {
         "kahoot.clabs.kahoot_clabs.identity.infrastructure",
         "kahoot.clabs.kahoot_clabs.organization.infrastructure",
-        "kahoot.clabs.kahoot_clabs.quiz.infrastructure"
+        "kahoot.clabs.kahoot_clabs.quiz.infrastructure",
+        "kahoot.clabs.kahoot_clabs.gameplay.infrastructure"
 })
 @EntityScan(basePackages = {
         "kahoot.clabs.kahoot_clabs.identity.infrastructure",
         "kahoot.clabs.kahoot_clabs.organization.infrastructure",
-        "kahoot.clabs.kahoot_clabs.quiz.infrastructure"
+        "kahoot.clabs.kahoot_clabs.quiz.infrastructure",
+        "kahoot.clabs.kahoot_clabs.gameplay.infrastructure"
 })
 public class JpaConfig {
 }

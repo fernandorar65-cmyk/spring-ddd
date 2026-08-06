@@ -16,6 +16,8 @@ public interface QuizRepository {
 
     List<Quiz> findByOrganizationId(UUID organizationId);
 
+    boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
+
     boolean existsById(UUID id);
 
     void delete(Quiz quiz);
