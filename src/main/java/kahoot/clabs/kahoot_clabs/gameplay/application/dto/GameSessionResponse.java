@@ -3,6 +3,7 @@ package kahoot.clabs.kahoot_clabs.gameplay.application.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 
 public record GameSessionResponse(
@@ -34,5 +35,21 @@ public record GameSessionResponse(
                 session.getFinishedAt(),
                 session.getCreatedAt(),
                 session.getUpdatedAt());
+    }
+
+    public static GameSessionResponse from(GameSessionReadModel readModel) {
+        return new GameSessionResponse(
+                readModel.id(),
+                readModel.organizationId(),
+                readModel.quizId(),
+                readModel.hostUserId(),
+                readModel.status(),
+                readModel.currentQuestionIndex(),
+                readModel.playerCount(),
+                readModel.questionCount(),
+                readModel.startedAt(),
+                readModel.finishedAt(),
+                readModel.createdAt(),
+                readModel.updatedAt());
     }
 }

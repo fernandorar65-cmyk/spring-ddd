@@ -30,6 +30,7 @@ public class GameSessionReadDocument {
     private String status;
     private int currentQuestionIndex;
     private int playerCount;
+    private int questionCount;
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
     private LocalDateTime createdAt;

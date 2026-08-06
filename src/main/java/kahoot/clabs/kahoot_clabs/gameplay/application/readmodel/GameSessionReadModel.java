@@ -14,6 +14,7 @@ public record GameSessionReadModel(
         String status,
         int currentQuestionIndex,
         int playerCount,
+        int questionCount,
         LocalDateTime startedAt,
         LocalDateTime finishedAt,
         LocalDateTime createdAt,
