@@ -9,17 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(
-        name = "session_answer_options",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uq_session_answer_options_question_order",
-                columnNames = {"session_question_id", "order_index"}))
+@Table(name = "session_answer_options")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -45,6 +45,11 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     }
 
     @Override
+    public boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title) {
+        return springDataRepository.existsByOrganizationIdAndTitleIgnoreCase(organizationId, title);
+    }
+
+    @Override
     public boolean existsById(UUID id) {
         return springDataRepository.existsById(id);
     }
