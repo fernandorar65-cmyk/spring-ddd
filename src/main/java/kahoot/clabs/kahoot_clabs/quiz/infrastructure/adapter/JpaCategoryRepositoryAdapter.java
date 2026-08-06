@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Category;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.CategoryRepository;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.CategoryMapper;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.SpringDataCategoryRepository;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringDataCategoryRepository;
 
 @Repository
 public class JpaCategoryRepositoryAdapter implements CategoryRepository {

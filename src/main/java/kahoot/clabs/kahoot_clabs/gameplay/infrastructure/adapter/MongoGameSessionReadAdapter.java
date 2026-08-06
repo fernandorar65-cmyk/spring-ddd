@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mongo.GameSessionReadDocument;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mongo.SpringDataGameSessionReadRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameSessionReadDocument;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.mongo.SpringDataGameSessionReadRepository;
 
 @Repository
 @Profile("!test")

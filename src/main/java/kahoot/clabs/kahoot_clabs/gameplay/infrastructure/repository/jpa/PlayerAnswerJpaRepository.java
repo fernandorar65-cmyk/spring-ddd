@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository;
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa;
 
 import java.util.Collection;
 import java.util.List;
@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.PlayerAnswerEntity;
 
 public interface PlayerAnswerJpaRepository extends JpaRepository<PlayerAnswerEntity, UUID> {
 

@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository;
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.GameSessionEntity;
 
 public interface GameSessionJpaRepository extends JpaRepository<GameSessionEntity, UUID> {
 

@@ -11,11 +11,11 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionAnswerOption;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionPlayer;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionAnswerOptionEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionPlayerEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.SessionQuestionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.GameSessionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.PlayerAnswerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.SessionAnswerOptionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.SessionPlayerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.SessionQuestionEntity;
 
 public final class GameSessionMapper {
 

@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mongo;
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

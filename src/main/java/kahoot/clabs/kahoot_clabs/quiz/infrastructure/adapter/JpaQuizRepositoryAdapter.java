@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.QuizMapper;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.SpringDataQuizRepository;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringDataQuizRepository;
 
 @Repository
 public class JpaQuizRepositoryAdapter implements QuizRepository {

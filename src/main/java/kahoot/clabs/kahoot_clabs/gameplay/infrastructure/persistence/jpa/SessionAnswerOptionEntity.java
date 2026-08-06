@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence;
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa;
 
 import java.util.UUID;
 

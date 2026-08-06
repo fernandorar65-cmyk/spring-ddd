@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.mongo;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.mongo;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

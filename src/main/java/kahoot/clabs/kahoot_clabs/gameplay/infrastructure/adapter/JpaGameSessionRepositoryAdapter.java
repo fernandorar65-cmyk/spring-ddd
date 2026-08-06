@@ -11,10 +11,10 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mapper.GameSessionMapper;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.GameSessionEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.PlayerAnswerEntity;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.GameSessionJpaRepository;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.PlayerAnswerJpaRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.GameSessionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.PlayerAnswerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.GameSessionJpaRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.PlayerAnswerJpaRepository;
 
 @Repository
 public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {

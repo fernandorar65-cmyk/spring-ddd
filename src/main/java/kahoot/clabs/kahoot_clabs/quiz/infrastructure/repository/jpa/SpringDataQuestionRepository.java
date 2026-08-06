@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa;
 
 import java.util.List;
 import java.util.UUID;
