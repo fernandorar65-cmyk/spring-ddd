@@ -12,11 +12,11 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameS
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.mongo.SpringGameSessionMongoRepository;
 
 @Repository
-public class MongoGameSessionAdapter implements GameSessionReadModelPort {
+public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
 
     private final SpringGameSessionMongoRepository mongoRepository;
 
-    public MongoGameSessionAdapter(SpringGameSessionMongoRepository mongoRepository) {
+    public MongoGameSessionReadAdapter(SpringGameSessionMongoRepository mongoRepository) {
         this.mongoRepository = mongoRepository;
     }
 
