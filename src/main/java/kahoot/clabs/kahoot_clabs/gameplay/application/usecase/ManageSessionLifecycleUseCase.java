@@ -11,8 +11,8 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
-import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
-import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizSnapshotPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
@@ -20,15 +20,15 @@ public class ManageSessionLifecycleUseCase {
 
     private final GameSessionRepository gameSessionRepository;
     private final OrganizationRepository organizationRepository;
-    private final QuizRepository quizRepository;
+    private final QuizSnapshotPort quizSnapshotPort;
 
     public ManageSessionLifecycleUseCase(
             GameSessionRepository gameSessionRepository,
             OrganizationRepository organizationRepository,
-            QuizRepository quizRepository) {
+            QuizSnapshotPort quizSnapshotPort) {
         this.gameSessionRepository = gameSessionRepository;
         this.organizationRepository = organizationRepository;
-        this.quizRepository = quizRepository;
+        this.quizSnapshotPort = quizSnapshotPort;
     }
 
     @Transactional
@@ -39,9 +39,11 @@ public class ManageSessionLifecycleUseCase {
         session.ensureHost(command.hostUserId());
 
         if (session.getQuestions().isEmpty()) {
-            Quiz quiz = quizRepository.findById(session.getQuizId())
-                    .orElseThrow(() -> new DomainException("Quiz not found: " + session.getQuizId()));
-            GameSessionSupport.freezeFromQuiz(session, quiz);
+            PublishedQuizSnapshot snapshot = quizSnapshotPort
+                    .findPublishedByOrganizationAndId(organizationId, session.getQuizId())
+                    .orElseThrow(() -> new DomainException(
+                            "Published quiz not found for organization: " + session.getQuizId()));
+            GameSessionSupport.freezeFromSnapshot(session, snapshot);
         }
         session.start();
         return GameSessionResponse.from(gameSessionRepository.save(session));
