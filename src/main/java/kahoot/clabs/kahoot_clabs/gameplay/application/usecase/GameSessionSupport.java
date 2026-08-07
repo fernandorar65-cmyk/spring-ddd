@@ -13,9 +13,9 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepositor
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.exception.OrganizationNotFoundException;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
-import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
-import kahoot.clabs.kahoot_clabs.quiz.domain.entity.AnswerOption;
-import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
+import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot;
+import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
+import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 final class GameSessionSupport {
@@ -44,45 +44,46 @@ final class GameSessionSupport {
         return session;
     }
 
-    static void freezeFromQuiz(GameSession session, Quiz quiz) {
+    static void freezeFromSnapshot(GameSession session, PublishedQuizSnapshot snapshot) {
         if (!session.getQuestions().isEmpty()) {
             return;
         }
-        List<Question> sourceQuestions = quiz.getQuestions().stream()
-                .sorted(Comparator.comparingInt(Question::getOrderIndex))
-                .toList();
-        if (sourceQuestions.isEmpty()) {
+        List<QuestionSnapshot> sourceQuestions = snapshot.questions();
+        if (sourceQuestions == null || sourceQuestions.isEmpty()) {
             throw new DomainException("Quiz has no questions to freeze");
         }
+        List<QuestionSnapshot> ordered = sourceQuestions.stream()
+                .sorted(Comparator.comparingInt(QuestionSnapshot::orderIndex))
+                .toList();
         AtomicInteger index = new AtomicInteger(0);
-        List<SessionQuestion> frozen = sourceQuestions.stream()
+        List<SessionQuestion> frozen = ordered.stream()
                 .map(question -> toFrozenQuestion(session.getId(), question, index.getAndIncrement()))
                 .toList();
         session.freezeQuestions(frozen);
     }
 
-    private static SessionQuestion toFrozenQuestion(UUID sessionId, Question question, int zeroBasedIndex) {
-        List<AnswerOption> sortedOptions = question.getOptions().stream()
-                .sorted(Comparator.comparingInt(AnswerOption::getOrderIndex))
+    private static SessionQuestion toFrozenQuestion(UUID sessionId, QuestionSnapshot question, int zeroBasedIndex) {
+        List<AnswerOptionSnapshot> sortedOptions = question.options().stream()
+                .sorted(Comparator.comparingInt(AnswerOptionSnapshot::orderIndex))
                 .toList();
         AtomicInteger optionIndex = new AtomicInteger(0);
         List<SessionAnswerOption> frozenOptions = sortedOptions.stream()
                 .map(option -> SessionAnswerOption.freeze(
                         null,
-                        option.getId(),
-                        option.getText(),
-                        option.isCorrect(),
+                        option.id(),
+                        option.text(),
+                        option.correct(),
                         optionIndex.getAndIncrement()))
                 .toList();
         return SessionQuestion.freeze(
                 sessionId,
-                question.getId(),
+                question.id(),
                 zeroBasedIndex,
-                question.getPoints().value(),
-                question.getTimeLimit().seconds(),
-                question.getTitle(),
-                question.getDescription(),
-                question.getType().name(),
+                question.points(),
+                question.timeLimitSeconds(),
+                question.title(),
+                question.description(),
+                question.type(),
                 frozenOptions);
     }
 }

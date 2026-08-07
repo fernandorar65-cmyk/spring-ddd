@@ -5,8 +5,11 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
 /**
- * Reserved domain event: raised conceptually when a quiz is published.
- * Not published or consumed yet (no event bus / outbox / listeners).
+ * Parked domain event for a future publish pipeline.
+ * Not registered, published or consumed in the MVP.
+ * Read-model sync today uses {@code QuizProjectionPort}, not this event.
+ *
+ * @see docs/domain-events.md
  */
 public class QuizPublishedEvent extends DomainEvent {
 

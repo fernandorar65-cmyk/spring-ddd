@@ -1,24 +1,23 @@
 package kahoot.clabs.kahoot_clabs.quiz.domain.repository;
 
 import java.util.Optional;
-import java.util.List;
 import java.util.UUID;
 
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 
+/**
+ * Write-side port for the Quiz aggregate (Postgres/JPA).
+ * Listings and search belong on the query/read ports.
+ */
 public interface QuizRepository {
 
     Quiz save(Quiz quiz);
 
     Optional<Quiz> findById(UUID id);
 
-    List<Quiz> findAll();
-
-    List<Quiz> findByOrganizationId(UUID organizationId);
+    boolean existsById(UUID id);
 
     boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
-
-    boolean existsById(UUID id);
 
     void delete(Quiz quiz);
 

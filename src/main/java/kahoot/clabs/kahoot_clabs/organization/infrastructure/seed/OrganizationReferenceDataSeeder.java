@@ -2,14 +2,16 @@ package kahoot.clabs.kahoot_clabs.organization.infrastructure.seed;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
+import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationCatalogProjectionPort;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.MemberStatus;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.OrganizationStatus;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationMemberStatusCatalogEntity;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationStatusCatalogEntity;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationMemberStatusCatalogJpaRepository;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationStatusCatalogJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationMemberStatusCatalogJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationStatusCatalogJpaRepository;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
 
 @Component
@@ -17,12 +19,15 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
 
     private final OrganizationStatusCatalogJpaRepository organizationStatusRepository;
     private final OrganizationMemberStatusCatalogJpaRepository memberStatusRepository;
+    private final ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort;
 
     public OrganizationReferenceDataSeeder(
             OrganizationStatusCatalogJpaRepository organizationStatusRepository,
-            OrganizationMemberStatusCatalogJpaRepository memberStatusRepository) {
+            OrganizationMemberStatusCatalogJpaRepository memberStatusRepository,
+            ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort) {
         this.organizationStatusRepository = organizationStatusRepository;
         this.memberStatusRepository = memberStatusRepository;
+        this.catalogProjectionPort = catalogProjectionPort;
     }
 
     @Override
@@ -54,6 +59,8 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
         entity.setName(name);
         entity.setDescription(truncate(description, 100));
         organizationStatusRepository.save(entity);
+        catalogProjectionPort.ifAvailable(port -> port.saveOrganizationStatus(
+                entity.getId(), entity.getName(), entity.getDescription()));
     }
 
     private void ensureMemberStatus(String name, String description) {
@@ -65,6 +72,8 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
         entity.setName(name);
         entity.setDescription(truncate(description, 100));
         memberStatusRepository.save(entity);
+        catalogProjectionPort.ifAvailable(port -> port.saveMemberStatus(
+                entity.getId(), entity.getName(), entity.getDescription()));
     }
 
     private static String truncate(String value, int max) {

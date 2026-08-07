@@ -2,14 +2,15 @@ package kahoot.clabs.kahoot_clabs.gameplay.application.usecase;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListGameSessionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
@@ -17,44 +18,42 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 @Service
 public class ListGameSessionsUseCase {
 
-    private final GameSessionRepository gameSessionRepository;
+    private final GameSessionReadModelPort gameSessionReadModelPort;
     private final OrganizationRepository organizationRepository;
 
     public ListGameSessionsUseCase(
-            GameSessionRepository gameSessionRepository,
+            GameSessionReadModelPort gameSessionReadModelPort,
             OrganizationRepository organizationRepository) {
-        this.gameSessionRepository = gameSessionRepository;
+        this.gameSessionReadModelPort = gameSessionReadModelPort;
         this.organizationRepository = organizationRepository;
     }
 
-    @Transactional(readOnly = true)
-    public List<GameSessionResponse> execute(UUID organizationId, String statusCsv, UUID quizId) {
-        GameSessionSupport.requireOrganization(organizationRepository, organizationId);
+    public List<GameSessionResponse> execute(ListGameSessionsQuery query) {
+        GameSessionSupport.requireOrganization(organizationRepository, query.organizationId());
 
-        List<GameSession> sessions;
-        if (statusCsv != null && !statusCsv.isBlank()) {
-            List<SessionStatus> statuses = Arrays.stream(statusCsv.split(","))
-                    .map(String::trim)
-                    .filter(value -> !value.isEmpty())
-                    .map(this::parseStatus)
-                    .toList();
-            sessions = gameSessionRepository.findByOrganizationIdAndStatusIn(organizationId, statuses);
-        } else if (quizId != null) {
-            sessions = gameSessionRepository.findByOrganizationIdAndQuizId(organizationId, quizId);
-        } else {
-            sessions = gameSessionRepository.findByOrganizationId(organizationId);
+        Set<String> statuses = parseStatuses(query.statusCsv());
+        return gameSessionReadModelPort
+                .search(query.organizationId(), statuses, query.quizId())
+                .stream()
+                .map(GameSessionResponse::from)
+                .toList();
+    }
+
+    private Set<String> parseStatuses(String statusCsv) {
+        if (statusCsv == null || statusCsv.isBlank()) {
+            return Set.of();
         }
-
-        if (quizId != null && statusCsv != null && !statusCsv.isBlank()) {
-            sessions = sessions.stream().filter(session -> session.getQuizId().equals(quizId)).toList();
-        }
-
-        return sessions.stream().map(GameSessionResponse::from).toList();
+        return Arrays.stream(statusCsv.split(","))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .map(this::parseStatus)
+                .map(Enum::name)
+                .collect(Collectors.toSet());
     }
 
     private SessionStatus parseStatus(String raw) {
         try {
-            return SessionStatus.valueOf(raw.toUpperCase());
+            return SessionStatus.valueOf(raw.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
             throw new DomainException("Invalid session status: " + raw);
         }

@@ -1,11 +1,10 @@
 package kahoot.clabs.kahoot_clabs.quiz.application.usecase;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
+import kahoot.clabs.kahoot_clabs.quiz.application.query.GetQuizQuery;
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
@@ -20,11 +19,11 @@ public class GetQuizUseCase {
     }
 
     @Transactional(readOnly = true)
-    public QuizResponse execute(UUID organizationId, UUID quizId) {
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new DomainException("Quiz not found: " + quizId));
-        if (!quiz.getOrganizationId().equals(organizationId)) {
-            throw new DomainException("Quiz does not belong to organization: " + organizationId);
+    public QuizResponse execute(GetQuizQuery query) {
+        Quiz quiz = quizRepository.findById(query.quizId())
+                .orElseThrow(() -> new DomainException("Quiz not found: " + query.quizId()));
+        if (!quiz.getOrganizationId().equals(query.organizationId())) {
+            throw new DomainException("Quiz does not belong to organization: " + query.organizationId());
         }
         return QuizResponse.from(quiz);
     }

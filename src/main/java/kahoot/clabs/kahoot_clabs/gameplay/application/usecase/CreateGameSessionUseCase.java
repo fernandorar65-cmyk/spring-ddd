@@ -11,9 +11,8 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
-import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
-import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizSnapshotPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
@@ -21,15 +20,15 @@ public class CreateGameSessionUseCase {
 
     private final GameSessionRepository gameSessionRepository;
     private final OrganizationRepository organizationRepository;
-    private final QuizRepository quizRepository;
+    private final QuizSnapshotPort quizSnapshotPort;
 
     public CreateGameSessionUseCase(
             GameSessionRepository gameSessionRepository,
             OrganizationRepository organizationRepository,
-            QuizRepository quizRepository) {
+            QuizSnapshotPort quizSnapshotPort) {
         this.gameSessionRepository = gameSessionRepository;
         this.organizationRepository = organizationRepository;
-        this.quizRepository = quizRepository;
+        this.quizSnapshotPort = quizSnapshotPort;
     }
 
     @Transactional
@@ -37,17 +36,13 @@ public class CreateGameSessionUseCase {
         Organization organization = GameSessionSupport.requireOrganization(organizationRepository, organizationId);
         GameSessionSupport.requireMember(organization, command.hostUserId());
 
-        Quiz quiz = quizRepository.findById(command.quizId())
-                .orElseThrow(() -> new DomainException("Quiz not found: " + command.quizId()));
-        if (!quiz.getOrganizationId().equals(organizationId)) {
-            throw new DomainException("Quiz does not belong to organization: " + organizationId);
-        }
-        if (quiz.getStatus() != QuizStatus.PUBLISHED) {
-            throw new DomainException("Only published quizzes can be used to create a session");
-        }
+        PublishedQuizSnapshot snapshot = quizSnapshotPort
+                .findPublishedByOrganizationAndId(organizationId, command.quizId())
+                .orElseThrow(() -> new DomainException(
+                        "Published quiz not found for organization: " + command.quizId()));
 
-        GameSession session = GameSession.create(organizationId, quiz.getId(), command.hostUserId());
-        GameSessionSupport.freezeFromQuiz(session, quiz);
+        GameSession session = GameSession.create(organizationId, snapshot.quizId(), command.hostUserId());
+        GameSessionSupport.freezeFromSnapshot(session, snapshot);
         return GameSessionResponse.from(gameSessionRepository.save(session));
     }
 }

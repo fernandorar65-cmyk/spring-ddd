@@ -1,0 +1,363 @@
+---
+alwaysApply: true
+---
+
+# Spring Boot DDD + Clean Architecture Rules
+
+## General Principles
+
+This project follows Domain-Driven Design (DDD) and Clean Architecture.
+
+Every implementation MUST respect these rules.
+
+---
+
+# 1. Architecture
+
+The project is organized by Bounded Contexts.
+
+Example:
+
+users/
+quizzes/
+organizations/
+gameplay/
+
+Each bounded context contains:
+
+domain/
+application/
+infrastructure/
+
+Never organize the project by controllers, services or repositories at the root level.
+
+---
+
+# 2. Dependency Rule
+
+Dependencies always point inward.
+
+Infrastructure
+↓
+Application
+↓
+Domain
+
+The Domain layer MUST NOT depend on:
+
+- Spring Boot
+- Spring Data JPA
+- Spring Security
+- REST Controllers
+- DTOs
+- Hibernate
+- Database
+- External APIs
+
+The Domain layer must be pure Java.
+
+---
+
+# 3. Domain Layer
+
+The Domain contains business rules.
+
+Allowed:
+
+- Aggregates
+- Entities
+- Value Objects
+- Domain Services
+- Domain Events
+- Repository Interfaces
+- Specifications
+- Business Exceptions
+- Enums
+
+Forbidden:
+
+@RestController
+@Service
+@Repository
+@Entity
+@Component
+@Autowired
+
+No Spring annotations are allowed inside Domain.
+
+---
+
+# 4. Aggregate Roots
+
+Not every Entity is an Aggregate Root.
+
+Only Aggregate Roots expose public behavior.
+
+Child entities are modified only through their Aggregate Root.
+
+Example:
+
+Quiz
+ ├── Question
+ └── AnswerOption
+
+Never modify Question directly.
+
+Always use:
+
+quiz.addQuestion(...)
+
+instead of
+
+questionRepository.save(...)
+
+---
+
+# 5. Rich Domain Model
+
+Entities must contain business behavior.
+
+Avoid anemic models.
+
+Good:
+
+user.changeEmail()
+
+quiz.publish()
+
+organization.suspend()
+
+Bad:
+
+user.setEmail()
+
+quiz.setStatus()
+
+---
+
+# 6. Value Objects
+
+Primitive obsession should be avoided.
+
+Prefer
+
+Email
+
+Password
+
+Money
+
+FullName
+
+EstimatedTime
+
+instead of raw String or Integer.
+
+Every Value Object validates itself.
+
+---
+
+# 7. Repository Interfaces
+
+Repository interfaces belong to Domain.
+
+Example:
+
+UserRepository
+
+QuizRepository
+
+Only Infrastructure provides implementations.
+
+Never implement persistence inside Domain.
+
+---
+
+# 8. Application Layer
+
+Application contains use cases.
+
+Examples:
+
+CreateUserUseCase
+
+PublishQuizUseCase
+
+LoginUserUseCase
+
+Application orchestrates the Domain.
+
+Business rules stay inside Domain.
+
+Application must not contain SQL or persistence logic.
+
+---
+
+# 9. Infrastructure Layer
+
+Infrastructure contains:
+
+Controllers
+
+Persistence
+
+JPA
+
+Spring Configuration
+
+Security
+
+External Services
+
+Infrastructure implements Domain interfaces.
+
+---
+
+# 10. Persistence
+
+Persistence models are different from Domain models.
+
+Use:
+
+UserEntity
+
+QuizEntity
+
+instead of annotating Domain classes with @Entity.
+
+Map between Domain and Persistence.
+
+---
+
+# 11. Shared Kernel
+
+Reusable concepts shared across bounded contexts belong in shared/.
+
+Examples:
+
+AggregateRoot
+
+BaseEntity
+
+DomainEvent
+
+BusinessException
+
+AuditableEntity
+
+Identifier
+
+Never duplicate these classes across modules.
+
+---
+
+# 12. Business Logic
+
+Business logic belongs inside Domain.
+
+Controllers should only:
+
+Receive Request
+
+Call Use Case
+
+Return Response
+
+Repositories should only persist data.
+
+They must not contain business rules.
+
+---
+
+# 13. Constructors
+
+Prefer static factory methods.
+
+Example:
+
+User.create(...)
+
+Quiz.create(...)
+
+instead of exposing complex constructors.
+
+---
+
+# 14. Encapsulation
+
+Avoid public setters.
+
+Prefer explicit methods expressing business intent.
+
+Example:
+
+changeRole()
+
+publish()
+
+activate()
+
+deactivate()
+
+instead of setStatus().
+
+---
+
+# 15. Domain Events
+
+Business events should be represented as Domain Events.
+
+Example:
+
+UserCreatedEvent
+
+QuizPublishedEvent
+
+GameStartedEvent
+
+Events describe something that already happened.
+
+---
+
+# 16. Naming
+
+Classes should express business concepts.
+
+Avoid names like:
+
+Utils
+
+Manager
+
+Helper
+
+Processor
+
+Prefer:
+
+Quiz
+
+Organization
+
+Player
+
+Session
+
+Score
+
+Leaderboard
+
+---
+
+# 17. Before Generating Code
+
+Always ask:
+
+- Does this belong to Domain?
+- Does this belong to Application?
+- Does this belong to Infrastructure?
+- Is this business logic?
+- Am I leaking Spring into Domain?
+- Am I violating Aggregate boundaries?
+
+If the answer is yes, redesign before implementing.

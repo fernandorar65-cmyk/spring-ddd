@@ -1,27 +1,24 @@
 package kahoot.clabs.kahoot_clabs.organization.application.usecase;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.organization.application.dto.OrganizationResponse;
+import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationReadPort;
 import kahoot.clabs.kahoot_clabs.organization.application.query.GetOrganizationQuery;
-import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.exception.OrganizationNotFoundException;
-import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 
 @Service
 public class GetOrganizationUseCase {
 
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationReadPort organizationReadPort;
 
-    public GetOrganizationUseCase(OrganizationRepository organizationRepository) {
-        this.organizationRepository = organizationRepository;
+    public GetOrganizationUseCase(OrganizationReadPort organizationReadPort) {
+        this.organizationReadPort = organizationReadPort;
     }
 
-    @Transactional(readOnly = true)
     public OrganizationResponse execute(GetOrganizationQuery query) {
-        Organization organization = organizationRepository.findById(query.organizationId())
+        return organizationReadPort.findById(query.organizationId())
+                .map(OrganizationResponse::from)
                 .orElseThrow(() -> new OrganizationNotFoundException(query.organizationId()));
-        return OrganizationResponse.from(organization);
     }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
 import kahoot.clabs.kahoot_clabs.identity.application.port.PasswordHasher;
@@ -14,12 +15,13 @@ import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.RoleType;
+import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationCatalogProjectionPort;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationDepartmentEntity;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationJobEntity;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationDepartmentJpaRepository;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationJobJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationDepartmentJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationJobJpaRepository;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.SeedProperties;
 
@@ -38,6 +40,7 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
     private final OrganizationRepository organizationRepository;
     private final OrganizationDepartmentJpaRepository departmentRepository;
     private final OrganizationJobJpaRepository jobRepository;
+    private final ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordHasher passwordHasher;
@@ -47,6 +50,7 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
             OrganizationRepository organizationRepository,
             OrganizationDepartmentJpaRepository departmentRepository,
             OrganizationJobJpaRepository jobRepository,
+            ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort,
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordHasher passwordHasher,
@@ -54,6 +58,7 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
         this.organizationRepository = organizationRepository;
         this.departmentRepository = departmentRepository;
         this.jobRepository = jobRepository;
+        this.catalogProjectionPort = catalogProjectionPort;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordHasher = passwordHasher;
@@ -188,6 +193,8 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
         entity.setName(name);
         entity.setDescription(truncate(description, 100));
         departmentRepository.save(entity);
+        catalogProjectionPort.ifAvailable(port -> port.saveDepartment(
+                entity.getId(), entity.getName(), entity.getDescription()));
         log.info("Created department {}", name);
     }
 
@@ -200,6 +207,8 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
         entity.setName(name);
         entity.setDescription(truncate(description, 100));
         jobRepository.save(entity);
+        catalogProjectionPort.ifAvailable(port -> port.saveJob(
+                entity.getId(), entity.getName(), entity.getDescription()));
         log.info("Created job {}", name);
     }
 

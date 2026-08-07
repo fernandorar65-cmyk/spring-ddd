@@ -3,6 +3,7 @@ package kahoot.clabs.kahoot_clabs.gameplay.application.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel.AnswerRead;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.PlayerAnswer;
 
 public record PlayerAnswerResponse(
@@ -16,6 +17,7 @@ public record PlayerAnswerResponse(
         LocalDateTime answeredAt
 ) {
 
+    /** Command side (submit answer). */
     public static PlayerAnswerResponse from(PlayerAnswer answer) {
         return new PlayerAnswerResponse(
                 answer.getId(),
@@ -26,5 +28,18 @@ public record PlayerAnswerResponse(
                 answer.getResponseTimeMs(),
                 answer.getAwardedPoints(),
                 answer.getAnsweredAt());
+    }
+
+    /** Query side (read model). */
+    public static PlayerAnswerResponse from(AnswerRead answer) {
+        return new PlayerAnswerResponse(
+                answer.id(),
+                answer.sessionQuestionId(),
+                answer.sessionPlayerId(),
+                answer.sessionAnswerOptionId(),
+                answer.correct(),
+                answer.responseTimeMs(),
+                answer.awardedPoints(),
+                answer.answeredAt());
     }
 }

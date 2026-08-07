@@ -1,26 +1,24 @@
 package kahoot.clabs.kahoot_clabs.quiz.application.usecase;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.query.ListQuizzesQuery;
 
 @Service
 public class ListQuizzesUseCase {
 
-    private final QuizRepository quizRepository;
+    private final QuizReadPort quizReadPort;
 
-    public ListQuizzesUseCase(QuizRepository quizRepository) {
-        this.quizRepository = quizRepository;
+    public ListQuizzesUseCase(QuizReadPort quizReadPort) {
+        this.quizReadPort = quizReadPort;
     }
 
-    @Transactional(readOnly = true)
-    public List<QuizResponse> execute(UUID organizationId) {
-        return quizRepository.findByOrganizationId(organizationId).stream()
+    public List<QuizResponse> execute(ListQuizzesQuery query) {
+        return quizReadPort.findByOrganizationIdOrderByUpdatedAtDesc(query.organizationId()).stream()
                 .map(QuizResponse::from)
                 .toList();
     }

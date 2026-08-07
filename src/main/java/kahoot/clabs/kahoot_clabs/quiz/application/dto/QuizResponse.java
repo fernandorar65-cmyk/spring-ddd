@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.AnswerOption;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
@@ -48,6 +49,28 @@ public record QuizResponse(
                 quiz.getQuestions().stream().map(QuestionResponse::from).toList(),
                 quiz.getCreatedAt(),
                 quiz.getUpdatedAt());
+    }
+
+    /** Summary projection from the Mongo read model (no question payloads). */
+    public static QuizResponse from(QuizReadModel readModel) {
+        return new QuizResponse(
+                readModel.id(),
+                readModel.organizationId(),
+                readModel.createdById(),
+                readModel.title(),
+                readModel.description(),
+                readModel.thumbnail(),
+                readModel.status(),
+                readModel.difficulty(),
+                readModel.estimatedTimeMinutes(),
+                readModel.playCount(),
+                readModel.averageRating(),
+                readModel.template(),
+                readModel.categoryIds() == null ? List.of() : readModel.categoryIds(),
+                readModel.questionCount(),
+                List.of(),
+                readModel.createdAt(),
+                readModel.updatedAt());
     }
 
     public record QuestionResponse(

@@ -4,59 +4,80 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.QuestionResultResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.SessionQuestionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetCurrentSessionQuestionQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetSessionQuestionResultQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionQuestionsQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel.QuestionRead;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class GetSessionQuestionsUseCase {
 
-    private final GameSessionRepository gameSessionRepository;
+    private final GameSessionReadModelPort gameSessionReadModelPort;
 
-    public GetSessionQuestionsUseCase(GameSessionRepository gameSessionRepository) {
-        this.gameSessionRepository = gameSessionRepository;
+    public GetSessionQuestionsUseCase(GameSessionReadModelPort gameSessionReadModelPort) {
+        this.gameSessionReadModelPort = gameSessionReadModelPort;
     }
 
-    @Transactional(readOnly = true)
-    public List<SessionQuestionResponse> list(UUID organizationId, UUID sessionId, boolean asHost) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
-        boolean reveal = asHost || session.getStatus() == SessionStatus.FINISHED
-                || session.getStatus() == SessionStatus.QUESTION_RESULT;
-        return session.getQuestions().stream()
-                .map(question -> SessionQuestionResponse.from(question, reveal && question.isClosed()))
+    public List<SessionQuestionResponse> list(ListSessionQuestionsQuery query) {
+        GameSessionReadModel session = requireSession(query.organizationId(), query.sessionId());
+        SessionStatus status = SessionStatus.valueOf(session.status());
+        boolean reveal = query.asHost() || status == SessionStatus.FINISHED
+                || status == SessionStatus.QUESTION_RESULT;
+        return session.questions().stream()
+                .map(question -> SessionQuestionResponse.from(
+                        question, reveal && question.closedAt() != null))
                 .toList();
     }
 
-    @Transactional(readOnly = true)
-    public SessionQuestionResponse current(UUID organizationId, UUID sessionId) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
-        SessionQuestion question = session.findCurrentQuestion()
+    public SessionQuestionResponse current(GetCurrentSessionQuestionQuery query) {
+        GameSessionReadModel session = requireSession(query.organizationId(), query.sessionId());
+        SessionStatus status = SessionStatus.valueOf(session.status());
+        QuestionRead question = session.questions().stream()
+                .filter(candidate -> candidate.orderIndex() == session.currentQuestionIndex())
+                .findFirst()
                 .orElseThrow(() -> new DomainException("No current question in session"));
-        boolean reveal = session.getStatus() == SessionStatus.QUESTION_RESULT
-                || session.getStatus() == SessionStatus.FINISHED;
+        boolean reveal = status == SessionStatus.QUESTION_RESULT || status == SessionStatus.FINISHED;
         return SessionQuestionResponse.from(question, reveal);
     }
 
-    @Transactional(readOnly = true)
-    public QuestionResultResponse result(UUID organizationId, UUID sessionId, UUID sessionQuestionId) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
-        SessionQuestion question = session.findQuestionById(sessionQuestionId)
-                .orElseThrow(() -> new DomainException("Session question not found: " + sessionQuestionId));
-        if (!question.isClosed()
-                && session.getStatus() != SessionStatus.FINISHED
-                && session.getStatus() != SessionStatus.QUESTION_RESULT) {
+    public QuestionResultResponse result(GetSessionQuestionResultQuery query) {
+        GameSessionReadModel session = requireSession(query.organizationId(), query.sessionId());
+        SessionStatus status = SessionStatus.valueOf(session.status());
+        QuestionRead question = session.questions().stream()
+                .filter(candidate -> candidate.id().equals(query.sessionQuestionId()))
+                .findFirst()
+                .orElseThrow(() -> new DomainException(
+                        "Session question not found: " + query.sessionQuestionId()));
+        boolean closed = question.closedAt() != null;
+        if (!closed
+                && status != SessionStatus.FINISHED
+                && status != SessionStatus.QUESTION_RESULT) {
             throw new DomainException("Question results are not available yet");
         }
-        if (session.getStatus() == SessionStatus.QUESTION_OPEN
-                && question.getOrderIndex() == session.getCurrentQuestionIndex()) {
+        if (status == SessionStatus.QUESTION_OPEN
+                && question.orderIndex() == session.currentQuestionIndex()) {
             throw new DomainException("Question results are not available while the question is open");
         }
         return QuestionResultResponse.from(session, question);
+    }
+
+    private GameSessionReadModel requireSession(UUID organizationId, UUID sessionId) {
+        return gameSessionReadModelPort.findById(sessionId)
+                .map(session -> {
+                    if (!session.organizationId().equals(organizationId)) {
+                        throw new DomainException(
+                                "Game session does not belong to organization: " + organizationId);
+                    }
+                    return session;
+                })
+                .orElseThrow(() -> new GameSessionNotFoundException(sessionId));
     }
 }
