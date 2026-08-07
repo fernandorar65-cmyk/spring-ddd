@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.mongo;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +19,15 @@ public interface SpringGameSessionMongoRepository extends MongoRepository<GameSe
     List<GameSessionReadDocument> findByOrganizationIdAndStatus(UUID organizationId, String status);
 
     List<GameSessionReadDocument> findByOrganizationIdOrderByCreatedAtDesc(UUID organizationId);
+
+    List<GameSessionReadDocument> findByOrganizationIdAndQuizIdOrderByCreatedAtDesc(
+            UUID organizationId, UUID quizId);
+
+    List<GameSessionReadDocument> findByOrganizationIdAndStatusInOrderByCreatedAtDesc(
+            UUID organizationId, Collection<String> statuses);
+
+    List<GameSessionReadDocument> findByOrganizationIdAndQuizIdAndStatusInOrderByCreatedAtDesc(
+            UUID organizationId, UUID quizId, Collection<String> statuses);
 
     List<GameSessionReadDocument> findByQuizId(UUID quizId);
 

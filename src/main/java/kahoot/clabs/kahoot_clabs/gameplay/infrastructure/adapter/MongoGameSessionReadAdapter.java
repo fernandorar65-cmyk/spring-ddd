@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,6 +45,25 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
         return mongoRepository.findByOrganizationIdOrderByCreatedAtDesc(organizationId).stream()
                 .map(this::toReadModel)
                 .toList();
+    }
+
+    @Override
+    public List<GameSessionReadModel> search(UUID organizationId, Collection<String> statuses, UUID quizId) {
+        boolean hasStatuses = statuses != null && !statuses.isEmpty();
+        List<GameSessionReadDocument> documents;
+        if (quizId != null && hasStatuses) {
+            documents = mongoRepository.findByOrganizationIdAndQuizIdAndStatusInOrderByCreatedAtDesc(
+                    organizationId, quizId, statuses);
+        } else if (quizId != null) {
+            documents = mongoRepository.findByOrganizationIdAndQuizIdOrderByCreatedAtDesc(
+                    organizationId, quizId);
+        } else if (hasStatuses) {
+            documents = mongoRepository.findByOrganizationIdAndStatusInOrderByCreatedAtDesc(
+                    organizationId, statuses);
+        } else {
+            documents = mongoRepository.findByOrganizationIdOrderByCreatedAtDesc(organizationId);
+        }
+        return documents.stream().map(this::toReadModel).toList();
     }
 
     @Override

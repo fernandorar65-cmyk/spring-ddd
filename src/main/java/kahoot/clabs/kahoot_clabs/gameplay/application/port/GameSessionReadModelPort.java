@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.gameplay.application.port;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +20,11 @@ public interface GameSessionReadModelPort {
     List<GameSessionReadModel> findByOrganizationIdAndStatus(UUID organizationId, String status);
 
     List<GameSessionReadModel> findByOrganizationIdOrderByCreatedAtDesc(UUID organizationId);
+
+    /**
+     * Filtered listing: empty/null statuses = no status filter; null quizId = no quiz filter.
+     */
+    List<GameSessionReadModel> search(UUID organizationId, Collection<String> statuses, UUID quizId);
 
     List<GameSessionReadModel> findByQuizId(UUID quizId);
 

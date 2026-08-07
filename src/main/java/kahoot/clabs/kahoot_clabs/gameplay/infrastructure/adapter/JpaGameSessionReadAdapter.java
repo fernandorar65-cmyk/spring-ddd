@@ -1,9 +1,13 @@
 package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
@@ -63,11 +67,41 @@ public class JpaGameSessionReadAdapter implements GameSessionReadModelPort {
     }
 
     @Override
+    public List<GameSessionReadModel> search(UUID organizationId, Collection<String> statuses, UUID quizId) {
+        boolean hasStatuses = statuses != null && !statuses.isEmpty();
+        List<GameSessionEntity> entities;
+        if (quizId != null && hasStatuses) {
+            Set<String> normalized = normalizeStatuses(statuses);
+            entities = sessionRepository.findByOrganizationIdAndQuizId(organizationId, quizId).stream()
+                    .filter(entity -> normalized.contains(entity.getStatus()))
+                    .toList();
+        } else if (quizId != null) {
+            entities = sessionRepository.findByOrganizationIdAndQuizId(organizationId, quizId);
+        } else if (hasStatuses) {
+            entities = sessionRepository.findByOrganizationIdAndStatusIn(
+                    organizationId, normalizeStatuses(statuses));
+        } else {
+            entities = sessionRepository.findByOrganizationId(organizationId);
+        }
+        return entities.stream()
+                .map(this::toReadModel)
+                .sorted(Comparator.comparing(
+                        GameSessionReadModel::createdAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+    }
+
+    @Override
     public List<GameSessionReadModel> findByQuizId(UUID quizId) {
         return sessionRepository.findAll().stream()
                 .map(this::toReadModel)
                 .filter(session -> session.quizId().equals(quizId))
                 .toList();
+    }
+
+    private static Set<String> normalizeStatuses(Collection<String> statuses) {
+        return statuses.stream()
+                .map(status -> status.toUpperCase(Locale.ROOT))
+                .collect(Collectors.toSet());
     }
 
     @Override
