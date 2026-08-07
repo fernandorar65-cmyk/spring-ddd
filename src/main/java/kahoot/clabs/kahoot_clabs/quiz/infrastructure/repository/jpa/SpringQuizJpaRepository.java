@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizEntity;
 
-public interface SpringDataQuizRepository extends JpaRepository<QuizEntity, UUID> {
+public interface SpringQuizJpaRepository extends JpaRepository<QuizEntity, UUID> {
 
     @Override
     @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})

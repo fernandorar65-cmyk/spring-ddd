@@ -1,24 +1,22 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter.mongo;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.mongo.QuizReadDocument;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.mongo.SpringDataQuizReadRepository;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.mongo.SpringQuizMongoRepository;
 
 @Repository
-@Profile("!test")
 public class MongoQuizReadAdapter implements QuizReadModelPort {
 
-    private final SpringDataQuizReadRepository mongoRepository;
+    private final SpringQuizMongoRepository mongoRepository;
 
-    public MongoQuizReadAdapter(SpringDataQuizReadRepository mongoRepository) {
+    public MongoQuizReadAdapter(SpringQuizMongoRepository mongoRepository) {
         this.mongoRepository = mongoRepository;
     }
 

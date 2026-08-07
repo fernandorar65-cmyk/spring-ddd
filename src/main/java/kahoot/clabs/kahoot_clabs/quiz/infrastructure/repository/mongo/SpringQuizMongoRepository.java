@@ -11,7 +11,7 @@ import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.mongo.QuizReadD
  * Spring Data Mongo derived queries (Prisma/EF-style method names).
  * Inherited: save, findById, findAll, deleteById, existsById, count, …
  */
-public interface SpringDataQuizReadRepository extends MongoRepository<QuizReadDocument, UUID> {
+public interface SpringQuizMongoRepository extends MongoRepository<QuizReadDocument, UUID> {
 
     List<QuizReadDocument> findByOrganizationId(UUID organizationId);
 

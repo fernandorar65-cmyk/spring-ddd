@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter.jpa;
 
 import java.util.Comparator;
 import java.util.List;
@@ -11,14 +11,14 @@ import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModels;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.QuizMapper;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringDataQuizRepository;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringQuizJpaRepository;
 
 @Repository
 public class JpaQuizReadAdapter implements QuizReadModelPort {
 
-    private final SpringDataQuizRepository springDataRepository;
+    private final SpringQuizJpaRepository springDataRepository;
 
-    public JpaQuizReadAdapter(SpringDataQuizRepository springDataRepository) {
+    public JpaQuizReadAdapter(SpringQuizJpaRepository springDataRepository) {
         this.springDataRepository = springDataRepository;
     }
 

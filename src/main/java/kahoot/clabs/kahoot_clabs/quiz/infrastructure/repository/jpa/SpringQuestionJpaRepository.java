@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuestionEntity;
 
-public interface SpringDataQuestionRepository extends JpaRepository<QuestionEntity, UUID> {
+public interface SpringQuestionJpaRepository extends JpaRepository<QuestionEntity, UUID> {
 
     @EntityGraph(attributePaths = {"answerOptions", "asset"})
     List<QuestionEntity> findByQuizIdOrderByOrderIndex(UUID quizId);

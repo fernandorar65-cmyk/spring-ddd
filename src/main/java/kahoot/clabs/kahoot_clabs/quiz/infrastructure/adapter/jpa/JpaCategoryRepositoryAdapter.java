@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.adapter.jpa;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,14 +9,14 @@ import org.springframework.stereotype.Repository;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Category;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.CategoryRepository;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.CategoryMapper;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringDataCategoryRepository;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringCategoryJpaRepository;
 
 @Repository
 public class JpaCategoryRepositoryAdapter implements CategoryRepository {
 
-    private final SpringDataCategoryRepository springDataRepository;
+    private final SpringCategoryJpaRepository springDataRepository;
 
-    public JpaCategoryRepositoryAdapter(SpringDataCategoryRepository springDataRepository) {
+    public JpaCategoryRepositoryAdapter(SpringCategoryJpaRepository springDataRepository) {
         this.springDataRepository = springDataRepository;
     }
 

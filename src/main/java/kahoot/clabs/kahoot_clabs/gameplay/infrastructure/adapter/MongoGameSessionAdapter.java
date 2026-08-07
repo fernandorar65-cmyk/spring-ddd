@@ -4,21 +4,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameSessionReadDocument;
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.mongo.SpringDataGameSessionReadRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.mongo.SpringGameSessionMongoRepository;
 
 @Repository
-@Profile("!test")
-public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
+public class MongoGameSessionAdapter implements GameSessionReadModelPort {
 
-    private final SpringDataGameSessionReadRepository mongoRepository;
+    private final SpringGameSessionMongoRepository mongoRepository;
 
-    public MongoGameSessionReadAdapter(SpringDataGameSessionReadRepository mongoRepository) {
+    public MongoGameSessionAdapter(SpringGameSessionMongoRepository mongoRepository) {
         this.mongoRepository = mongoRepository;
     }
 

@@ -11,7 +11,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameS
  * Spring Data Mongo derived queries (Prisma/EF-style method names).
  * Inherited: save, findById, findAll, deleteById, existsById, count, …
  */
-public interface SpringDataGameSessionReadRepository extends MongoRepository<GameSessionReadDocument, UUID> {
+public interface SpringGameSessionMongoRepository extends MongoRepository<GameSessionReadDocument, UUID> {
 
     List<GameSessionReadDocument> findByOrganizationId(UUID organizationId);
 
