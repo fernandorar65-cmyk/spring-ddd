@@ -4,8 +4,11 @@ import java.util.Optional;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Repository;
 
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModels;
 import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.QuizMapper;
@@ -15,14 +18,20 @@ import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringDataQu
 public class JpaQuizRepositoryAdapter implements QuizRepository {
 
     private final SpringDataQuizRepository springDataRepository;
+    private final ObjectProvider<QuizReadModelPort> quizReadModelPort;
 
-    public JpaQuizRepositoryAdapter(SpringDataQuizRepository springDataRepository) {
+    public JpaQuizRepositoryAdapter(
+            SpringDataQuizRepository springDataRepository,
+            ObjectProvider<QuizReadModelPort> quizReadModelPort) {
         this.springDataRepository = springDataRepository;
+        this.quizReadModelPort = quizReadModelPort;
     }
 
     @Override
     public Quiz save(Quiz quiz) {
-        return QuizMapper.toDomain(springDataRepository.save(QuizMapper.toEntity(quiz)));
+        Quiz saved = QuizMapper.toDomain(springDataRepository.save(QuizMapper.toEntity(quiz)));
+        quizReadModelPort.ifAvailable(port -> port.save(QuizReadModels.from(saved)));
+        return saved;
     }
 
     @Override
@@ -57,10 +66,12 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     @Override
     public void delete(Quiz quiz) {
         springDataRepository.deleteById(quiz.getId());
+        quizReadModelPort.ifAvailable(port -> port.deleteById(quiz.getId()));
     }
 
     @Override
     public void deleteById(UUID id) {
         springDataRepository.deleteById(id);
+        quizReadModelPort.ifAvailable(port -> port.deleteById(id));
     }
 }

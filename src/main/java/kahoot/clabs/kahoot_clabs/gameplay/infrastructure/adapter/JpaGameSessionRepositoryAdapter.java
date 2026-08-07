@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Repository;
 
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModels;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
@@ -21,12 +24,15 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
 
     private final GameSessionJpaRepository sessionRepository;
     private final PlayerAnswerJpaRepository answerRepository;
+    private final ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort;
 
     public JpaGameSessionRepositoryAdapter(
             GameSessionJpaRepository sessionRepository,
-            PlayerAnswerJpaRepository answerRepository) {
+            PlayerAnswerJpaRepository answerRepository,
+            ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort) {
         this.sessionRepository = sessionRepository;
         this.answerRepository = answerRepository;
+        this.gameSessionReadModelPort = gameSessionReadModelPort;
     }
 
     @Override
@@ -34,7 +40,9 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
         GameSessionEntity saved = sessionRepository.save(GameSessionMapper.toEntity(session));
         syncAnswers(session);
         List<PlayerAnswerEntity> answers = loadAnswers(saved);
-        return GameSessionMapper.toDomain(saved, answers);
+        GameSession aggregate = GameSessionMapper.toDomain(saved, answers);
+        gameSessionReadModelPort.ifAvailable(port -> port.save(GameSessionReadModels.from(aggregate)));
+        return aggregate;
     }
 
     @Override

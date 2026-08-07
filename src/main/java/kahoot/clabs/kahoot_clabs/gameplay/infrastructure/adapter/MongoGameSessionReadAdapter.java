@@ -79,6 +79,7 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
                 document.getStatus(),
                 document.getCurrentQuestionIndex(),
                 document.getPlayerCount(),
+                document.getQuestionCount(),
                 document.getStartedAt(),
                 document.getFinishedAt(),
                 document.getCreatedAt(),
@@ -94,6 +95,7 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
         document.setStatus(readModel.status());
         document.setCurrentQuestionIndex(readModel.currentQuestionIndex());
         document.setPlayerCount(readModel.playerCount());
+        document.setQuestionCount(readModel.questionCount());
         document.setStartedAt(readModel.startedAt());
         document.setFinishedAt(readModel.finishedAt());
         document.setCreatedAt(readModel.createdAt());
