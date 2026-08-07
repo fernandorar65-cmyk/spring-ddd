@@ -1,28 +1,39 @@
 package kahoot.clabs.kahoot_clabs.gameplay.application.usecase;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.LeaderboardEntryResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetLeaderboardQuery;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.exception.GameSessionNotFoundException;
+import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class GetLeaderboardUseCase {
 
-    private final GameSessionRepository gameSessionRepository;
+    private final GameSessionReadModelPort gameSessionReadModelPort;
 
-    public GetLeaderboardUseCase(GameSessionRepository gameSessionRepository) {
-        this.gameSessionRepository = gameSessionRepository;
+    public GetLeaderboardUseCase(GameSessionReadModelPort gameSessionReadModelPort) {
+        this.gameSessionReadModelPort = gameSessionReadModelPort;
     }
 
-    @Transactional(readOnly = true)
     public List<LeaderboardEntryResponse> execute(GetLeaderboardQuery query) {
-        GameSession session = GameSessionSupport.requireSession(
-                gameSessionRepository, query.organizationId(), query.sessionId());
-        return LeaderboardEntryResponse.from(session);
+        return LeaderboardEntryResponse.from(requireSession(query.organizationId(), query.sessionId()));
+    }
+
+    private GameSessionReadModel requireSession(UUID organizationId, UUID sessionId) {
+        return gameSessionReadModelPort.findById(sessionId)
+                .map(session -> {
+                    if (!session.organizationId().equals(organizationId)) {
+                        throw new DomainException(
+                                "Game session does not belong to organization: " + organizationId);
+                    }
+                    return session;
+                })
+                .orElseThrow(() -> new GameSessionNotFoundException(sessionId));
     }
 }

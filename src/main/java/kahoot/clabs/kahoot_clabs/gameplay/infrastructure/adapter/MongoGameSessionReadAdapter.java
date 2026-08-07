@@ -89,6 +89,15 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
     }
 
     private GameSessionReadModel toReadModel(GameSessionReadDocument document) {
+        List<GameSessionReadModel.PlayerRead> players = document.getPlayers() == null
+                ? List.of()
+                : document.getPlayers().stream().map(this::toPlayer).toList();
+        List<GameSessionReadModel.QuestionRead> questions = document.getQuestions() == null
+                ? List.of()
+                : document.getQuestions().stream().map(this::toQuestion).toList();
+        List<GameSessionReadModel.AnswerRead> answers = document.getAnswers() == null
+                ? List.of()
+                : document.getAnswers().stream().map(this::toAnswer).toList();
         return new GameSessionReadModel(
                 document.getId(),
                 document.getOrganizationId(),
@@ -101,7 +110,10 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
                 document.getStartedAt(),
                 document.getFinishedAt(),
                 document.getCreatedAt(),
-                document.getUpdatedAt());
+                document.getUpdatedAt(),
+                players,
+                questions,
+                answers);
     }
 
     private GameSessionReadDocument toDocument(GameSessionReadModel readModel) {
@@ -118,6 +130,104 @@ public class MongoGameSessionReadAdapter implements GameSessionReadModelPort {
         document.setFinishedAt(readModel.finishedAt());
         document.setCreatedAt(readModel.createdAt());
         document.setUpdatedAt(readModel.updatedAt());
+        document.setPlayers(readModel.players().stream().map(this::toPlayerEmbedded).toList());
+        document.setQuestions(readModel.questions().stream().map(this::toQuestionEmbedded).toList());
+        document.setAnswers(readModel.answers().stream().map(this::toAnswerEmbedded).toList());
         return document;
+    }
+
+    // validar si lo paso a la parte del dominio y no en el adaptador
+
+    private GameSessionReadModel.PlayerRead toPlayer(GameSessionReadDocument.PlayerEmbedded embedded) {
+        return new GameSessionReadModel.PlayerRead(
+                embedded.getId(),
+                embedded.getUserId(),
+                embedded.getNickname(),
+                embedded.getScore(),
+                embedded.isConnected(),
+                embedded.getJoinedAt());
+    }
+
+    private GameSessionReadModel.QuestionRead toQuestion(GameSessionReadDocument.QuestionEmbedded embedded) {
+        List<GameSessionReadModel.OptionRead> options = embedded.getOptions() == null
+                ? List.of()
+                : embedded.getOptions().stream()
+                        .map(option -> new GameSessionReadModel.OptionRead(
+                                option.getId(),
+                                option.getText(),
+                                option.getOrderIndex(),
+                                option.isCorrect()))
+                        .toList();
+        return new GameSessionReadModel.QuestionRead(
+                embedded.getId(),
+                embedded.getOrderIndex(),
+                embedded.getPoints(),
+                embedded.getTimeLimitSeconds(),
+                embedded.getTitle(),
+                embedded.getDescription(),
+                embedded.getQuestionType(),
+                embedded.getOpenedAt(),
+                embedded.getClosedAt(),
+                options);
+    }
+
+    private GameSessionReadModel.AnswerRead toAnswer(GameSessionReadDocument.AnswerEmbedded embedded) {
+        return new GameSessionReadModel.AnswerRead(
+                embedded.getId(),
+                embedded.getSessionQuestionId(),
+                embedded.getSessionPlayerId(),
+                embedded.getSessionAnswerOptionId(),
+                embedded.isCorrect(),
+                embedded.getResponseTimeMs(),
+                embedded.getAwardedPoints(),
+                embedded.getAnsweredAt());
+    }
+
+    private GameSessionReadDocument.PlayerEmbedded toPlayerEmbedded(GameSessionReadModel.PlayerRead player) {
+        GameSessionReadDocument.PlayerEmbedded embedded = new GameSessionReadDocument.PlayerEmbedded();
+        embedded.setId(player.id());
+        embedded.setUserId(player.userId());
+        embedded.setNickname(player.nickname());
+        embedded.setScore(player.score());
+        embedded.setConnected(player.connected());
+        embedded.setJoinedAt(player.joinedAt());
+        return embedded;
+    }
+
+    private GameSessionReadDocument.QuestionEmbedded toQuestionEmbedded(GameSessionReadModel.QuestionRead question) {
+        GameSessionReadDocument.QuestionEmbedded embedded = new GameSessionReadDocument.QuestionEmbedded();
+        embedded.setId(question.id());
+        embedded.setOrderIndex(question.orderIndex());
+        embedded.setPoints(question.points());
+        embedded.setTimeLimitSeconds(question.timeLimitSeconds());
+        embedded.setTitle(question.title());
+        embedded.setDescription(question.description());
+        embedded.setQuestionType(question.questionType());
+        embedded.setOpenedAt(question.openedAt());
+        embedded.setClosedAt(question.closedAt());
+        embedded.setOptions(question.options().stream().map(this::toOptionEmbedded).toList());
+        return embedded;
+    }
+
+    private GameSessionReadDocument.OptionEmbedded toOptionEmbedded(GameSessionReadModel.OptionRead option) {
+        GameSessionReadDocument.OptionEmbedded embedded = new GameSessionReadDocument.OptionEmbedded();
+        embedded.setId(option.id());
+        embedded.setText(option.text());
+        embedded.setOrderIndex(option.orderIndex());
+        embedded.setCorrect(option.correct());
+        return embedded;
+    }
+
+    private GameSessionReadDocument.AnswerEmbedded toAnswerEmbedded(GameSessionReadModel.AnswerRead answer) {
+        GameSessionReadDocument.AnswerEmbedded embedded = new GameSessionReadDocument.AnswerEmbedded();
+        embedded.setId(answer.id());
+        embedded.setSessionQuestionId(answer.sessionQuestionId());
+        embedded.setSessionPlayerId(answer.sessionPlayerId());
+        embedded.setSessionAnswerOptionId(answer.sessionAnswerOptionId());
+        embedded.setCorrect(answer.correct());
+        embedded.setResponseTimeMs(answer.responseTimeMs());
+        embedded.setAwardedPoints(answer.awardedPoints());
+        embedded.setAnsweredAt(answer.answeredAt());
+        return embedded;
     }
 }
