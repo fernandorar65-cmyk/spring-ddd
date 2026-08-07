@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.BatchSize;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -64,5 +66,6 @@ public class SessionQuestionEntity {
     private GameSessionEntity session;
 
     @OneToMany(mappedBy = "sessionQuestion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @BatchSize(size = 64)
     private List<SessionAnswerOptionEntity> answerOptions = new ArrayList<>();
 }
