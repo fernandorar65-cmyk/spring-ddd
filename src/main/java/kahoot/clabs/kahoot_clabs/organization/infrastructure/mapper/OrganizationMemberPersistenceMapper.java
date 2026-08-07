@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 import kahoot.clabs.kahoot_clabs.organization.domain.entity.OrganizationMember;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.MemberStatus;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationMemberEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationMemberEntity;
 
 public final class OrganizationMemberPersistenceMapper {
 

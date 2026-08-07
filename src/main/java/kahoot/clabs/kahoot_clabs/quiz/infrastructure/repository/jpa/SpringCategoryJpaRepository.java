@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.CategoryEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.CategoryEntity;
 
 public interface SpringCategoryJpaRepository extends JpaRepository<CategoryEntity, UUID> {
 

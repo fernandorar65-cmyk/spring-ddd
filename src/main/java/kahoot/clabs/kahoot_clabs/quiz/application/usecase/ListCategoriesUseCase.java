@@ -4,23 +4,21 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.CategoryResponse;
-import kahoot.clabs.kahoot_clabs.quiz.domain.repository.CategoryRepository;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.CategoryReadPort;
 
 @Service
 public class ListCategoriesUseCase {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryReadPort categoryReadPort;
 
-    public ListCategoriesUseCase(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public ListCategoriesUseCase(CategoryReadPort categoryReadPort) {
+        this.categoryReadPort = categoryReadPort;
     }
 
-    @Transactional(readOnly = true)
     public List<CategoryResponse> execute(UUID organizationId) {
-        return categoryRepository.findByOrganizationId(organizationId).stream()
+        return categoryReadPort.findByOrganizationId(organizationId).stream()
                 .map(CategoryResponse::from)
                 .toList();
     }

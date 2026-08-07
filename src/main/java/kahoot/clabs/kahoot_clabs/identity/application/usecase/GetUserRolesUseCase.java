@@ -4,44 +4,35 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserRoleResponse;
+import kahoot.clabs.kahoot_clabs.identity.application.port.RoleReadPort;
+import kahoot.clabs.kahoot_clabs.identity.application.port.UserReadPort;
 import kahoot.clabs.kahoot_clabs.identity.application.query.GetUserRolesQuery;
-import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
-import kahoot.clabs.kahoot_clabs.identity.domain.entity.Permission;
+import kahoot.clabs.kahoot_clabs.identity.application.readmodel.UserReadModel;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
-import kahoot.clabs.kahoot_clabs.identity.domain.repository.PermissionRepository;
-import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 
 @Service
 public class GetUserRolesUseCase {
 
-    private final UserRepository userRepository;
-    private final PermissionRepository permissionRepository;
+    private final UserReadPort userReadPort;
+    private final RoleReadPort roleReadPort;
 
-    public GetUserRolesUseCase(
-            UserRepository userRepository,
-            PermissionRepository permissionRepository) {
-        this.userRepository = userRepository;
-        this.permissionRepository = permissionRepository;
+    public GetUserRolesUseCase(UserReadPort userReadPort, RoleReadPort roleReadPort) {
+        this.userReadPort = userReadPort;
+        this.roleReadPort = roleReadPort;
     }
 
-    @Transactional(readOnly = true)
     public List<UserRoleResponse> execute(GetUserRolesQuery query) {
-        User user = userRepository.findById(query.userId())
+        UserReadModel user = userReadPort.findById(query.userId())
                 .orElseThrow(() -> new UserNotFoundException(query.userId()));
-                
-        if (user.getRoleId() == null) {
+
+        if (user.roleId() == null) {
             return Collections.emptyList();
         }
 
-        System.out.println("user.getRoleId(): " + user.getRoleId());
-        
-        List<Permission> permissions = permissionRepository.findAllByRoleId(user.getRoleId());
-
-        System.out.println(permissions);
-
-        return permissions.stream().map(UserRoleResponse::from).toList();
+        return roleReadPort.findPermissionsByRoleId(user.roleId()).stream()
+                .map(permission -> new UserRoleResponse(permission.name(), permission.description()))
+                .toList();
     }
 }

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.Role;
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.Permission;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.RoleType;
-import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.RoleEntity;
+import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.jpa.RoleEntity;
 
 public final class RolePersistenceMapper {
 

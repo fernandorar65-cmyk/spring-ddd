@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationEntity;
 
 /**
  * Write-side Spring Data repository. Query finds live in Mongo

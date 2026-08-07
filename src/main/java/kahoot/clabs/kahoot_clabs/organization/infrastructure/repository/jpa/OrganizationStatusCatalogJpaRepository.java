@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationStatusCatalogEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationStatusCatalogEntity;
 
 /**
  * Write-side organization status catalog. Finds by name live in Mongo.

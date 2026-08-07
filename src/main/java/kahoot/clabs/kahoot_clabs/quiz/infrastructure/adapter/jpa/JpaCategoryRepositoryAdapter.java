@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Repository;
 
+import kahoot.clabs.kahoot_clabs.quiz.application.port.CategoryProjectionPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.CategoryReadModels;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Category;
 import kahoot.clabs.kahoot_clabs.quiz.domain.repository.CategoryRepository;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.CategoryMapper;
@@ -15,14 +18,20 @@ import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringCatego
 public class JpaCategoryRepositoryAdapter implements CategoryRepository {
 
     private final SpringCategoryJpaRepository springDataRepository;
+    private final ObjectProvider<CategoryProjectionPort> categoryProjectionPort;
 
-    public JpaCategoryRepositoryAdapter(SpringCategoryJpaRepository springDataRepository) {
+    public JpaCategoryRepositoryAdapter(
+            SpringCategoryJpaRepository springDataRepository,
+            ObjectProvider<CategoryProjectionPort> categoryProjectionPort) {
         this.springDataRepository = springDataRepository;
+        this.categoryProjectionPort = categoryProjectionPort;
     }
 
     @Override
     public Category save(Category category) {
-        return CategoryMapper.toDomain(springDataRepository.save(CategoryMapper.toEntity(category)));
+        Category saved = CategoryMapper.toDomain(springDataRepository.save(CategoryMapper.toEntity(category)));
+        categoryProjectionPort.ifAvailable(port -> port.save(CategoryReadModels.from(saved)));
+        return saved;
     }
 
     @Override
@@ -47,10 +56,12 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepository {
     @Override
     public void delete(Category category) {
         springDataRepository.deleteById(category.getId());
+        categoryProjectionPort.ifAvailable(port -> port.deleteById(category.getId()));
     }
 
     @Override
     public void deleteById(UUID id) {
         springDataRepository.deleteById(id);
+        categoryProjectionPort.ifAvailable(port -> port.deleteById(id));
     }
 }

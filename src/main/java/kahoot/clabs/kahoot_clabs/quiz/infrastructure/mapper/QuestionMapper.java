@@ -12,9 +12,9 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.Points;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuestionType;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.TimeLimit;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.AnswerOptionEntity;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuestionAssetEntity;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuestionEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.AnswerOptionEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuestionAssetEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuestionEntity;
 
 public final class QuestionMapper {
 

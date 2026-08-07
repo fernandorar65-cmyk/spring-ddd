@@ -10,8 +10,8 @@ import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.FullName;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.UserProfile;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.UserStatus;
-import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.UserEntity;
-import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.UserImagesEntity;
+import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.jpa.UserEntity;
+import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.jpa.UserImagesEntity;
 
 public final class UserPersistenceMapper {
 

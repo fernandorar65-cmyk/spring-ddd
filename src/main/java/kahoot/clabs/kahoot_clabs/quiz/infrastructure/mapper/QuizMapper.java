@@ -12,8 +12,8 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.EstimatedTime;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizSettings;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizCategoryEntity;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuizCategoryEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuizEntity;
 
 public final class QuizMapper {
 

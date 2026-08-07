@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationMemberEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationMemberEntity;
 
 /**
  * Write-side member persistence for the Organization aggregate.

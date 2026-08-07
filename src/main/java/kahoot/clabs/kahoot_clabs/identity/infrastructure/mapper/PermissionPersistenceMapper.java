@@ -1,7 +1,7 @@
 package kahoot.clabs.kahoot_clabs.identity.infrastructure.mapper;
 
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.Permission;
-import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.PermissionEntity;
+import kahoot.clabs.kahoot_clabs.identity.infrastructure.persistence.jpa.PermissionEntity;
 
 public final class PermissionPersistenceMapper {
 

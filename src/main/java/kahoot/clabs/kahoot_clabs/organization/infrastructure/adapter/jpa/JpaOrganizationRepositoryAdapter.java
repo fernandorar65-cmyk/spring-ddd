@@ -14,7 +14,7 @@ import kahoot.clabs.kahoot_clabs.organization.domain.entity.OrganizationMember;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.mapper.OrganizationMemberPersistenceMapper;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.mapper.OrganizationPersistenceMapper;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationEntity;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationJpaRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationMemberJpaRepository;
 

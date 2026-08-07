@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuizEntity;
 
 public interface SpringQuizJpaRepository extends JpaRepository<QuizEntity, UUID> {
 

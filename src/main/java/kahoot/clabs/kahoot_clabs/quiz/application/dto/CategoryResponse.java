@@ -2,6 +2,7 @@ package kahoot.clabs.kahoot_clabs.quiz.application.dto;
 
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.CategoryReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Category;
 
 public record CategoryResponse(
@@ -21,5 +22,15 @@ public record CategoryResponse(
                 category.getDescription(),
                 category.getColor(),
                 category.getIcon());
+    }
+
+    public static CategoryResponse from(CategoryReadModel readModel) {
+        return new CategoryResponse(
+                readModel.id(),
+                readModel.organizationId(),
+                readModel.name(),
+                readModel.description(),
+                readModel.color(),
+                readModel.icon());
     }
 }

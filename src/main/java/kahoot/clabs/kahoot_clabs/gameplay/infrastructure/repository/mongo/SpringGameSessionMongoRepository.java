@@ -6,32 +6,28 @@ import java.util.UUID;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameSessionReadDocument;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameSessionDocument;
 
-/**
- * Spring Data Mongo derived queries (Prisma/EF-style method names).
- * Inherited: save, findById, findAll, deleteById, existsById, count, …
- */
-public interface SpringGameSessionMongoRepository extends MongoRepository<GameSessionReadDocument, UUID> {
+public interface SpringGameSessionMongoRepository extends MongoRepository<GameSessionDocument, UUID> {
 
-    List<GameSessionReadDocument> findByOrganizationId(UUID organizationId);
+    List<GameSessionDocument> findByOrganizationId(UUID organizationId);
 
-    List<GameSessionReadDocument> findByOrganizationIdAndStatus(UUID organizationId, String status);
+    List<GameSessionDocument> findByOrganizationIdAndStatus(UUID organizationId, String status);
 
-    List<GameSessionReadDocument> findByOrganizationIdOrderByCreatedAtDesc(UUID organizationId);
+    List<GameSessionDocument> findByOrganizationIdOrderByCreatedAtDesc(UUID organizationId);
 
-    List<GameSessionReadDocument> findByOrganizationIdAndQuizIdOrderByCreatedAtDesc(
+    List<GameSessionDocument> findByOrganizationIdAndQuizIdOrderByCreatedAtDesc(
             UUID organizationId, UUID quizId);
 
-    List<GameSessionReadDocument> findByOrganizationIdAndStatusInOrderByCreatedAtDesc(
+    List<GameSessionDocument> findByOrganizationIdAndStatusInOrderByCreatedAtDesc(
             UUID organizationId, Collection<String> statuses);
 
-    List<GameSessionReadDocument> findByOrganizationIdAndQuizIdAndStatusInOrderByCreatedAtDesc(
+    List<GameSessionDocument> findByOrganizationIdAndQuizIdAndStatusInOrderByCreatedAtDesc(
             UUID organizationId, UUID quizId, Collection<String> statuses);
 
-    List<GameSessionReadDocument> findByQuizId(UUID quizId);
+    List<GameSessionDocument> findByQuizId(UUID quizId);
 
-    List<GameSessionReadDocument> findByHostUserId(UUID hostUserId);
+    List<GameSessionDocument> findByHostUserId(UUID hostUserId);
 
     boolean existsByOrganizationIdAndId(UUID organizationId, UUID id);
 }

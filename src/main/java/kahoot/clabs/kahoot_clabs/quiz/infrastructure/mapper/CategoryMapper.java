@@ -3,7 +3,7 @@ package kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper;
 import java.time.LocalDateTime;
 
 import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Category;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.CategoryEntity;
+import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.CategoryEntity;
 
 public final class CategoryMapper {
 
