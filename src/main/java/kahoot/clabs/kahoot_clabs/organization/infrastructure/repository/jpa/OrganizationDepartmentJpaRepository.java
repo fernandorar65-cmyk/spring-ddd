@@ -1,15 +1,15 @@
-package kahoot.clabs.kahoot_clabs.organization.infrastructure.repository;
+package kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationDepartmentEntity;
 
+/**
+ * Write-side department catalog. Finds by name live in Mongo.
+ */
 public interface OrganizationDepartmentJpaRepository extends JpaRepository<OrganizationDepartmentEntity, UUID> {
-
-    Optional<OrganizationDepartmentEntity> findByName(String name);
 
     boolean existsByName(String name);
 }

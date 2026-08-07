@@ -1,31 +1,37 @@
-package kahoot.clabs.kahoot_clabs.organization.infrastructure.adapter;
+package kahoot.clabs.kahoot_clabs.organization.infrastructure.adapter.jpa;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Repository;
 
+import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationProjectionPort;
+import kahoot.clabs.kahoot_clabs.organization.application.readmodel.OrganizationReadModels;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.entity.OrganizationMember;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.mapper.OrganizationMemberPersistenceMapper;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.mapper.OrganizationPersistenceMapper;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationEntity;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationJpaRepository;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.OrganizationMemberJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationJpaRepository;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.repository.jpa.OrganizationMemberJpaRepository;
 
 @Repository
 public class JpaOrganizationRepositoryAdapter implements OrganizationRepository {
 
     private final OrganizationJpaRepository jpaRepository;
     private final OrganizationMemberJpaRepository memberJpaRepository;
+    private final ObjectProvider<OrganizationProjectionPort> organizationProjectionPort;
 
     public JpaOrganizationRepositoryAdapter(
             OrganizationJpaRepository jpaRepository,
-            OrganizationMemberJpaRepository memberJpaRepository) {
+            OrganizationMemberJpaRepository memberJpaRepository,
+            ObjectProvider<OrganizationProjectionPort> organizationProjectionPort) {
         this.jpaRepository = jpaRepository;
         this.memberJpaRepository = memberJpaRepository;
+        this.organizationProjectionPort = organizationProjectionPort;
     }
 
     @Override
@@ -33,7 +39,9 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
         OrganizationEntity saved = jpaRepository.save(OrganizationPersistenceMapper.toEntity(organization));
         List<OrganizationMember> members = organization.getMembers();
         syncMembers(organization.getId(), members);
-        return OrganizationPersistenceMapper.toDomain(saved, members);
+        Organization aggregate = OrganizationPersistenceMapper.toDomain(saved, members);
+        organizationProjectionPort.ifAvailable(port -> port.save(OrganizationReadModels.from(aggregate)));
+        return aggregate;
     }
 
     @Override
@@ -55,6 +63,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
     public void delete(Organization organization) {
         memberJpaRepository.deleteByOrganizationId(organization.getId());
         jpaRepository.deleteById(organization.getId());
+        organizationProjectionPort.ifAvailable(port -> port.deleteById(organization.getId()));
     }
 
     private Organization toAggregate(OrganizationEntity entity) {
