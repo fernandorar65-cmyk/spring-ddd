@@ -6,13 +6,14 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizProjectionPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadPort;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.mongo.QuizReadDocument;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.mongo.SpringQuizMongoRepository;
 
 @Repository
-public class MongoQuizReadAdapter implements QuizReadModelPort {
+public class MongoQuizReadAdapter implements QuizReadPort, QuizProjectionPort {
 
     private final SpringQuizMongoRepository mongoRepository;
 

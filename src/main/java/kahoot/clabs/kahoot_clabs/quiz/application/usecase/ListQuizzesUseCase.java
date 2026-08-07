@@ -5,20 +5,20 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadPort;
 import kahoot.clabs.kahoot_clabs.quiz.application.query.ListQuizzesQuery;
 
 @Service
 public class ListQuizzesUseCase {
 
-    private final QuizReadModelPort quizReadModelPort;
+    private final QuizReadPort quizReadPort;
 
-    public ListQuizzesUseCase(QuizReadModelPort quizReadModelPort) {
-        this.quizReadModelPort = quizReadModelPort;
+    public ListQuizzesUseCase(QuizReadPort quizReadPort) {
+        this.quizReadPort = quizReadPort;
     }
 
     public List<QuizResponse> execute(ListQuizzesQuery query) {
-        return quizReadModelPort.findByOrganizationIdOrderByUpdatedAtDesc(query.organizationId()).stream()
+        return quizReadPort.findByOrganizationIdOrderByUpdatedAtDesc(query.organizationId()).stream()
                 .map(QuizResponse::from)
                 .toList();
     }

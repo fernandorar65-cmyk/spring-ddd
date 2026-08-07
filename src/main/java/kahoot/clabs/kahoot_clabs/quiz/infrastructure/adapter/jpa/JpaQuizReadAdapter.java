@@ -5,16 +5,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadModelPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizProjectionPort;
+import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizReadPort;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModels;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.mapper.QuizMapper;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringQuizJpaRepository;
 
+/**
+ * Test-profile read/projection adapter: serves queries from Postgres/JPA without Mongo.
+ */
 @Repository
-public class JpaQuizReadAdapter implements QuizReadModelPort {
+@Profile("test")
+public class JpaQuizReadAdapter implements QuizReadPort, QuizProjectionPort {
 
     private final SpringQuizJpaRepository springDataRepository;
 

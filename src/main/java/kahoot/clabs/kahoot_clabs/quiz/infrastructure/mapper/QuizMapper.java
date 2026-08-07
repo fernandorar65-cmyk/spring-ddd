@@ -14,7 +14,6 @@ import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizSettings;
 import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizStatus;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizCategoryEntity;
 import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.QuizEntity;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.mongo.QuizReadDocument;
 
 public final class QuizMapper {
 
@@ -83,28 +82,6 @@ public final class QuizMapper {
                 questions,
                 entity.getCreatedAt(),
                 entity.getUpdatedAt());
-    }
-
-    public static QuizReadDocument toReadDocument(QuizEntity entity) {
-        QuizReadDocument document = new QuizReadDocument();
-        document.setId(entity.getId());
-        document.setOrganizationId(entity.getOrganizationId());
-        document.setCreatedById(entity.getCreatedBy());
-        document.setTitle(entity.getTitle());
-        document.setDescription(entity.getDescription());
-        document.setThumbnail(entity.getThumbnailUrl());
-        document.setStatus(entity.getStatus());
-        document.setDifficulty(entity.getDifficulty());
-        document.setPlayCount(entity.getPlayCount());
-        document.setAverageRating(entity.getAverageRating().doubleValue());
-        document.setTemplate(entity.isTemplate());
-        document.setCategoryIds(entity.getCategories().stream()
-                .map(QuizCategoryEntity::getCategoryId)
-                .toList());
-        document.setQuestionCount(entity.getQuestions().size());
-        document.setCreatedAt(entity.getCreatedAt());
-        document.setUpdatedAt(entity.getUpdatedAt());
-        return document;
     }
 
     private static QuizCategoryEntity toEntity(QuizCategory category) {

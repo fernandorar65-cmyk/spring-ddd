@@ -7,10 +7,9 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.quiz.application.readmodel.QuizReadModel;
 
 /**
- * Query-side port for quiz read models (Mongo).
- * Write path stays on {@code QuizRepository} (Postgres/JPA).
+ * Query-side port for reading quiz projections.
  */
-public interface QuizReadModelPort {
+public interface QuizReadPort {
 
     Optional<QuizReadModel> findById(UUID id);
 
@@ -21,8 +20,4 @@ public interface QuizReadModelPort {
     List<QuizReadModel> findByOrganizationIdOrderByUpdatedAtDesc(UUID organizationId);
 
     boolean existsByOrganizationIdAndId(UUID organizationId, UUID id);
-
-    void save(QuizReadModel readModel);
-
-    void deleteById(UUID id);
 }
