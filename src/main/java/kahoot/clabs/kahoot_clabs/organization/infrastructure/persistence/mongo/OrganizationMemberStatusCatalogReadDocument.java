@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Document(collection = "organization_member_status_read_models")
+@Document(collection = "organization_member_statuses")
 @Getter
 @Setter
 @NoArgsConstructor
