@@ -1,13 +1,15 @@
 package kahoot.clabs.kahoot_clabs.gameplay.application.usecase;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.QuestionResultResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.SessionQuestionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetCurrentSessionQuestionQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetSessionQuestionResultQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionQuestionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
@@ -24,9 +26,10 @@ public class GetSessionQuestionsUseCase {
     }
 
     @Transactional(readOnly = true)
-    public List<SessionQuestionResponse> list(UUID organizationId, UUID sessionId, boolean asHost) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
-        boolean reveal = asHost || session.getStatus() == SessionStatus.FINISHED
+    public List<SessionQuestionResponse> list(ListSessionQuestionsQuery query) {
+        GameSession session = GameSessionSupport.requireSession(
+                gameSessionRepository, query.organizationId(), query.sessionId());
+        boolean reveal = query.asHost() || session.getStatus() == SessionStatus.FINISHED
                 || session.getStatus() == SessionStatus.QUESTION_RESULT;
         return session.getQuestions().stream()
                 .map(question -> SessionQuestionResponse.from(question, reveal && question.isClosed()))
@@ -34,8 +37,9 @@ public class GetSessionQuestionsUseCase {
     }
 
     @Transactional(readOnly = true)
-    public SessionQuestionResponse current(UUID organizationId, UUID sessionId) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
+    public SessionQuestionResponse current(GetCurrentSessionQuestionQuery query) {
+        GameSession session = GameSessionSupport.requireSession(
+                gameSessionRepository, query.organizationId(), query.sessionId());
         SessionQuestion question = session.findCurrentQuestion()
                 .orElseThrow(() -> new DomainException("No current question in session"));
         boolean reveal = session.getStatus() == SessionStatus.QUESTION_RESULT
@@ -44,10 +48,12 @@ public class GetSessionQuestionsUseCase {
     }
 
     @Transactional(readOnly = true)
-    public QuestionResultResponse result(UUID organizationId, UUID sessionId, UUID sessionQuestionId) {
-        GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
-        SessionQuestion question = session.findQuestionById(sessionQuestionId)
-                .orElseThrow(() -> new DomainException("Session question not found: " + sessionQuestionId));
+    public QuestionResultResponse result(GetSessionQuestionResultQuery query) {
+        GameSession session = GameSessionSupport.requireSession(
+                gameSessionRepository, query.organizationId(), query.sessionId());
+        SessionQuestion question = session.findQuestionById(query.sessionQuestionId())
+                .orElseThrow(() -> new DomainException(
+                        "Session question not found: " + query.sessionQuestionId()));
         if (!question.isClosed()
                 && session.getStatus() != SessionStatus.FINISHED
                 && session.getStatus() != SessionStatus.QUESTION_RESULT) {

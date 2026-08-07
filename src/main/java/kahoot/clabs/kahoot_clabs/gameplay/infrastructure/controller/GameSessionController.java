@@ -31,6 +31,13 @@ import kahoot.clabs.kahoot_clabs.gameplay.application.dto.PlayerAnswerResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.QuestionResultResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.SessionPlayerResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.SessionQuestionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetCurrentSessionQuestionQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetGameSessionQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetLeaderboardQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetMyAnswersQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetSessionQuestionResultQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListGameSessionsQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionQuestionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.CreateGameSessionUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetGameSessionUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetLeaderboardUseCase;
@@ -102,7 +109,7 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Game sessions listed",
-                listGameSessionsUseCase.execute(organizationId, status, quizId)));
+                listGameSessionsUseCase.execute(new ListGameSessionsQuery(organizationId, status, quizId))));
     }
 
     @GetMapping("/{sessionId}")
@@ -113,7 +120,7 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Game session retrieved",
-                getGameSessionUseCase.execute(organizationId, sessionId)));
+                getGameSessionUseCase.execute(new GetGameSessionQuery(organizationId, sessionId))));
     }
 
     @PostMapping("/{sessionId}/start")
@@ -245,7 +252,8 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Session questions listed",
-                getSessionQuestionsUseCase.list(organizationId, sessionId, asHost)));
+                getSessionQuestionsUseCase.list(
+                        new ListSessionQuestionsQuery(organizationId, sessionId, asHost))));
     }
 
     @GetMapping("/{sessionId}/questions/current")
@@ -256,7 +264,8 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Current question retrieved",
-                getSessionQuestionsUseCase.current(organizationId, sessionId)));
+                getSessionQuestionsUseCase.current(
+                        new GetCurrentSessionQuestionQuery(organizationId, sessionId))));
     }
 
     @GetMapping("/{sessionId}/questions/{sessionQuestionId}/result")
@@ -268,7 +277,8 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Question result retrieved",
-                getSessionQuestionsUseCase.result(organizationId, sessionId, sessionQuestionId)));
+                getSessionQuestionsUseCase.result(
+                        new GetSessionQuestionResultQuery(organizationId, sessionId, sessionQuestionId))));
     }
 
     @PostMapping("/{sessionId}/answers")
@@ -292,7 +302,7 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Player answers retrieved",
-                getMyAnswersUseCase.execute(organizationId, sessionId, userId)));
+                getMyAnswersUseCase.execute(new GetMyAnswersQuery(organizationId, sessionId, userId))));
     }
 
     @GetMapping("/{sessionId}/leaderboard")
@@ -303,6 +313,6 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Leaderboard retrieved",
-                getLeaderboardUseCase.execute(organizationId, sessionId)));
+                getLeaderboardUseCase.execute(new GetLeaderboardQuery(organizationId, sessionId))));
     }
 }

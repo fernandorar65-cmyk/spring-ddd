@@ -1,11 +1,10 @@
 package kahoot.clabs.kahoot_clabs.gameplay.application.usecase;
 
-import java.util.UUID;
-
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetGameSessionQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
@@ -18,15 +17,15 @@ public class GetGameSessionUseCase {
         this.gameSessionReadModelPort = gameSessionReadModelPort;
     }
 
-    public GameSessionResponse execute(UUID organizationId, UUID sessionId) {
-        return gameSessionReadModelPort.findById(sessionId)
+    public GameSessionResponse execute(GetGameSessionQuery query) {
+        return gameSessionReadModelPort.findById(query.sessionId())
                 .map(session -> {
-                    if (!session.organizationId().equals(organizationId)) {
+                    if (!session.organizationId().equals(query.organizationId())) {
                         throw new DomainException(
-                                "Game session does not belong to organization: " + organizationId);
+                                "Game session does not belong to organization: " + query.organizationId());
                     }
                     return GameSessionResponse.from(session);
                 })
-                .orElseThrow(() -> new GameSessionNotFoundException(sessionId));
+                .orElseThrow(() -> new GameSessionNotFoundException(query.sessionId()));
     }
 }

@@ -30,6 +30,8 @@ import kahoot.clabs.kahoot_clabs.quiz.application.command.UpdateQuestionCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.ReorderQuestionsCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.command.DuplicateQuizCommand;
 import kahoot.clabs.kahoot_clabs.quiz.application.dto.QuizResponse;
+import kahoot.clabs.kahoot_clabs.quiz.application.query.GetQuizQuery;
+import kahoot.clabs.kahoot_clabs.quiz.application.query.ListQuizzesQuery;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.CreateQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.GetQuizUseCase;
 import kahoot.clabs.kahoot_clabs.quiz.application.usecase.ListQuizzesUseCase;
@@ -93,7 +95,9 @@ public class QuizController {
             @Parameter(description = "Identificador de la organización") @PathVariable UUID organizationId,
             @Parameter(description = "Identificador del quiz") @PathVariable UUID quizId) {
         return ResponseEntity.ok(ApiResponse.success(
-                HttpStatus.OK, "Quiz retrieved", getQuizUseCase.execute(organizationId, quizId)));
+                HttpStatus.OK,
+                "Quiz retrieved",
+                getQuizUseCase.execute(new GetQuizQuery(organizationId, quizId))));
     }
 
     @PutMapping("/{quizId}")
@@ -113,7 +117,9 @@ public class QuizController {
     public ResponseEntity<ApiResponse<List<QuizResponse>>> list(
             @Parameter(description = "Identificador de la organización") @PathVariable UUID organizationId) {
         return ResponseEntity.ok(ApiResponse.success(
-                HttpStatus.OK, "Quizzes retrieved", listQuizzesUseCase.execute(organizationId)));
+                HttpStatus.OK,
+                "Quizzes retrieved",
+                listQuizzesUseCase.execute(new ListQuizzesQuery(organizationId))));
     }
 
     @PostMapping("/{quizId}/categories/{categoryId}")
