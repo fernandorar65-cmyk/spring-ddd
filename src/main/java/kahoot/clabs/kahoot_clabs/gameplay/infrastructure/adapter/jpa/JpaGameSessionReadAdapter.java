@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter;
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter.jpa;
 
 import java.util.Collection;
 import java.util.Comparator;
