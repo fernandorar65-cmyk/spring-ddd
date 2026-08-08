@@ -1,8 +1,7 @@
-package kahoot.clabs.kahoot_clabs.quiz.infrastructure.seed;
+package kahoot.clabs.kahoot_clabs.quiz.infrastructure.seed.jpa;
+
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
@@ -23,14 +22,8 @@ import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
 @Component
 public class QuizClabsDemoSeeder implements DataSeeder {
 
-    private static final Logger log = LoggerFactory.getLogger(QuizClabsDemoSeeder.class);
-
     private static final String ORG_SLUG = "clabs";
     private static final String OWNER_EMAIL = "owner@kahoot-clabs.local";
-
-    private static final String QUIZ_JAVA = "Fundamentos de Java";
-    private static final String QUIZ_CULTURE = "Cultura y trabajo en Clabs";
-    private static final String QUIZ_DEVOPS = "DevOps esencial";
 
     private final OrganizationRepository organizationRepository;
     private final UserRepository userRepository;
@@ -67,58 +60,45 @@ public class QuizClabsDemoSeeder implements DataSeeder {
                 .orElseThrow(() -> new IllegalStateException(
                         "User '" + OWNER_EMAIL + "' must exist before quiz demo seed"));
 
-        Category technology = ensureCategory(
+        Category technology = createCategory(
                 organization.getId(),
                 "Tecnología",
                 "Quizzes técnicos de programación y plataformas",
                 "#2563EB",
                 "code");
-        Category culture = ensureCategory(
+        Category culture = createCategory(
                 organization.getId(),
                 "Cultura",
                 "Valores, colaboración y dinámicas de equipo",
                 "#DB2777",
                 "users");
-        Category devops = ensureCategory(
+        Category devops = createCategory(
                 organization.getId(),
                 "DevOps",
                 "CI/CD, cloud y operaciones",
                 "#059669",
                 "cloud");
 
-        ensureJavaQuiz(organization.getId(), owner.getId(), technology.getId());
-        ensureCultureQuiz(organization.getId(), owner.getId(), culture.getId());
-        ensureDevOpsQuiz(organization.getId(), owner.getId(), devops.getId(), technology.getId());
-
-        log.info("Seeded Clabs quiz demo content for organization {}", ORG_SLUG);
+        seedJavaQuiz(organization.getId(), owner.getId(), technology.getId());
+        seedCultureQuiz(organization.getId(), owner.getId(), culture.getId());
+        seedDevOpsQuiz(organization.getId(), owner.getId(), devops.getId(), technology.getId());
     }
 
-    private Category ensureCategory(
+    private Category createCategory(
             UUID organizationId,
             String name,
             String description,
             String color,
             String icon) {
-        return categoryRepository.findByOrganizationId(organizationId).stream()
-                .filter(category -> category.getName().equalsIgnoreCase(name))
-                .findFirst()
-                .orElseGet(() -> {
-                    Category category = Category.create(organizationId, name);
-                    category.changeDescription(description);
-                    category.changeColor(color);
-                    category.changeIcon(icon);
-                    Category saved = categoryRepository.save(category);
-                    log.info("Created category {}", name);
-                    return saved;
-                });
+        Category category = Category.create(organizationId, name);
+        category.changeDescription(description);
+        category.changeColor(color);
+        category.changeIcon(icon);
+        return categoryRepository.save(category);
     }
 
-    private void ensureJavaQuiz(UUID organizationId, UUID createdById, UUID technologyCategoryId) {
-        if (quizExists(organizationId, QUIZ_JAVA)) {
-            return;
-        }
-
-        Quiz quiz = Quiz.create(organizationId, QUIZ_JAVA, createdById);
+    private void seedJavaQuiz(UUID organizationId, UUID createdById, UUID technologyCategoryId) {
+        Quiz quiz = Quiz.create(organizationId, "Fundamentos de Java", createdById);
         quiz.changeDescription("Quiz base sobre conceptos esenciales de Java para onboarding técnico.");
         quiz.changeDifficulty(QuizDifficulty.EASY);
         quiz.changeEstimatedTime(EstimatedTime.ofMinutes(10));
@@ -173,15 +153,10 @@ public class QuizClabsDemoSeeder implements DataSeeder {
 
         quiz.publish();
         quizRepository.save(quiz);
-        log.info("Created published quiz '{}'", QUIZ_JAVA);
     }
 
-    private void ensureCultureQuiz(UUID organizationId, UUID createdById, UUID cultureCategoryId) {
-        if (quizExists(organizationId, QUIZ_CULTURE)) {
-            return;
-        }
-
-        Quiz quiz = Quiz.create(organizationId, QUIZ_CULTURE, createdById);
+    private void seedCultureQuiz(UUID organizationId, UUID createdById, UUID cultureCategoryId) {
+        Quiz quiz = Quiz.create(organizationId, "Cultura y trabajo en Clabs", createdById);
         quiz.changeDescription("Dinámica corta sobre colaboración y cultura de equipo en Clabs.");
         quiz.changeDifficulty(QuizDifficulty.EASY);
         quiz.changeEstimatedTime(EstimatedTime.ofMinutes(5));
@@ -228,19 +203,14 @@ public class QuizClabsDemoSeeder implements DataSeeder {
 
         quiz.publish();
         quizRepository.save(quiz);
-        log.info("Created published quiz '{}'", QUIZ_CULTURE);
     }
 
-    private void ensureDevOpsQuiz(
+    private void seedDevOpsQuiz(
             UUID organizationId,
             UUID createdById,
             UUID devopsCategoryId,
             UUID technologyCategoryId) {
-        if (quizExists(organizationId, QUIZ_DEVOPS)) {
-            return;
-        }
-
-        Quiz quiz = Quiz.create(organizationId, QUIZ_DEVOPS, createdById);
+        Quiz quiz = Quiz.create(organizationId, "DevOps esencial", createdById);
         quiz.changeDescription("Conceptos base de CI/CD y operación de servicios.");
         quiz.changeDifficulty(QuizDifficulty.MODERATE);
         quiz.changeEstimatedTime(EstimatedTime.ofMinutes(8));
@@ -298,10 +268,5 @@ public class QuizClabsDemoSeeder implements DataSeeder {
 
         quiz.publish();
         quizRepository.save(quiz);
-        log.info("Created published quiz '{}'", QUIZ_DEVOPS);
-    }
-
-    private boolean quizExists(UUID organizationId, String title) {
-        return quizRepository.existsByOrganizationIdAndTitleIgnoreCase(organizationId, title);
     }
 }
