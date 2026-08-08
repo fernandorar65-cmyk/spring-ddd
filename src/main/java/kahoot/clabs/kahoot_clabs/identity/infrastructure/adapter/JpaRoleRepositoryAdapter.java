@@ -30,7 +30,7 @@ public class JpaRoleRepositoryAdapter implements RoleRepository {
     @Override
     public Role save(Role role) {
         Role saved = RolePersistenceMapper.toDomain(jpaRepository.save(RolePersistenceMapper.toEntity(role)));
-        roleProjectionPort.ifAvailable(port -> port.saveRole(RoleReadModels.from(saved)));
+        // roleProjectionPort.ifAvailable(port -> port.saveRole(RoleReadModels.from(saved)));
         return saved;
     }
 

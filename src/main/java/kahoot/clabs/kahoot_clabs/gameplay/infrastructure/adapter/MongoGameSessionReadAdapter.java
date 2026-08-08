@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.GameSessionDocument;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.mongo.PlayerAnswerDocument;

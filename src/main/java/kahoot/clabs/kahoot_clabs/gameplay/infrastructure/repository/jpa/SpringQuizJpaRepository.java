@@ -1,0 +1,31 @@
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.QuizEntity;
+
+public interface SpringQuizJpaRepository extends JpaRepository<QuizEntity, UUID> {
+
+    @Override
+    @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})
+    Optional<QuizEntity> findById(UUID id);
+
+    @Override
+    @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})
+    List<QuizEntity> findAll();
+
+    @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})
+    List<QuizEntity> findByOrganizationId(UUID organizationId);
+
+    /**
+     * Lightweight lookup without nested bag fetches (avoids MultipleBagFetchException).
+     */
+    Optional<QuizEntity> findFirstByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
+
+    boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
+}

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.QuestionResultResponse;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.SessionQuestionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetCurrentSessionQuestionQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetSessionQuestionResultQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionQuestionsQuery;

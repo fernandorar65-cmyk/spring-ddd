@@ -8,7 +8,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModels;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
@@ -41,7 +41,7 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
         syncAnswers(session);
         List<PlayerAnswerEntity> answers = loadAnswers(saved);
         GameSession aggregate = GameSessionMapper.toDomain(saved, answers);
-        gameSessionReadModelPort.ifAvailable(port -> port.save(GameSessionReadModels.from(aggregate)));
+        // gameSessionReadModelPort.ifAvailable(port -> port.save(GameSessionReadModels.from(aggregate)));
         return aggregate;
     }
 

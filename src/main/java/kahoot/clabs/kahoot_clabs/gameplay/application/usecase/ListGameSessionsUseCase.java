@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListGameSessionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;

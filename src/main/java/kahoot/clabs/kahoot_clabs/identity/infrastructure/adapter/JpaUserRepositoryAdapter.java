@@ -29,7 +29,7 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     @Override
     public User save(User user) {
         User saved = UserPersistenceMapper.toDomain(jpaRepository.save(UserPersistenceMapper.toEntity(user)));
-        userProjectionPort.ifAvailable(port -> port.save(UserReadModels.from(saved)));
+        // userProjectionPort.ifAvailable(port -> port.save(UserReadModels.from(saved)));
         return saved;
     }
 

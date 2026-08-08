@@ -7,12 +7,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.command.HostActionCommand;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.QuizSnapshotPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizSnapshotPort;
-import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.PlayerAnswerResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetMyAnswersQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel.PlayerRead;

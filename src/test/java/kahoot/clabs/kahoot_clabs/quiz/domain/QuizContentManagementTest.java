@@ -8,11 +8,11 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import kahoot.clabs.kahoot_clabs.quiz.domain.aggregate.Quiz;
-import kahoot.clabs.kahoot_clabs.quiz.domain.entity.Question;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.MediaType;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuestionType;
-import kahoot.clabs.kahoot_clabs.quiz.domain.valueobject.QuizDifficulty;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.Quiz;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.Question;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.MediaType;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.QuestionType;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.QuizDifficulty;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 class QuizContentManagementTest {

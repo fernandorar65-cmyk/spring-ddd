@@ -40,7 +40,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
         List<OrganizationMember> members = organization.getMembers();
         syncMembers(organization.getId(), members);
         Organization aggregate = OrganizationPersistenceMapper.toDomain(saved, members);
-        organizationProjectionPort.ifAvailable(port -> port.save(OrganizationReadModels.from(aggregate)));
+        // organizationProjectionPort.ifAvailable(port -> port.save(OrganizationReadModels.from(aggregate)));
         return aggregate;
     }
 
