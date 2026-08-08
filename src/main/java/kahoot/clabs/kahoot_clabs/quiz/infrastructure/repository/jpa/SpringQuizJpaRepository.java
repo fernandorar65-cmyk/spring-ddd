@@ -22,5 +22,10 @@ public interface SpringQuizJpaRepository extends JpaRepository<QuizEntity, UUID>
     @EntityGraph(attributePaths = {"categories", "questions", "questions.answerOptions", "questions.asset"})
     List<QuizEntity> findByOrganizationId(UUID organizationId);
 
+    /**
+     * Lightweight lookup without nested bag fetches (avoids MultipleBagFetchException).
+     */
+    Optional<QuizEntity> findFirstByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
+
     boolean existsByOrganizationIdAndTitleIgnoreCase(UUID organizationId, String title);
 }
