@@ -17,21 +17,22 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.jpa.Permissi
 @Repository
 public class JpaPermissionRepositoryAdapter implements PermissionRepository {
 
+    // recordar pasar a distintos ports
+
     private final PermissionJpaRepository jpaRepository;
-    private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
+    // private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
 
     public JpaPermissionRepositoryAdapter(
             PermissionJpaRepository jpaRepository,
             ObjectProvider<RoleProjectionPort> roleProjectionPort) {
         this.jpaRepository = jpaRepository;
-        this.roleProjectionPort = roleProjectionPort;
+        // this.roleProjectionPort = roleProjectionPort;
     }
 
     @Override
     public Permission save(Permission permission) {
-        Permission saved = PermissionPersistenceMapper.toDomain(
-                jpaRepository.save(PermissionPersistenceMapper.toEntity(permission)));
-        roleProjectionPort.ifAvailable(port -> port.savePermission(PermissionReadModels.from(saved)));
+        Permission saved = PermissionPersistenceMapper.toDomain(jpaRepository.save(PermissionPersistenceMapper.toEntity(permission)));
+        // roleProjectionPort.ifAvailable(port -> port.savePermission(PermissionReadModels.from(saved)));
         return saved;
     }
 

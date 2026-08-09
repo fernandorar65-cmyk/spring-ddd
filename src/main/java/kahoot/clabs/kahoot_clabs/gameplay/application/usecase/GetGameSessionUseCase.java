@@ -3,7 +3,7 @@ package kahoot.clabs.kahoot_clabs.gameplay.application.usecase;
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetGameSessionQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;

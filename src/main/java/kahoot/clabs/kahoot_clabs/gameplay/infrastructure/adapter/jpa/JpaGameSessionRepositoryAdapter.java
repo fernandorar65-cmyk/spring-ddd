@@ -1,0 +1,105 @@
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter.jpa;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.stereotype.Repository;
+
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModels;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mapper.GameSessionMapper;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.GameSessionEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.PlayerAnswerEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.GameSessionJpaRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.PlayerAnswerJpaRepository;
+
+@Repository
+public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
+
+    private final GameSessionJpaRepository sessionRepository;
+    private final PlayerAnswerJpaRepository answerRepository;
+    // private final ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort;
+
+    public JpaGameSessionRepositoryAdapter(
+            GameSessionJpaRepository sessionRepository,
+            PlayerAnswerJpaRepository answerRepository,
+            ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort) {
+        this.sessionRepository = sessionRepository;
+        this.answerRepository = answerRepository;
+        // this.gameSessionReadModelPort = gameSessionReadModelPort;
+    }
+
+    @Override
+    public GameSession save(GameSession session) {
+        GameSessionEntity saved = sessionRepository.save(GameSessionMapper.toEntity(session));
+        syncAnswers(session);
+        List<PlayerAnswerEntity> answers = loadAnswers(saved);
+        GameSession aggregate = GameSessionMapper.toDomain(saved, answers);
+        // gameSessionReadModelPort.ifAvailable(port -> port.save(GameSessionReadModels.from(aggregate)));
+        return aggregate;
+    }
+
+    @Override
+    public Optional<GameSession> findById(UUID id) {
+        return sessionRepository.findById(id).map(this::toAggregate);
+    }
+
+    @Override
+    public List<GameSession> findByOrganizationId(UUID organizationId) {
+        return sessionRepository.findByOrganizationId(organizationId).stream()
+                .map(this::toAggregate)
+                .toList();
+    }
+
+    @Override
+    public List<GameSession> findByOrganizationIdAndQuizId(UUID organizationId, UUID quizId) {
+        return sessionRepository.findByOrganizationIdAndQuizId(organizationId, quizId).stream()
+                .map(this::toAggregate)
+                .toList();
+    }
+
+    @Override
+    public List<GameSession> findByOrganizationIdAndStatusIn(UUID organizationId, List<SessionStatus> statuses) {
+        List<String> statusNames = statuses.stream().map(Enum::name).toList();
+        return sessionRepository.findByOrganizationIdAndStatusIn(organizationId, statusNames).stream()
+                .map(this::toAggregate)
+                .toList();
+    }
+
+    private GameSession toAggregate(GameSessionEntity entity) {
+        return GameSessionMapper.toDomain(entity, loadAnswers(entity));
+    }
+
+    private List<PlayerAnswerEntity> loadAnswers(GameSessionEntity entity) {
+        List<UUID> playerIds = entity.getPlayers().stream()
+                .map(player -> player.getId())
+                .toList();
+        if (playerIds.isEmpty()) {
+            return List.of();
+        }
+        return answerRepository.findBySessionPlayerIdIn(playerIds);
+    }
+
+    private void syncAnswers(GameSession session) {
+        Collection<UUID> playerIds = session.getPlayers().stream()
+                .map(player -> player.getId())
+                .toList();
+        if (playerIds.isEmpty()) {
+            return;
+        }
+        List<PlayerAnswerEntity> answerEntities = GameSessionMapper.toAnswerEntities(session);
+        if (answerEntities.isEmpty()) {
+            answerRepository.deleteBySessionPlayerIdIn(playerIds);
+            return;
+        }
+        List<UUID> answerIds = answerEntities.stream().map(PlayerAnswerEntity::getId).toList();
+        answerRepository.deleteBySessionPlayerIdInAndIdNotIn(playerIds, answerIds);
+        answerRepository.saveAll(answerEntities);
+    }
+}

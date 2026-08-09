@@ -7,6 +7,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.stereotype.Component;
 
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.QuizSnapshotPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot;
+import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
+import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionAnswerOption;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
@@ -15,12 +19,8 @@ import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
-import kahoot.clabs.kahoot_clabs.quiz.application.port.QuizSnapshotPort;
-import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot;
-import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
-import kahoot.clabs.kahoot_clabs.quiz.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.persistence.jpa.QuizEntity;
-import kahoot.clabs.kahoot_clabs.quiz.infrastructure.repository.jpa.SpringQuizJpaRepository;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.QuizEntity;
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.SpringQuizJpaRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.seed.DataSeeder;
 

@@ -18,19 +18,19 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.jpa.RoleJpaR
 public class JpaRoleRepositoryAdapter implements RoleRepository {
 
     private final RoleJpaRepository jpaRepository;
-    private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
+    // private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
 
     public JpaRoleRepositoryAdapter(
             RoleJpaRepository jpaRepository,
             ObjectProvider<RoleProjectionPort> roleProjectionPort) {
         this.jpaRepository = jpaRepository;
-        this.roleProjectionPort = roleProjectionPort;
+        // this.roleProjectionPort = roleProjectionPort;
     }
 
     @Override
     public Role save(Role role) {
         Role saved = RolePersistenceMapper.toDomain(jpaRepository.save(RolePersistenceMapper.toEntity(role)));
-        roleProjectionPort.ifAvailable(port -> port.saveRole(RoleReadModels.from(saved)));
+        // roleProjectionPort.ifAvailable(port -> port.saveRole(RoleReadModels.from(saved)));
         return saved;
     }
 
@@ -47,6 +47,6 @@ public class JpaRoleRepositoryAdapter implements RoleRepository {
     @Override
     public void delete(Role role) {
         jpaRepository.deleteById(role.getId());
-        roleProjectionPort.ifAvailable(port -> port.deleteRoleById(role.getId()));
+        // roleProjectionPort.ifAvailable(port -> port.deleteRoleById(role.getId()));
     }
 }

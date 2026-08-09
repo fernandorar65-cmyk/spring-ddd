@@ -17,19 +17,19 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.jpa.UserJpaR
 public class JpaUserRepositoryAdapter implements UserRepository {
 
     private final UserJpaRepository jpaRepository;
-    private final ObjectProvider<UserProjectionPort> userProjectionPort;
+    // private final ObjectProvider<UserProjectionPort> userProjectionPort;
 
     public JpaUserRepositoryAdapter(
             UserJpaRepository jpaRepository,
             ObjectProvider<UserProjectionPort> userProjectionPort) {
         this.jpaRepository = jpaRepository;
-        this.userProjectionPort = userProjectionPort;
+        // this.userProjectionPort = userProjectionPort;
     }
 
     @Override
     public User save(User user) {
         User saved = UserPersistenceMapper.toDomain(jpaRepository.save(UserPersistenceMapper.toEntity(user)));
-        userProjectionPort.ifAvailable(port -> port.save(UserReadModels.from(saved)));
+        // userProjectionPort.ifAvailable(port -> port.save(UserReadModels.from(saved)));
         return saved;
     }
 
@@ -46,6 +46,6 @@ public class JpaUserRepositoryAdapter implements UserRepository {
     @Override
     public void delete(User user) {
         jpaRepository.deleteById(user.getId());
-        userProjectionPort.ifAvailable(port -> port.deleteById(user.getId()));
+        // userProjectionPort.ifAvailable(port -> port.deleteById(user.getId()));
     }
 }
