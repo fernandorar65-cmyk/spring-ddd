@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.RoleProjectionPort;
+import kahoot.clabs.kahoot_clabs.identity.application.event.PermissionReadModelUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.identity.application.readmodel.PermissionReadModels;
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.Permission;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.PermissionRepository;
@@ -17,22 +17,20 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.jpa.Permissi
 @Repository
 public class JpaPermissionRepositoryAdapter implements PermissionRepository {
 
-    // recordar pasar a distintos ports
-
     private final PermissionJpaRepository jpaRepository;
-    // private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JpaPermissionRepositoryAdapter(
             PermissionJpaRepository jpaRepository,
-            ObjectProvider<RoleProjectionPort> roleProjectionPort) {
+            ApplicationEventPublisher eventPublisher) {
         this.jpaRepository = jpaRepository;
-        // this.roleProjectionPort = roleProjectionPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public Permission save(Permission permission) {
         Permission saved = PermissionPersistenceMapper.toDomain(jpaRepository.save(PermissionPersistenceMapper.toEntity(permission)));
-        // roleProjectionPort.ifAvailable(port -> port.savePermission(PermissionReadModels.from(saved)));
+        eventPublisher.publishEvent(new PermissionReadModelUpsertedEvent(PermissionReadModels.from(saved)));
         return saved;
     }
 

@@ -3,10 +3,11 @@ package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter.jpa;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.QuizProjectionPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.event.QuizReadModelDeletedEvent;
+import kahoot.clabs.kahoot_clabs.gameplay.application.event.QuizReadModelUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.QuizReadModels;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.QuizRepository;
@@ -17,19 +18,19 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.SpringQu
 public class JpaQuizRepositoryAdapter implements QuizRepository {
 
     private final SpringQuizJpaRepository springDataJpaRepository;
-    // private final ObjectProvider<QuizProjectionPort> quizProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JpaQuizRepositoryAdapter(
             SpringQuizJpaRepository springDataJpaRepository,
-            ObjectProvider<QuizProjectionPort> quizProjectionPort) {
+            ApplicationEventPublisher eventPublisher) {
         this.springDataJpaRepository = springDataJpaRepository;
-        // this.quizProjectionPort = quizProjectionPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public Quiz save(Quiz quiz) {
         Quiz saved = QuizMapper.toDomain(springDataJpaRepository.save(QuizMapper.toEntity(quiz)));
-        // quizProjectionPort.ifAvailable(port -> port.save(QuizReadModels.from(saved)));
+        eventPublisher.publishEvent(new QuizReadModelUpsertedEvent(QuizReadModels.from(saved)));
         return saved;
     }
 
@@ -51,12 +52,12 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     @Override
     public void delete(Quiz quiz) {
         springDataJpaRepository.delete(QuizMapper.toEntity(quiz));
-        // quizProjectionPort.ifAvailable(port -> port.deleteById(quiz.getId()));
+        eventPublisher.publishEvent(new QuizReadModelDeletedEvent(quiz.getId()));
     }
 
     @Override
     public void deleteById(UUID id) {
         springDataJpaRepository.deleteById(id);
-        // quizProjectionPort.ifAvailable(port -> port.deleteById(id));
+        eventPublisher.publishEvent(new QuizReadModelDeletedEvent(id));
     }
 }

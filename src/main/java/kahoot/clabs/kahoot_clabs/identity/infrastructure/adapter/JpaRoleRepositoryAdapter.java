@@ -3,10 +3,11 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.adapter;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.RoleProjectionPort;
+import kahoot.clabs.kahoot_clabs.identity.application.event.RoleReadModelDeletedEvent;
+import kahoot.clabs.kahoot_clabs.identity.application.event.RoleReadModelUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.identity.application.readmodel.RoleReadModels;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.Role;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
@@ -18,19 +19,19 @@ import kahoot.clabs.kahoot_clabs.identity.infrastructure.repository.jpa.RoleJpaR
 public class JpaRoleRepositoryAdapter implements RoleRepository {
 
     private final RoleJpaRepository jpaRepository;
-    // private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JpaRoleRepositoryAdapter(
             RoleJpaRepository jpaRepository,
-            ObjectProvider<RoleProjectionPort> roleProjectionPort) {
+            ApplicationEventPublisher eventPublisher) {
         this.jpaRepository = jpaRepository;
-        // this.roleProjectionPort = roleProjectionPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
     public Role save(Role role) {
         Role saved = RolePersistenceMapper.toDomain(jpaRepository.save(RolePersistenceMapper.toEntity(role)));
-        // roleProjectionPort.ifAvailable(port -> port.saveRole(RoleReadModels.from(saved)));
+        eventPublisher.publishEvent(new RoleReadModelUpsertedEvent(RoleReadModels.from(saved)));
         return saved;
     }
 
@@ -47,6 +48,6 @@ public class JpaRoleRepositoryAdapter implements RoleRepository {
     @Override
     public void delete(Role role) {
         jpaRepository.deleteById(role.getId());
-        // roleProjectionPort.ifAvailable(port -> port.deleteRoleById(role.getId()));
+        eventPublisher.publishEvent(new RoleReadModelDeletedEvent(role.getId()));
     }
 }

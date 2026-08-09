@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationProjectionPort;
+import kahoot.clabs.kahoot_clabs.organization.application.event.OrganizationReadModelDeletedEvent;
+import kahoot.clabs.kahoot_clabs.organization.application.event.OrganizationReadModelUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.organization.application.readmodel.OrganizationReadModels;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.entity.OrganizationMember;
@@ -23,15 +24,15 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
 
     private final OrganizationJpaRepository jpaRepository;
     private final OrganizationMemberJpaRepository memberJpaRepository;
-    // private final ObjectProvider<OrganizationProjectionPort> organizationProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JpaOrganizationRepositoryAdapter(
             OrganizationJpaRepository jpaRepository,
             OrganizationMemberJpaRepository memberJpaRepository,
-            ObjectProvider<OrganizationProjectionPort> organizationProjectionPort) {
+            ApplicationEventPublisher eventPublisher) {
         this.jpaRepository = jpaRepository;
         this.memberJpaRepository = memberJpaRepository;
-        // this.organizationProjectionPort = organizationProjectionPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -40,7 +41,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
         List<OrganizationMember> members = organization.getMembers();
         syncMembers(organization.getId(), members);
         Organization aggregate = OrganizationPersistenceMapper.toDomain(saved, members);
-        // organizationProjectionPort.ifAvailable(port -> port.save(OrganizationReadModels.from(aggregate)));
+        eventPublisher.publishEvent(new OrganizationReadModelUpsertedEvent(OrganizationReadModels.from(aggregate)));
         return aggregate;
     }
 
@@ -63,7 +64,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
     public void delete(Organization organization) {
         memberJpaRepository.deleteByOrganizationId(organization.getId());
         jpaRepository.deleteById(organization.getId());
-        // organizationProjectionPort.ifAvailable(port -> port.deleteById(organization.getId()));
+        eventPublisher.publishEvent(new OrganizationReadModelDeletedEvent(organization.getId()));
     }
 
     private Organization toAggregate(OrganizationEntity entity) {
@@ -73,9 +74,6 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
         return OrganizationPersistenceMapper.toDomain(entity, members);
     }
 
-    /**
-     * Members removed from the aggregate are deleted; the remaining ones are inserted or updated.
-     */
     private void syncMembers(UUID organizationId, List<OrganizationMember> members) {
         List<UUID> currentIds = members.stream().map(OrganizationMember::getId).toList();
         if (currentIds.isEmpty()) {

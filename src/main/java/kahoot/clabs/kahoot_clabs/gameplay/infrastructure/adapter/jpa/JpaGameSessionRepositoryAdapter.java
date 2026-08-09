@@ -5,10 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 
-import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
+import kahoot.clabs.kahoot_clabs.gameplay.application.event.GameSessionReadModelUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModels;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
@@ -24,15 +24,15 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
 
     private final GameSessionJpaRepository sessionRepository;
     private final PlayerAnswerJpaRepository answerRepository;
-    // private final ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public JpaGameSessionRepositoryAdapter(
             GameSessionJpaRepository sessionRepository,
             PlayerAnswerJpaRepository answerRepository,
-            ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort) {
+            ApplicationEventPublisher eventPublisher) {
         this.sessionRepository = sessionRepository;
         this.answerRepository = answerRepository;
-        // this.gameSessionReadModelPort = gameSessionReadModelPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
         syncAnswers(session);
         List<PlayerAnswerEntity> answers = loadAnswers(saved);
         GameSession aggregate = GameSessionMapper.toDomain(saved, answers);
-        // gameSessionReadModelPort.ifAvailable(port -> port.save(GameSessionReadModels.from(aggregate)));
+        eventPublisher.publishEvent(new GameSessionReadModelUpsertedEvent(GameSessionReadModels.from(aggregate)));
         return aggregate;
     }
 
