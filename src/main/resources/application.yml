@@ -34,7 +34,7 @@ app:
   # aws (default) | azure — selects file storage adapters
   storage: azure
   seed:
-    enabled: ${APP_SEED_ENABLED:false}
+    enabled: ${APP_SEED_ENABLED:true}
     admin:
       email: ${APP_SEED_ADMIN_EMAIL:admin@kahoot-clabs.local}
       password: ${APP_SEED_ADMIN_PASSWORD:Admin123!}
