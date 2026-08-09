@@ -3,7 +3,7 @@ package kahoot.clabs.kahoot_clabs.organization.infrastructure.seed.jpa;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import kahoot.clabs.kahoot_clabs.identity.application.port.PasswordHasher;
@@ -13,7 +13,8 @@ import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Password;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.RoleType;
-import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationCatalogProjectionPort;
+import kahoot.clabs.kahoot_clabs.organization.application.event.DepartmentCatalogUpsertedEvent;
+import kahoot.clabs.kahoot_clabs.organization.application.event.JobCatalogUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationDepartmentEntity;
@@ -36,7 +37,7 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
     private final OrganizationRepository organizationRepository;
     private final OrganizationDepartmentJpaRepository departmentRepository;
     private final OrganizationJobJpaRepository jobRepository;
-    // private final ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordHasher passwordHasher;
@@ -46,16 +47,15 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
             OrganizationRepository organizationRepository,
             OrganizationDepartmentJpaRepository departmentRepository,
             OrganizationJobJpaRepository jobRepository,
-            // ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort,
+            ApplicationEventPublisher eventPublisher,
             UserRepository userRepository,
             RoleRepository roleRepository,
             PasswordHasher passwordHasher,
-            SeedProperties seedProperties
-        ) {
+            SeedProperties seedProperties) {
         this.organizationRepository = organizationRepository;
         this.departmentRepository = departmentRepository;
         this.jobRepository = jobRepository;
-        // this.catalogProjectionPort = catalogProjectionPort;
+        this.eventPublisher = eventPublisher;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordHasher = passwordHasher;
@@ -99,8 +99,8 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
             entity.setName(definition.name());
             entity.setDescription(truncate(definition.description(), 100));
             departmentRepository.save(entity);
-            // catalogProjectionPort.ifAvailable(port -> port.saveDepartment(
-                    // entity.getId(), entity.getName(), entity.getDescription()));
+            eventPublisher.publishEvent(new DepartmentCatalogUpsertedEvent(
+                    entity.getId(), entity.getName(), entity.getDescription()));
         }
     }
 
@@ -126,8 +126,8 @@ public class OrganizationClabsDemoSeeder implements DataSeeder {
             entity.setName(definition.name());
             entity.setDescription(truncate(definition.description(), 100));
             jobRepository.save(entity);
-            // catalogProjectionPort.ifAvailable(port -> port.saveJob(
-            //         entity.getId(), entity.getName(), entity.getDescription()));
+            eventPublisher.publishEvent(new JobCatalogUpsertedEvent(
+                    entity.getId(), entity.getName(), entity.getDescription()));
         }
     }
 

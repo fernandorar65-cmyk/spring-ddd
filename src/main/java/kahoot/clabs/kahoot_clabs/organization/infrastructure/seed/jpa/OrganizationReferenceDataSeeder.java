@@ -2,10 +2,11 @@ package kahoot.clabs.kahoot_clabs.organization.infrastructure.seed.jpa;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.organization.application.port.OrganizationCatalogProjectionPort;
+import kahoot.clabs.kahoot_clabs.organization.application.event.MemberStatusCatalogUpsertedEvent;
+import kahoot.clabs.kahoot_clabs.organization.application.event.OrganizationStatusCatalogUpsertedEvent;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.MemberStatus;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.OrganizationStatus;
 import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationMemberStatusCatalogEntity;
@@ -19,16 +20,15 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
 
     private final OrganizationStatusCatalogJpaRepository organizationStatusRepository;
     private final OrganizationMemberStatusCatalogJpaRepository memberStatusRepository;
-    // private final ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort;
+    private final ApplicationEventPublisher eventPublisher;
 
     public OrganizationReferenceDataSeeder(
             OrganizationStatusCatalogJpaRepository organizationStatusRepository,
-            OrganizationMemberStatusCatalogJpaRepository memberStatusRepository
-            // ObjectProvider<OrganizationCatalogProjectionPort> catalogProjectionPort
-        ) {
+            OrganizationMemberStatusCatalogJpaRepository memberStatusRepository,
+            ApplicationEventPublisher eventPublisher) {
         this.organizationStatusRepository = organizationStatusRepository;
         this.memberStatusRepository = memberStatusRepository;
-        // this.catalogProjectionPort = catalogProjectionPort;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -52,10 +52,10 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
             OrganizationStatusCatalogEntity entity = new OrganizationStatusCatalogEntity();
             entity.setId(UUID.randomUUID());
             entity.setName(status.name());
-            entity.setDescription("description base");
+            entity.setDescription(status.getDescription() != null ? status.getDescription() : "description base");
             organizationStatusRepository.save(entity);
-            // catalogProjectionPort.ifAvailable(port -> port.saveOrganizationStatus(
-                    // entity.getId(), entity.getName(), entity.getDescription()));
+            eventPublisher.publishEvent(new OrganizationStatusCatalogUpsertedEvent(
+                    entity.getId(), entity.getName(), entity.getDescription()));
         }
     }
 
@@ -64,10 +64,10 @@ public class OrganizationReferenceDataSeeder implements DataSeeder {
             OrganizationMemberStatusCatalogEntity entity = new OrganizationMemberStatusCatalogEntity();
             entity.setId(UUID.randomUUID());
             entity.setName(status.name());
-            entity.setDescription("description base");
+            entity.setDescription(status.getDescription() != null ? status.getDescription() : "description base");
             memberStatusRepository.save(entity);
-            // catalogProjectionPort.ifAvailable(port -> port.saveMemberStatus(
-                    // entity.getId(), entity.getName(), entity.getDescription()));
+            eventPublisher.publishEvent(new MemberStatusCatalogUpsertedEvent(
+                    entity.getId(), entity.getName(), entity.getDescription()));
         }
     }
 }
