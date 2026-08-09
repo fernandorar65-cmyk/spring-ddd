@@ -10,6 +10,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.AnswerOption;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.Question;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.QuestionAsset;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.QuizCategory;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.event.QuizPublishedEvent;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.EstimatedTime;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.MediaType;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.MediaUrl;
@@ -333,6 +334,7 @@ public class Quiz extends AggregateRoot {
         }
         this.status = QuizStatus.PUBLISHED;
         touch();
+        registerEvent(new QuizPublishedEvent(getId(), organizationId, createdById));
     }
 
     public void archive() {

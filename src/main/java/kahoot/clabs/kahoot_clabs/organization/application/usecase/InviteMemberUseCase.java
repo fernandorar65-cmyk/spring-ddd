@@ -5,32 +5,25 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.Role;
-import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
-import kahoot.clabs.kahoot_clabs.identity.domain.exception.RoleNotFoundException;
-import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;
-import kahoot.clabs.kahoot_clabs.identity.domain.repository.RoleRepository;
-import kahoot.clabs.kahoot_clabs.identity.domain.repository.UserRepository;
 import kahoot.clabs.kahoot_clabs.organization.application.command.InviteMemberCommand;
 import kahoot.clabs.kahoot_clabs.organization.application.dto.OrganizationResponse;
+import kahoot.clabs.kahoot_clabs.organization.application.port.integration.UserDirectoryPort;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.exception.OrganizationNotFoundException;
 import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
+import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class InviteMemberUseCase {
 
     private final OrganizationRepository organizationRepository;
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
+    private final UserDirectoryPort userDirectoryPort;
 
     public InviteMemberUseCase(
             OrganizationRepository organizationRepository,
-            UserRepository userRepository,
-            RoleRepository roleRepository) {
+            UserDirectoryPort userDirectoryPort) {
         this.organizationRepository = organizationRepository;
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.userDirectoryPort = userDirectoryPort;
     }
 
     @Transactional
@@ -38,12 +31,12 @@ public class InviteMemberUseCase {
         Organization organization = organizationRepository.findById(organizationId)
                 .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
 
-        User user = userRepository.findByEmail(command.email())
-                .orElseThrow(() -> new UserNotFoundException(command.email()));
-        Role role = roleRepository.findByType(command.roleType())
-                .orElseThrow(() -> new RoleNotFoundException(command.roleType()));
+        UUID userId = userDirectoryPort.findUserIdByEmail(command.email())
+                .orElseThrow(() -> new DomainException("User not found: " + command.email()));
+        UUID roleId = userDirectoryPort.findRoleIdByType(command.roleType())
+                .orElseThrow(() -> new DomainException("Role not found: " + command.roleType()));
 
-        organization.inviteMember(user.getId(), role.getId());
+        organization.inviteMember(userId, roleId);
         return OrganizationResponse.from(organizationRepository.save(organization));
     }
 }

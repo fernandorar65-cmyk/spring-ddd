@@ -1,5 +1,7 @@
 package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -17,6 +19,8 @@ import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionRead
 @Component
 public class GameplayReadModelProjectionListener {
 
+    private static final Logger log = LoggerFactory.getLogger(GameplayReadModelProjectionListener.class);
+
     private final QuizProjectionPort quizProjectionPort;
     private final CategoryProjectionPort categoryProjectionPort;
     private final GameSessionReadModelPort gameSessionReadModelPort;
@@ -33,30 +37,95 @@ public class GameplayReadModelProjectionListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onQuizUpserted(QuizReadModelUpsertedEvent event) {
-        quizProjectionPort.save(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=quiz action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            quizProjectionPort.save(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=quiz action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onQuizDeleted(QuizReadModelDeletedEvent event) {
-        quizProjectionPort.deleteById(event.quizId());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=quiz action=delete",
+                event.getClass().getSimpleName(),
+                event.quizId());
+        try {
+            quizProjectionPort.deleteById(event.quizId());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=quiz action=delete",
+                    event.getClass().getSimpleName(),
+                    event.quizId(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onCategoryUpserted(CategoryReadModelUpsertedEvent event) {
-        categoryProjectionPort.save(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=category action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            categoryProjectionPort.save(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=category action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onCategoryDeleted(CategoryReadModelDeletedEvent event) {
-        categoryProjectionPort.deleteById(event.categoryId());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=category action=delete",
+                event.getClass().getSimpleName(),
+                event.categoryId());
+        try {
+            categoryProjectionPort.deleteById(event.categoryId());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=category action=delete",
+                    event.getClass().getSimpleName(),
+                    event.categoryId(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onGameSessionUpserted(GameSessionReadModelUpsertedEvent event) {
-        gameSessionReadModelPort.save(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=gameSession action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            gameSessionReadModelPort.save(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=gameSession action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 }

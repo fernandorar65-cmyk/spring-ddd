@@ -3,7 +3,7 @@ package kahoot.clabs.kahoot_clabs.identity.infrastructure.adapter.aws;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.AssetsStoragePort;
+import kahoot.clabs.kahoot_clabs.shared.application.port.AssetsStoragePort;
 import kahoot.clabs.kahoot_clabs.shared.infrastructure.storage.S3Storage;
 
 @Component

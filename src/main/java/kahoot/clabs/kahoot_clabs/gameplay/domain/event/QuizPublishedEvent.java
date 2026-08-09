@@ -5,11 +5,9 @@ import java.util.UUID;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
 /**
- * Parked domain event for a future publish pipeline.
- * Not registered, published or consumed in the MVP.
- * Read-model sync today uses {@code QuizProjectionPort}, not this event.
- *
- * @see docs/domain-events.md
+ * Domain fact: a quiz was published.
+ * Registered by {@code Quiz.publish()}. Published after successful write-side save.
+ * Does not drive Mongo projection (that uses {@code QuizReadModelUpsertedEvent}).
  */
 public class QuizPublishedEvent extends DomainEvent {
 

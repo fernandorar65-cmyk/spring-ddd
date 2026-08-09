@@ -1,5 +1,6 @@
 package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.adapter.jpa;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.QuizRepository;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.mapper.QuizMapper;
 import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.SpringQuizJpaRepository;
+import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
 @Repository
 public class JpaQuizRepositoryAdapter implements QuizRepository {
@@ -29,8 +31,10 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
 
     @Override
     public Quiz save(Quiz quiz) {
+        List<DomainEvent> domainEvents = quiz.pullDomainEvents();
         Quiz saved = QuizMapper.toDomain(springDataJpaRepository.save(QuizMapper.toEntity(quiz)));
         eventPublisher.publishEvent(new QuizReadModelUpsertedEvent(QuizReadModels.from(saved)));
+        domainEvents.forEach(eventPublisher::publishEvent);
         return saved;
     }
 

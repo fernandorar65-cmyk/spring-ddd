@@ -9,27 +9,27 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.GameSessionReadModelPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListGameSessionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.SessionStatus;
-import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class ListGameSessionsUseCase {
 
     private final GameSessionReadModelPort gameSessionReadModelPort;
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipPort organizationMembershipPort;
 
     public ListGameSessionsUseCase(
             GameSessionReadModelPort gameSessionReadModelPort,
-            OrganizationRepository organizationRepository) {
+            OrganizationMembershipPort organizationMembershipPort) {
         this.gameSessionReadModelPort = gameSessionReadModelPort;
-        this.organizationRepository = organizationRepository;
+        this.organizationMembershipPort = organizationMembershipPort;
     }
 
     public List<GameSessionResponse> execute(ListGameSessionsQuery query) {
-        GameSessionSupport.requireOrganization(organizationRepository, query.organizationId());
+        GameSessionSupport.requireOrganization(organizationMembershipPort, query.organizationId());
 
         Set<String> statuses = parseStatuses(query.statusCsv());
         return gameSessionReadModelPort

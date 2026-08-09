@@ -7,34 +7,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.command.HostActionCommand;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.QuizSnapshotPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
-import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
-import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class ManageSessionLifecycleUseCase {
 
     private final GameSessionRepository gameSessionRepository;
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipPort organizationMembershipPort;
     private final QuizSnapshotPort quizSnapshotPort;
 
     public ManageSessionLifecycleUseCase(
             GameSessionRepository gameSessionRepository,
-            OrganizationRepository organizationRepository,
+            OrganizationMembershipPort organizationMembershipPort,
             QuizSnapshotPort quizSnapshotPort) {
         this.gameSessionRepository = gameSessionRepository;
-        this.organizationRepository = organizationRepository;
+        this.organizationMembershipPort = organizationMembershipPort;
         this.quizSnapshotPort = quizSnapshotPort;
     }
 
     @Transactional
     public GameSessionResponse start(UUID organizationId, UUID sessionId, HostActionCommand command) {
-        Organization organization = GameSessionSupport.requireOrganization(organizationRepository, organizationId);
-        GameSessionSupport.requireMember(organization, command.hostUserId());
+        GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
+        GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.ensureHost(command.hostUserId());
 
@@ -51,8 +50,8 @@ public class ManageSessionLifecycleUseCase {
 
     @Transactional
     public GameSessionResponse cancel(UUID organizationId, UUID sessionId, HostActionCommand command) {
-        Organization organization = GameSessionSupport.requireOrganization(organizationRepository, organizationId);
-        GameSessionSupport.requireMember(organization, command.hostUserId());
+        GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
+        GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.ensureHost(command.hostUserId());
         session.cancel();
@@ -61,8 +60,8 @@ public class ManageSessionLifecycleUseCase {
 
     @Transactional
     public GameSessionResponse finish(UUID organizationId, UUID sessionId, HostActionCommand command) {
-        Organization organization = GameSessionSupport.requireOrganization(organizationRepository, organizationId);
-        GameSessionSupport.requireMember(organization, command.hostUserId());
+        GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
+        GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
         GameSession session = GameSessionSupport.requireSession(gameSessionRepository, organizationId, sessionId);
         session.ensureHost(command.hostUserId());
         session.finish();

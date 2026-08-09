@@ -1,5 +1,7 @@
 # Profile used by unit/smoke tests without a local PostgreSQL/Mongo instance.
 app:
+  # Avoid Azure Blob beans (invalid/missing connection string) in CI/local tests.
+  storage: aws
   seed:
     enabled: true
 

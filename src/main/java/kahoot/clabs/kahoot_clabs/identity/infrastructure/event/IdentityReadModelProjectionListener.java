@@ -1,5 +1,7 @@
 package kahoot.clabs.kahoot_clabs.identity.infrastructure.event;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -19,6 +21,8 @@ import kahoot.clabs.kahoot_clabs.identity.application.port.UserProjectionPort;
 @Component
 public class IdentityReadModelProjectionListener {
 
+    private static final Logger log = LoggerFactory.getLogger(IdentityReadModelProjectionListener.class);
+
     private final UserProjectionPort userProjectionPort;
     private final RoleProjectionPort roleProjectionPort;
 
@@ -32,30 +36,95 @@ public class IdentityReadModelProjectionListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onUserUpserted(UserReadModelUpsertedEvent event) {
-        userProjectionPort.save(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=user action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            userProjectionPort.save(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=user action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onUserDeleted(UserReadModelDeletedEvent event) {
-        userProjectionPort.deleteById(event.userId());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=user action=delete",
+                event.getClass().getSimpleName(),
+                event.userId());
+        try {
+            userProjectionPort.deleteById(event.userId());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=user action=delete",
+                    event.getClass().getSimpleName(),
+                    event.userId(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onRoleUpserted(RoleReadModelUpsertedEvent event) {
-        roleProjectionPort.saveRole(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=role action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            roleProjectionPort.saveRole(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=role action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onRoleDeleted(RoleReadModelDeletedEvent event) {
-        roleProjectionPort.deleteRoleById(event.roleId());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=role action=delete",
+                event.getClass().getSimpleName(),
+                event.roleId());
+        try {
+            roleProjectionPort.deleteRoleById(event.roleId());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=role action=delete",
+                    event.getClass().getSimpleName(),
+                    event.roleId(),
+                    ex);
+            throw ex;
+        }
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void onPermissionUpserted(PermissionReadModelUpsertedEvent event) {
-        roleProjectionPort.savePermission(event.readModel());
+        log.info(
+                "projecting eventType={} aggregateId={} projectionType=permission action=upsert",
+                event.getClass().getSimpleName(),
+                event.readModel().id());
+        try {
+            roleProjectionPort.savePermission(event.readModel());
+        } catch (RuntimeException ex) {
+            log.error(
+                    "projection failed eventType={} aggregateId={} projectionType=permission action=upsert",
+                    event.getClass().getSimpleName(),
+                    event.readModel().id(),
+                    ex);
+            throw ex;
+        }
     }
 }

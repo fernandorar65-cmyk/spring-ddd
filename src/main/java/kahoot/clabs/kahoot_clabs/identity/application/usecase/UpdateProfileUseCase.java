@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.identity.application.command.UpdateProfileCommand;
 import kahoot.clabs.kahoot_clabs.identity.application.dto.UserProfileResponse;
-import kahoot.clabs.kahoot_clabs.identity.application.port.AssetsStoragePort;
+import kahoot.clabs.kahoot_clabs.shared.application.port.AssetsStoragePort;
 import kahoot.clabs.kahoot_clabs.identity.domain.aggregate.User;
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.UserImages;
 import kahoot.clabs.kahoot_clabs.identity.domain.exception.UserNotFoundException;

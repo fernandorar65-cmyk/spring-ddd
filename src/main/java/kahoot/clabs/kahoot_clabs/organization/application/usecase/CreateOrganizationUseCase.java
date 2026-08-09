@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import kahoot.clabs.kahoot_clabs.identity.application.port.AssetsStoragePort;
+import kahoot.clabs.kahoot_clabs.shared.application.port.AssetsStoragePort;
 import kahoot.clabs.kahoot_clabs.organization.application.command.CreateOrganizationCommand;
 import kahoot.clabs.kahoot_clabs.organization.application.dto.OrganizationResponse;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;

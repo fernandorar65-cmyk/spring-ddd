@@ -6,7 +6,7 @@ import kahoot.clabs.kahoot_clabs.shared.domain.DomainEvent;
 
 /**
  * Parked domain event for a future user-created pipeline.
- * Not registered, published or consumed in the MVP.
+ * Not registered in MVP: {@code User.create} still uses a null id until persistence assigns one.
  *
  * @see docs/domain-events.md
  */

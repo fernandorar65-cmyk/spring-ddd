@@ -7,34 +7,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 import kahoot.clabs.kahoot_clabs.gameplay.application.command.CreateGameSessionCommand;
 import kahoot.clabs.kahoot_clabs.gameplay.application.dto.GameSessionResponse;
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.port.mongo.QuizSnapshotPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.GameSession;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
-import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
-import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 @Service
 public class CreateGameSessionUseCase {
 
     private final GameSessionRepository gameSessionRepository;
-    private final OrganizationRepository organizationRepository;
+    private final OrganizationMembershipPort organizationMembershipPort;
     private final QuizSnapshotPort quizSnapshotPort;
 
     public CreateGameSessionUseCase(
             GameSessionRepository gameSessionRepository,
-            OrganizationRepository organizationRepository,
+            OrganizationMembershipPort organizationMembershipPort,
             QuizSnapshotPort quizSnapshotPort) {
         this.gameSessionRepository = gameSessionRepository;
-        this.organizationRepository = organizationRepository;
+        this.organizationMembershipPort = organizationMembershipPort;
         this.quizSnapshotPort = quizSnapshotPort;
     }
 
     @Transactional
     public GameSessionResponse execute(UUID organizationId, CreateGameSessionCommand command) {
-        Organization organization = GameSessionSupport.requireOrganization(organizationRepository, organizationId);
-        GameSessionSupport.requireMember(organization, command.hostUserId());
+        GameSessionSupport.requireOrganization(organizationMembershipPort, organizationId);
+        GameSessionSupport.requireMember(organizationMembershipPort, organizationId, command.hostUserId());
 
         PublishedQuizSnapshot snapshot = quizSnapshotPort
                 .findPublishedByOrganizationAndId(organizationId, command.quizId())

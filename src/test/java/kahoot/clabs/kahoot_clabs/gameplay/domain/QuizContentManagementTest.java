@@ -1,4 +1,4 @@
-package kahoot.clabs.kahoot_clabs.quiz.domain;
+package kahoot.clabs.kahoot_clabs.gameplay.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import kahoot.clabs.kahoot_clabs.gameplay.domain.aggregate.Quiz;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.Question;
+import kahoot.clabs.kahoot_clabs.gameplay.domain.event.QuizPublishedEvent;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.MediaType;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.QuestionType;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.valueobject.QuizDifficulty;
@@ -85,5 +86,25 @@ class QuizContentManagementTest {
 
         assertThatThrownBy(() -> quiz.changeDifficulty(QuizDifficulty.HARD))
                 .isInstanceOf(DomainException.class);
+    }
+
+    @Test
+    void registers_quiz_published_domain_event_on_publish() {
+        UUID organizationId = UUID.randomUUID();
+        UUID createdById = UUID.randomUUID();
+        Quiz quiz = Quiz.create(organizationId, "Geografía", createdById);
+        Question question = quiz.addQuestion("Capital de Colombia", QuestionType.MULTIPLE_CHOICE);
+        quiz.addAnswerOption(question.getId(), "Bogotá", true);
+        quiz.addAnswerOption(question.getId(), "Medellín", false);
+
+        quiz.publish();
+
+        assertThat(quiz.getDomainEvents()).anyMatch(QuizPublishedEvent.class::isInstance);
+        QuizPublishedEvent event = (QuizPublishedEvent) quiz.getDomainEvents().stream()
+                .filter(QuizPublishedEvent.class::isInstance)
+                .findFirst()
+                .orElseThrow();
+        assertThat(event.getOrganizationId()).isEqualTo(organizationId);
+        assertThat(event.getPublishedById()).isEqualTo(createdById);
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import kahoot.clabs.kahoot_clabs.gameplay.application.port.integration.OrganizationMembershipPort;
 import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot.AnswerOptionSnapshot;
 import kahoot.clabs.kahoot_clabs.gameplay.application.snapshot.PublishedQuizSnapshot.QuestionSnapshot;
@@ -13,9 +14,6 @@ import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionAnswerOption;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.exception.GameSessionNotFoundException;
 import kahoot.clabs.kahoot_clabs.gameplay.domain.repository.GameSessionRepository;
-import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
-import kahoot.clabs.kahoot_clabs.organization.domain.exception.OrganizationNotFoundException;
-import kahoot.clabs.kahoot_clabs.organization.domain.repository.OrganizationRepository;
 import kahoot.clabs.kahoot_clabs.shared.domain.DomainException;
 
 final class GameSessionSupport {
@@ -23,13 +21,14 @@ final class GameSessionSupport {
     private GameSessionSupport() {
     }
 
-    static Organization requireOrganization(OrganizationRepository organizationRepository, UUID organizationId) {
-        return organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new OrganizationNotFoundException(organizationId));
+    static void requireOrganization(OrganizationMembershipPort membershipPort, UUID organizationId) {
+        if (!membershipPort.organizationExists(organizationId)) {
+            throw new DomainException("Organization not found: " + organizationId);
+        }
     }
 
-    static void requireMember(Organization organization, UUID userId) {
-        if (!organization.hasMember(userId)) {
+    static void requireMember(OrganizationMembershipPort membershipPort, UUID organizationId, UUID userId) {
+        if (!membershipPort.isActiveMember(organizationId, userId)) {
             throw new DomainException("User is not a member of this organization: " + userId);
         }
     }

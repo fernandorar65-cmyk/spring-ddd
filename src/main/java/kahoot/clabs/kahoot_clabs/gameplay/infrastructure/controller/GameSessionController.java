@@ -37,6 +37,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetLeaderboardQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetMyAnswersQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.GetSessionQuestionResultQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListGameSessionsQuery;
+import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionPlayersQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.query.ListSessionQuestionsQuery;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.CreateGameSessionUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetGameSessionUseCase;
@@ -44,6 +45,7 @@ import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetLeaderboardUseC
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetMyAnswersUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.GetSessionQuestionsUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ListGameSessionsUseCase;
+import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ListSessionPlayersUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ManageSessionLifecycleUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ManageSessionPlayersUseCase;
 import kahoot.clabs.kahoot_clabs.gameplay.application.usecase.ManageSessionQuestionsUseCase;
@@ -60,6 +62,7 @@ public class GameSessionController {
     private final ListGameSessionsUseCase listGameSessionsUseCase;
     private final ManageSessionLifecycleUseCase manageSessionLifecycleUseCase;
     private final ManageSessionPlayersUseCase manageSessionPlayersUseCase;
+    private final ListSessionPlayersUseCase listSessionPlayersUseCase;
     private final ManageSessionQuestionsUseCase manageSessionQuestionsUseCase;
     private final GetSessionQuestionsUseCase getSessionQuestionsUseCase;
     private final SubmitAnswerUseCase submitAnswerUseCase;
@@ -72,6 +75,7 @@ public class GameSessionController {
             ListGameSessionsUseCase listGameSessionsUseCase,
             ManageSessionLifecycleUseCase manageSessionLifecycleUseCase,
             ManageSessionPlayersUseCase manageSessionPlayersUseCase,
+            ListSessionPlayersUseCase listSessionPlayersUseCase,
             ManageSessionQuestionsUseCase manageSessionQuestionsUseCase,
             GetSessionQuestionsUseCase getSessionQuestionsUseCase,
             SubmitAnswerUseCase submitAnswerUseCase,
@@ -82,6 +86,7 @@ public class GameSessionController {
         this.listGameSessionsUseCase = listGameSessionsUseCase;
         this.manageSessionLifecycleUseCase = manageSessionLifecycleUseCase;
         this.manageSessionPlayersUseCase = manageSessionPlayersUseCase;
+        this.listSessionPlayersUseCase = listSessionPlayersUseCase;
         this.manageSessionQuestionsUseCase = manageSessionQuestionsUseCase;
         this.getSessionQuestionsUseCase = getSessionQuestionsUseCase;
         this.submitAnswerUseCase = submitAnswerUseCase;
@@ -191,7 +196,7 @@ public class GameSessionController {
         return ResponseEntity.ok(ApiResponse.success(
                 HttpStatus.OK,
                 "Session players listed",
-                manageSessionPlayersUseCase.listPlayers(organizationId, sessionId)));
+                listSessionPlayersUseCase.execute(new ListSessionPlayersQuery(organizationId, sessionId))));
     }
 
     @PatchMapping("/{sessionId}/players/me")
