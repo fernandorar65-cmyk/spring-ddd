@@ -1,0 +1,13 @@
+package kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa;
+
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.persistence.jpa.CategoryEntity;
+
+public interface SpringCategoryJpaRepository extends JpaRepository<CategoryEntity, UUID> {
+
+    List<CategoryEntity> findByOrganizationId(UUID organizationId);
+}

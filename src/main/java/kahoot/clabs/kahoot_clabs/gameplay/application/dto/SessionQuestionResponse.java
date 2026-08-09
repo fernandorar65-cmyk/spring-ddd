@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionAnswerOption;
-import kahoot.clabs.kahoot_clabs.gameplay.domain.entity.SessionQuestion;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel.OptionRead;
+import kahoot.clabs.kahoot_clabs.gameplay.application.readmodel.GameSessionReadModel.QuestionRead;
 
 public record SessionQuestionResponse(
         UUID id,
@@ -20,30 +20,30 @@ public record SessionQuestionResponse(
         List<OptionResponse> options
 ) {
 
-    public static SessionQuestionResponse from(SessionQuestion question, boolean revealCorrect) {
+    public static SessionQuestionResponse from(QuestionRead question, boolean revealCorrect) {
         return new SessionQuestionResponse(
-                question.getId(),
-                question.getOrderIndex(),
-                question.getPoints(),
-                question.getTimeLimitSeconds(),
-                question.getTitle(),
-                question.getDescription(),
-                question.getQuestionType(),
-                question.getOpenedAt(),
-                question.getClosedAt(),
-                question.getOptions().stream()
+                question.id(),
+                question.orderIndex(),
+                question.points(),
+                question.timeLimitSeconds(),
+                question.title(),
+                question.description(),
+                question.questionType(),
+                question.openedAt(),
+                question.closedAt(),
+                question.options().stream()
                         .map(option -> OptionResponse.from(option, revealCorrect))
                         .toList());
     }
 
     public record OptionResponse(UUID id, String text, int orderIndex, Boolean correct) {
 
-        private static OptionResponse from(SessionAnswerOption option, boolean revealCorrect) {
+        private static OptionResponse from(OptionRead option, boolean revealCorrect) {
             return new OptionResponse(
-                    option.getId(),
-                    option.getText(),
-                    option.getOrderIndex(),
-                    revealCorrect ? option.isCorrect() : null);
+                    option.id(),
+                    option.text(),
+                    option.orderIndex(),
+                    revealCorrect ? option.correct() : null);
         }
     }
 }

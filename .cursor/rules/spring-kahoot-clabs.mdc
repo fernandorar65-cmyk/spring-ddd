@@ -5,10 +5,21 @@ alwaysApply: true
 # Spring Boot DDD + Clean Architecture Rules
 
 ## General Principles
+This project follows:
 
-This project follows Domain-Driven Design (DDD) and Clean Architecture.
+* Domain-Driven Design (DDD)
+* Clean Architecture
+* Hexagonal Architecture / Ports & Adapters
+* CQRS
 
-Every implementation MUST respect these rules.
+The system separates write operations from read operations.
+
+Current persistence strategy:
+
+* Commands / Writes → JPA → relational database
+* Queries / Reads → MongoDB
+
+Every implementation and architectural audit MUST respect these rules.
 
 ---
 
@@ -18,18 +29,24 @@ The project is organized by Bounded Contexts.
 
 Example:
 
-users/
-quizzes/
-organizations/
+identity/
+quiz/
+organization/
 gameplay/
 
-Each bounded context contains:
+Each bounded context may contain:
 
 domain/
 application/
 infrastructure/
 
-Never organize the project by controllers, services or repositories at the root level.
+Never organize the entire project globally by:
+
+controllers/
+services/
+repositories/
+
+Business capabilities and bounded contexts are the primary organizational boundary.
 
 ---
 
@@ -43,36 +60,39 @@ Application
 ↓
 Domain
 
-The Domain layer MUST NOT depend on:
+Domain MUST NOT depend on:
 
-- Spring Boot
-- Spring Data JPA
-- Spring Security
-- REST Controllers
-- DTOs
-- Hibernate
-- Database
-- External APIs
+* Spring Boot
+* Spring Data JPA
+* Spring Data MongoDB
+* Spring Security
+* REST Controllers
+* DTOs
+* Hibernate
+* MongoDB classes
+* Database technologies
+* External APIs
+* Infrastructure implementations
 
-The Domain layer must be pure Java.
+Domain must remain pure Java.
 
 ---
 
 # 3. Domain Layer
 
-The Domain contains business rules.
+Domain contains business concepts and business rules.
 
 Allowed:
 
-- Aggregates
-- Entities
-- Value Objects
-- Domain Services
-- Domain Events
-- Repository Interfaces
-- Specifications
-- Business Exceptions
-- Enums
+* Aggregate Roots
+* Entities
+* Value Objects
+* Domain Services
+* Domain Events
+* Write Repository Interfaces
+* Specifications
+* Business Exceptions
+* Enums
 
 Forbidden:
 
@@ -80,10 +100,11 @@ Forbidden:
 @Service
 @Repository
 @Entity
+@Document
 @Component
 @Autowired
 
-No Spring annotations are allowed inside Domain.
+No Spring, JPA, MongoDB or infrastructure annotations are allowed inside Domain.
 
 ---
 
@@ -91,31 +112,35 @@ No Spring annotations are allowed inside Domain.
 
 Not every Entity is an Aggregate Root.
 
-Only Aggregate Roots expose public behavior.
+Aggregate Roots define consistency boundaries.
 
-Child entities are modified only through their Aggregate Root.
+Child entities must be modified only through their Aggregate Root.
 
 Example:
 
 Quiz
- ├── Question
- └── AnswerOption
+├── Question
+└── AnswerOption
 
-Never modify Question directly.
-
-Always use:
+Correct:
 
 quiz.addQuestion(...)
 
-instead of
+quiz.updateQuestion(...)
 
-questionRepository.save(...)
+quiz.removeQuestion(...)
+
+Incorrect:
+
+questionRepository.save(question)
+
+Direct persistence of child entities outside their Aggregate Root is forbidden unless the domain explicitly defines them as independent aggregates.
 
 ---
 
 # 5. Rich Domain Model
 
-Entities must contain business behavior.
+Domain entities must express business behavior.
 
 Avoid anemic models.
 
@@ -125,7 +150,11 @@ user.changeEmail()
 
 quiz.publish()
 
-organization.suspend()
+quiz.addQuestion()
+
+organization.addMember()
+
+gameSession.start()
 
 Bad:
 
@@ -133,13 +162,17 @@ user.setEmail()
 
 quiz.setStatus()
 
+question.setCorrect(true)
+
+Business behavior should be expressed through meaningful domain methods.
+
 ---
 
 # 6. Value Objects
 
-Primitive obsession should be avoided.
+Avoid primitive obsession when a value has business meaning, validation or behavior.
 
-Prefer
+Prefer:
 
 Email
 
@@ -151,87 +184,498 @@ FullName
 
 EstimatedTime
 
-instead of raw String or Integer.
+Points
 
-Every Value Object validates itself.
+GamePin
+
+instead of raw String, Integer or BigDecimal when appropriate.
+
+Value Objects should generally:
+
+* be immutable
+* validate themselves
+* compare by value
+* have no persistence/framework dependencies
+
+Do not create Value Objects for every primitive without meaningful domain value.
 
 ---
 
-# 7. Repository Interfaces
+# 7. CQRS Separation
 
-Repository interfaces belong to Domain.
+Commands and Queries MUST remain conceptually separated.
 
-Example:
+## Command Side
+
+Commands modify system state.
+
+Flow:
+
+Controller
+↓
+Command
+↓
+Command Use Case
+↓
+Aggregate Root
+↓
+Write Repository Port
+↓
+JPA Adapter
+↓
+Relational Database
+
+Examples:
+
+CreateQuizCommand
+
+PublishQuizCommand
+
+AddQuestionCommand
+
+StartGameCommand
+
+SubmitAnswerCommand
+
+Commands MUST NOT:
+
+* return Mongo documents
+* query MongoDB as the source of truth for aggregate modification
+* bypass Aggregate Roots
+* contain persistence technology details
+
+The relational write model is the source of truth for commands unless explicitly documented otherwise.
+
+---
+
+## Query Side
+
+Queries only read state.
+
+Flow:
+
+Controller
+↓
+Query
+↓
+Query Use Case / Query Handler
+↓
+Query Port
+↓
+Mongo Adapter
+↓
+MongoDB
+
+Examples:
+
+GetQuizQuery
+
+ListQuizzesQuery
+
+SearchQuizzesQuery
+
+GetLeaderboardQuery
+
+Queries MUST NOT:
+
+* modify Aggregate Roots
+* execute business state transitions
+* call write repositories just to assemble read models unless explicitly justified
+* return JPA entities
+* expose Mongo documents directly to controllers
+
+Query results should return dedicated read DTOs / projections.
+
+---
+
+## MVP Query Exceptions (documented)
+
+Full target CQRS (Queries → Mongo) is **not** applied uniformly yet.
+
+**Intentional MVP exceptions** (read via write repository / JPA is allowed):
+
+* **identity** — `GetUserProfileUseCase`, `GetUserRolesUseCase` → `UserRepository`
+* **organization** — `GetOrganizationUseCase` → `OrganizationRepository`
+* **quiz categories** — `ListCategoriesUseCase`, `GetCategoryUseCase` → `CategoryRepository`
+
+Constraints for these exceptions:
+
+* Documented debt only — do not treat as the default pattern
+* Keep use cases read-only; map to application DTOs
+* Do **not** extend this exception to heavy listings (quizzes, sessions, search, leaderboards)
+* When Mongo read models exist for these areas, migrate and remove the exception
+
+Canonical detail: `docs/cqrs-mvp-exceptions.md`
+
+Already on Mongo read ports: quiz listings (`QuizReadPort`), game session list/get (`GameSessionReadModelPort`).
+
+---
+
+# 8. Write Repository Ports
+
+Repositories responsible for loading and saving Aggregate Roots belong to Domain.
+
+Examples:
 
 UserRepository
 
 QuizRepository
 
-Only Infrastructure provides implementations.
+OrganizationRepository
 
-Never implement persistence inside Domain.
+GameSessionRepository
+
+Their responsibility is persistence of Aggregate Roots required by the command side.
+
+Example:
+
+public interface QuizRepository {
+
+```
+Optional<Quiz> findById(UUID id);
+
+Quiz save(Quiz quiz);
+
+void delete(Quiz quiz);
+```
+
+}
+
+Repository interfaces must not expose:
+
+* JpaRepository
+* MongoRepository
+* EntityManager
+* JPA entities
+* Mongo documents
+* infrastructure-specific pagination objects
+
+Infrastructure provides their implementations.
 
 ---
 
-# 8. Application Layer
+# 9. Query Ports
 
-Application contains use cases.
+Read-side contracts belong to Application, not Domain, unless there is a strong domain reason.
+
+Recommended location:
+
+application/query/port/
+
+or:
+
+application/port/query/
 
 Examples:
 
-CreateUserUseCase
+QuizReadPort
 
-PublishQuizUseCase
+CategoryReadPort
 
-LoginUserUseCase
+LeaderboardReadPort
 
-Application orchestrates the Domain.
+OrganizationMemberReadPort
+
+Example:
+
+public interface QuizReadPort {
+
+```
+Optional<QuizDetailsView> findById(UUID quizId);
+
+PageResult<QuizSummaryView> search(QuizSearchCriteria criteria);
+```
+
+}
+
+Query Ports:
+
+* represent application read requirements
+* may return projections / read DTOs
+* do not return Aggregate Roots unless explicitly necessary
+* do not contain business behavior
+* do not know MongoDB
+
+MongoDB adapters implement these ports.
+
+---
+
+# 10. Application Layer
+
+Application contains orchestration.
+
+It may contain:
+
+* Commands
+* Queries
+* Command Use Cases
+* Query Use Cases / Query Handlers
+* DTOs
+* Application Ports
+* Read Ports
+* Mappers
+* Cross-context orchestration
+
+Application MUST NOT contain:
+
+* SQL
+* Mongo queries
+* JPA entities
+* Mongo documents
+* database-specific logic
+* core business invariants
 
 Business rules stay inside Domain.
 
-Application must not contain SQL or persistence logic.
+Application coordinates actions such as:
+
+* load Aggregate
+* invoke domain behavior
+* save Aggregate
+* invoke external ports
+* return response DTO
+* execute read-side queries
 
 ---
 
-# 9. Infrastructure Layer
+# 11. Infrastructure Layer
 
-Infrastructure contains:
+Infrastructure contains technological implementations.
+
+Examples:
 
 Controllers
 
-Persistence
-
 JPA
 
-Spring Configuration
+MongoDB
+
+Spring configuration
 
 Security
 
-External Services
+AWS S3
 
-Infrastructure implements Domain interfaces.
+External APIs
+
+Messaging
+
+Infrastructure implements Domain and Application ports.
+
+A bounded context may have separate write and read infrastructure.
+
+Recommended:
+
+infrastructure/
+├── controller/
+├── persistence/
+│   ├── jpa/
+│   │   ├── entity/
+│   │   ├── mapper/
+│   │   ├── repository/
+│   │   └── adapter/
+│   └── mongo/
+│       ├── document/
+│       ├── mapper/
+│       ├── repository/
+│       └── adapter/
+└── config/
 
 ---
 
-# 10. Persistence
+# 12. Write Persistence — JPA
 
-Persistence models are different from Domain models.
+JPA is used for the command/write model.
+
+Domain models and JPA models MUST remain separated.
 
 Use:
 
-UserEntity
+Quiz
+
+and:
 
 QuizEntity
 
-instead of annotating Domain classes with @Entity.
+Never annotate Domain objects with:
 
-Map between Domain and Persistence.
+@Entity
+
+@Table
+
+@OneToMany
+
+@ManyToOne
+
+Map explicitly between:
+
+Domain ↔ JPA Entity
+
+JPA adapters implement write repository ports.
+
+Example:
+
+QuizRepository
+↓
+JpaQuizRepositoryAdapter
+↓
+SpringDataQuizRepository
+↓
+PostgreSQL
+
+JPA entities are infrastructure details and MUST NOT leave Infrastructure.
 
 ---
 
-# 11. Shared Kernel
+# 13. Read Persistence — MongoDB
 
-Reusable concepts shared across bounded contexts belong in shared/.
+MongoDB is used for read models.
+
+Mongo documents are optimized for query performance and UX.
+
+They do NOT need to mirror Domain Aggregates or JPA tables.
+
+Use dedicated documents such as:
+
+QuizReadDocument
+
+QuizSummaryDocument
+
+LeaderboardDocument
+
+OrganizationMemberViewDocument
+
+MongoDB models may be denormalized when useful.
+
+Example:
+
+QuizReadPort
+↓
+MongoQuizReadAdapter
+↓
+SpringDataMongoQuizRepository
+↓
+MongoDB
+
+Mongo documents MUST NOT be used as Domain Entities.
+
+Mongo documents MUST NOT be passed directly to Controllers.
+
+Map them to Query DTOs / Read Models.
+
+---
+
+# 14. CQRS Read Models
+
+Read models are designed for queries, not domain consistency.
+
+It is acceptable for a Mongo read document to contain duplicated information such as:
+
+* quiz title
+* category name
+* organization name
+* question count
+* published status
+
+if this improves query performance.
+
+Do not force normalized relational design into MongoDB.
+
+Do not treat Mongo read documents as Aggregate Roots.
+
+---
+
+# 15. Synchronization Between Write and Read Models
+
+The project must explicitly define how PostgreSQL/JPA changes reach MongoDB.
+
+Possible mechanisms include:
+
+* synchronous projection after successful command
+* Domain Events
+* Application Events
+* transactional outbox
+* Kafka / messaging
+
+The audit MUST verify that read models cannot silently become stale without an explicit synchronization strategy.
+
+For the current project, do not introduce Kafka, Outbox or asynchronous infrastructure unless explicitly requested.
+
+If synchronization is currently synchronous, document it clearly.
+
+If Domain Events are used:
+
+Aggregate Root
+↓
+Domain Event
+↓
+Application / Event Handler
+↓
+Read Model Projection Port
+↓
+Mongo Adapter
+
+Read-model projection logic must not live inside Domain.
+
+---
+
+# 16. Ports and Adapters
+
+A Port defines WHAT the application needs.
+
+An Adapter defines HOW the technology fulfills that requirement.
+
+Examples:
+
+Write:
+
+QuizRepository
+↓
+JpaQuizRepositoryAdapter
+
+Read:
+
+QuizReadPort
+↓
+MongoQuizReadAdapter
+
+Storage:
+
+QuizAssetPort
+↓
+S3QuizAssetAdapter
+
+Authentication:
+
+PasswordHasher
+↓
+BcryptPasswordHasher
+
+Never name application/domain ports after a concrete technology.
+
+Bad:
+
+AwsQuizStoragePort
+
+MongoQuizPort
+
+PostgresQuizRepository
+
+Good:
+
+QuizAssetPort
+
+QuizReadPort
+
+QuizRepository
+
+Technology names belong to adapters.
+
+---
+
+# 17. Shared Kernel
+
+Reusable concepts shared across bounded contexts may belong in shared/.
 
 Examples:
 
@@ -241,73 +685,131 @@ BaseEntity
 
 DomainEvent
 
-BusinessException
+DomainException
 
 AuditableEntity
 
 Identifier
 
-Never duplicate these classes across modules.
+Technical shared infrastructure may also exist when genuinely cross-cutting, such as:
+
+S3 client configuration
+
+OpenAPI configuration
+
+global web error handling
+
+Do NOT move business concepts into shared simply because multiple contexts look similar.
+
+Shared must not become a generic dumping ground.
 
 ---
 
-# 12. Business Logic
+# 18. Business Logic
 
-Business logic belongs inside Domain.
+Business rules belong inside Domain.
 
-Controllers should only:
+Examples:
 
-Receive Request
+quiz.publish()
 
-Call Use Case
+gameSession.submitAnswer()
 
-Return Response
+organization.addMember()
 
-Repositories should only persist data.
+Domain determines whether actions are valid.
 
-They must not contain business rules.
+Use Cases coordinate:
+
+load
+↓
+execute behavior
+↓
+persist
+↓
+publish/project
+↓
+return
+
+Adapters must never make business decisions.
+
+Mongo query handlers must never implement write-side business rules.
 
 ---
 
-# 13. Constructors
+# 19. Domain Services
 
-Prefer static factory methods.
+Use a Domain Service only when important business logic does not naturally belong to a single Entity or Aggregate Root.
 
-Example:
+Examples:
+
+ScoreCalculator
+
+LeaderboardRankingPolicy
+
+Do NOT use Domain Services as a replacement for rich Aggregate behavior.
+
+Avoid generic classes such as:
+
+QuizService
+
+GameManager
+
+BusinessHelper
+
+unless they represent a real domain concept.
+
+---
+
+# 20. Constructors
+
+Prefer controlled creation.
+
+Examples:
 
 User.create(...)
 
 Quiz.create(...)
 
-instead of exposing complex constructors.
+GameSession.create(...)
+
+Use constructors directly only when they clearly preserve invariants.
+
+Rehydration from persistence may use dedicated factory / rehydrate methods when appropriate.
 
 ---
 
-# 14. Encapsulation
+# 21. Encapsulation
 
 Avoid public setters.
 
-Prefer explicit methods expressing business intent.
+Prefer explicit domain behavior.
 
-Example:
+Good:
 
-changeRole()
+quiz.publish()
 
-publish()
+quiz.archive()
 
-activate()
+user.changeEmail()
 
-deactivate()
+gameSession.start()
 
-instead of setStatus().
+Bad:
+
+quiz.setStatus(...)
+
+user.setEmail(...)
+
+gameSession.setStarted(true)
 
 ---
 
-# 15. Domain Events
+# 22. Domain Events
 
-Business events should be represented as Domain Events.
+Domain Events represent business facts that already happened.
 
-Example:
+Examples:
 
 UserCreatedEvent
 
@@ -315,15 +817,69 @@ QuizPublishedEvent
 
 GameStartedEvent
 
-Events describe something that already happened.
+GameFinishedEvent
+
+Events should be named in past tense.
+
+Events may be used to update Mongo read models, but Domain must not know MongoDB.
+
+Do not create events for every trivial field change.
 
 ---
 
-# 16. Naming
+# 23. Cross-Bounded-Context Communication
 
-Classes should express business concepts.
+Bounded Contexts should avoid directly importing another context's Aggregate Roots.
 
-Avoid names like:
+Prefer:
+
+* IDs
+* Application Ports
+* Anti-Corruption Layers
+* Domain/Application Events
+
+Example:
+
+Gameplay should not directly manipulate Quiz.
+
+Gameplay may use:
+
+QuizSnapshotPort
+
+to obtain a published quiz snapshot.
+
+Cross-context dependencies MUST be explicit and audited.
+
+---
+
+# 24. Controllers
+
+Controllers are input adapters.
+
+They should only:
+
+* receive HTTP input
+* validate transport-level input
+* map request → Command / Query
+* invoke Use Case
+* map response
+* return HTTP response
+
+Controllers MUST NOT:
+
+* call Spring Data repositories
+* execute Mongo queries
+* access JPA entities
+* contain domain business rules
+* modify Aggregate Roots directly
+
+---
+
+# 25. Naming
+
+Names must express business or architectural intent.
+
+Avoid:
 
 Utils
 
@@ -333,31 +889,115 @@ Helper
 
 Processor
 
+DataService
+
+GenericRepository
+
 Prefer:
 
 Quiz
 
 Organization
 
-Player
+GameSession
 
-Session
+ScoreCalculator
 
-Score
+QuizReadPort
 
-Leaderboard
+JpaQuizRepositoryAdapter
+
+MongoQuizReadAdapter
+
+PublishQuizUseCase
+
+GetQuizQuery
 
 ---
 
-# 17. Before Generating Code
+# 26. Audit Rules for CQRS
+
+When auditing the project, explicitly verify:
+
+### Command Side
+
+* Does every state-changing endpoint use a Command?
+* Does every Command reach a Command Use Case?
+* Does the Use Case modify state through Aggregate Root behavior?
+* Does it use a write Repository Port?
+* Is JPA hidden behind an Adapter?
+* Are child entities modified only through Aggregate Roots?
+
+### Query Side
+
+* Does every read endpoint use a Query?
+* Does the Query side use dedicated read ports where appropriate?
+* Are Mongo documents hidden inside Infrastructure?
+* Are query DTOs optimized for the client use case?
+* Are write Aggregate Roots avoided for heavy list/search operations?
+* Is MongoDB used only as a read model?
+
+### Synchronization
+
+* How is Mongo updated after JPA writes?
+* Is synchronization deterministic and documented?
+* Can a command succeed while Mongo remains stale?
+* Is eventual consistency intentional or accidental?
+* Are failures in read-model projection handled?
+
+### Infrastructure
+
+* Are JPA and Mongo implementations clearly separated?
+* Do adapters contain only technical translation/access logic?
+* Does any infrastructure model leak into Application or Domain?
+
+---
+
+# 27. Before Generating or Modifying Code
 
 Always ask:
 
-- Does this belong to Domain?
-- Does this belong to Application?
-- Does this belong to Infrastructure?
-- Is this business logic?
-- Am I leaking Spring into Domain?
-- Am I violating Aggregate boundaries?
+* Which bounded context owns this behavior?
+* Is this a Command or a Query?
+* Is this write-side or read-side?
+* Does this belong to Domain, Application or Infrastructure?
+* Is this business logic or orchestration?
+* Am I violating an Aggregate boundary?
+* Am I leaking JPA into Domain/Application?
+* Am I leaking MongoDB into Domain/Application?
+* Should this dependency be behind a Port?
+* Is the Port technology-agnostic?
+* Does this query really need to load an Aggregate?
+* Is the Mongo read model synchronized after writes?
+* Am I introducing unnecessary CQRS complexity?
 
-If the answer is yes, redesign before implementing.
+If an architectural violation is found, explain it before modifying the implementation.
+
+---
+
+# 28. Audit Output
+
+When explicitly asked to audit the project, DO NOT immediately refactor.
+
+First produce findings grouped by severity:
+
+CRITICAL
+
+HIGH
+
+MEDIUM
+
+LOW
+
+For every finding include:
+
+* Location
+* Current behavior
+* Violated rule
+* Why it matters
+* Recommended change
+* Whether it blocks the MVP
+
+Also identify correctly implemented patterns so the audit does not suggest unnecessary rewrites.
+
+The audit must prefer incremental corrections over large architectural rewrites.

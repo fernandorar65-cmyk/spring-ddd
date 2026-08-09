@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-// import kahoot.clabs.kahoot_clabs.identity.domain.event.UserCreatedEvent; // reserved: no publisher/consumers yet
 import kahoot.clabs.kahoot_clabs.identity.domain.entity.UserImages;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.Email;
 import kahoot.clabs.kahoot_clabs.identity.domain.valueobject.FullName;
@@ -63,8 +62,6 @@ public class User extends AggregateRoot {
                 hashedPassword,
                 null,
                 null);
-        // Domain event prepared but not wired (no pullDomainEvents / publisher / listeners yet).
-        // user.registerEvent(new UserCreatedEvent(user.getId(), user.email.value()));
         return user;
     }
 

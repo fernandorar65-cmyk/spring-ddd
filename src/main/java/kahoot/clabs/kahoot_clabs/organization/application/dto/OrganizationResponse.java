@@ -3,6 +3,7 @@ package kahoot.clabs.kahoot_clabs.organization.application.dto;
 import java.util.List;
 import java.util.UUID;
 
+import kahoot.clabs.kahoot_clabs.organization.application.readmodel.OrganizationReadModel;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 
 public record OrganizationResponse(
@@ -29,6 +30,26 @@ public record OrganizationResponse(
                 organization.getStatus().name(),
                 organization.getMembers().stream()
                         .map(OrganizationMemberResponse::from)
+                        .toList());
+    }
+
+    public static OrganizationResponse from(OrganizationReadModel readModel) {
+        return new OrganizationResponse(
+                readModel.id(),
+                readModel.name(),
+                readModel.slug(),
+                readModel.description(),
+                readModel.logo(),
+                readModel.timezone(),
+                readModel.language(),
+                readModel.status(),
+                readModel.members().stream()
+                        .map(member -> new OrganizationMemberResponse(
+                                member.id(),
+                                member.userId(),
+                                member.roleId(),
+                                member.status(),
+                                member.joinedAt()))
                         .toList());
     }
 }

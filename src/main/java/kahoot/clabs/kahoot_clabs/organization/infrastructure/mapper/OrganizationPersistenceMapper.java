@@ -5,7 +5,7 @@ import java.util.List;
 import kahoot.clabs.kahoot_clabs.organization.domain.aggregate.Organization;
 import kahoot.clabs.kahoot_clabs.organization.domain.entity.OrganizationMember;
 import kahoot.clabs.kahoot_clabs.organization.domain.valueobject.OrganizationStatus;
-import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.OrganizationEntity;
+import kahoot.clabs.kahoot_clabs.organization.infrastructure.persistence.jpa.OrganizationEntity;
 
 public final class OrganizationPersistenceMapper {
 
