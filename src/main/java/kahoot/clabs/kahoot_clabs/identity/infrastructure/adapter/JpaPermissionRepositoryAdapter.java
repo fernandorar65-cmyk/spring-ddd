@@ -20,13 +20,13 @@ public class JpaPermissionRepositoryAdapter implements PermissionRepository {
     // recordar pasar a distintos ports
 
     private final PermissionJpaRepository jpaRepository;
-    private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
+    // private final ObjectProvider<RoleProjectionPort> roleProjectionPort;
 
     public JpaPermissionRepositoryAdapter(
             PermissionJpaRepository jpaRepository,
             ObjectProvider<RoleProjectionPort> roleProjectionPort) {
         this.jpaRepository = jpaRepository;
-        this.roleProjectionPort = roleProjectionPort;
+        // this.roleProjectionPort = roleProjectionPort;
     }
 
     @Override

@@ -23,7 +23,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
 
     private final OrganizationJpaRepository jpaRepository;
     private final OrganizationMemberJpaRepository memberJpaRepository;
-    private final ObjectProvider<OrganizationProjectionPort> organizationProjectionPort;
+    // private final ObjectProvider<OrganizationProjectionPort> organizationProjectionPort;
 
     public JpaOrganizationRepositoryAdapter(
             OrganizationJpaRepository jpaRepository,
@@ -31,7 +31,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
             ObjectProvider<OrganizationProjectionPort> organizationProjectionPort) {
         this.jpaRepository = jpaRepository;
         this.memberJpaRepository = memberJpaRepository;
-        this.organizationProjectionPort = organizationProjectionPort;
+        // this.organizationProjectionPort = organizationProjectionPort;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class JpaOrganizationRepositoryAdapter implements OrganizationRepository 
     public void delete(Organization organization) {
         memberJpaRepository.deleteByOrganizationId(organization.getId());
         jpaRepository.deleteById(organization.getId());
-        organizationProjectionPort.ifAvailable(port -> port.deleteById(organization.getId()));
+        // organizationProjectionPort.ifAvailable(port -> port.deleteById(organization.getId()));
     }
 
     private Organization toAggregate(OrganizationEntity entity) {

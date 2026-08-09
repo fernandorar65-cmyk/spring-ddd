@@ -18,19 +18,20 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.SpringCa
 public class JpaCategoryRepositoryAdapter implements CategoryRepository {
 
     private final SpringCategoryJpaRepository springDataRepository;
-    private final ObjectProvider<CategoryProjectionPort> categoryProjectionPort;
+    // private final ObjectProvider<CategoryProjectionPort> categoryProjectionPort;
 
     public JpaCategoryRepositoryAdapter(
-            SpringCategoryJpaRepository springDataRepository,
-            ObjectProvider<CategoryProjectionPort> categoryProjectionPort) {
+            SpringCategoryJpaRepository springDataRepository
+            // ObjectProvider<CategoryProjectionPort> categoryProjectionPort
+        ) {
         this.springDataRepository = springDataRepository;
-        this.categoryProjectionPort = categoryProjectionPort;
+        // this.categoryProjectionPort = categoryProjectionPort;
     }
 
     @Override
     public Category save(Category category) {
         Category saved = CategoryMapper.toDomain(springDataRepository.save(CategoryMapper.toEntity(category)));
-        categoryProjectionPort.ifAvailable(port -> port.save(CategoryReadModels.from(saved)));
+        // categoryProjectionPort.ifAvailable(port -> port.save(CategoryReadModels.from(saved)));
         return saved;
     }
 
@@ -56,12 +57,12 @@ public class JpaCategoryRepositoryAdapter implements CategoryRepository {
     @Override
     public void delete(Category category) {
         springDataRepository.deleteById(category.getId());
-        categoryProjectionPort.ifAvailable(port -> port.deleteById(category.getId()));
+        // categoryProjectionPort.ifAvailable(port -> port.deleteById(category.getId()));
     }
 
     @Override
     public void deleteById(UUID id) {
         springDataRepository.deleteById(id);
-        categoryProjectionPort.ifAvailable(port -> port.deleteById(id));
+        // categoryProjectionPort.ifAvailable(port -> port.deleteById(id));
     }
 }

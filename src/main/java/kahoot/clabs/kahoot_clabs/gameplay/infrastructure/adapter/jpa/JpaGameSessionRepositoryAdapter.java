@@ -24,7 +24,7 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
 
     private final GameSessionJpaRepository sessionRepository;
     private final PlayerAnswerJpaRepository answerRepository;
-    private final ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort;
+    // private final ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort;
 
     public JpaGameSessionRepositoryAdapter(
             GameSessionJpaRepository sessionRepository,
@@ -32,7 +32,7 @@ public class JpaGameSessionRepositoryAdapter implements GameSessionRepository {
             ObjectProvider<GameSessionReadModelPort> gameSessionReadModelPort) {
         this.sessionRepository = sessionRepository;
         this.answerRepository = answerRepository;
-        this.gameSessionReadModelPort = gameSessionReadModelPort;
+        // this.gameSessionReadModelPort = gameSessionReadModelPort;
     }
 
     @Override

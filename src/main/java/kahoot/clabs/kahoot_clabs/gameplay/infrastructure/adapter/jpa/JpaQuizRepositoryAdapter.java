@@ -17,19 +17,19 @@ import kahoot.clabs.kahoot_clabs.gameplay.infrastructure.repository.jpa.SpringQu
 public class JpaQuizRepositoryAdapter implements QuizRepository {
 
     private final SpringQuizJpaRepository springDataJpaRepository;
-    private final ObjectProvider<QuizProjectionPort> quizProjectionPort;
+    // private final ObjectProvider<QuizProjectionPort> quizProjectionPort;
 
     public JpaQuizRepositoryAdapter(
             SpringQuizJpaRepository springDataJpaRepository,
             ObjectProvider<QuizProjectionPort> quizProjectionPort) {
         this.springDataJpaRepository = springDataJpaRepository;
-        this.quizProjectionPort = quizProjectionPort;
+        // this.quizProjectionPort = quizProjectionPort;
     }
 
     @Override
     public Quiz save(Quiz quiz) {
         Quiz saved = QuizMapper.toDomain(springDataJpaRepository.save(QuizMapper.toEntity(quiz)));
-        quizProjectionPort.ifAvailable(port -> port.save(QuizReadModels.from(saved)));
+        // quizProjectionPort.ifAvailable(port -> port.save(QuizReadModels.from(saved)));
         return saved;
     }
 
@@ -51,12 +51,12 @@ public class JpaQuizRepositoryAdapter implements QuizRepository {
     @Override
     public void delete(Quiz quiz) {
         springDataJpaRepository.delete(QuizMapper.toEntity(quiz));
-        quizProjectionPort.ifAvailable(port -> port.deleteById(quiz.getId()));
+        // quizProjectionPort.ifAvailable(port -> port.deleteById(quiz.getId()));
     }
 
     @Override
     public void deleteById(UUID id) {
         springDataJpaRepository.deleteById(id);
-        quizProjectionPort.ifAvailable(port -> port.deleteById(id));
+        // quizProjectionPort.ifAvailable(port -> port.deleteById(id));
     }
 }
